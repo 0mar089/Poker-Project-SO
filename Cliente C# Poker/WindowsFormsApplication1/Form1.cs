@@ -21,7 +21,7 @@ namespace WindowsFormsApplication1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            button6.Visible = false;
            
         }
 
@@ -30,7 +30,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse(IP.Text);
-            IPEndPoint ipep = new IPEndPoint(direc, 9000);
+            IPEndPoint ipep = new IPEndPoint(direc, 9070);
             
 
             //Creamos el socket 
@@ -62,8 +62,11 @@ namespace WindowsFormsApplication1
             int bytesRecibidos = server.Receive(msg2);
             string respuesta = Encoding.ASCII.GetString(msg2, 0, bytesRecibidos).Trim('\0');  // Limpiar la respuesta
 
-            if (respuesta == "REGISTERED")
+            if (respuesta == "REGISTERED") {
                 MessageBox.Show("Registro exitoso.");
+                button6.Visible = true;
+            }
+                
             else
                 MessageBox.Show("Error en el registro.");
         }
@@ -79,8 +82,11 @@ namespace WindowsFormsApplication1
             int bytesRecibidos = server.Receive(msg2);
             string respuesta = Encoding.ASCII.GetString(msg2, 0, bytesRecibidos).Trim('\0');  // Limpiar la respuesta
 
-            if (respuesta == "LOGGED_IN")
+            if (respuesta == "LOGGED_IN") {
                 MessageBox.Show("Inicio de sesión exitoso.");
+                button6.Visible = true;
+            }
+                
             else if (respuesta == "ERROR AL INSERTAR EL NUEVO USUARIO")
                 MessageBox.Show("ERROR AL INSERTAR EL NUEVO USUARIO");
             else if (respuesta == "ERROR USUARIO CON LA MISMA CUENTA")
@@ -151,7 +157,6 @@ namespace WindowsFormsApplication1
             string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec);
             MessageBox.Show("Luis ha ganado en la(s) siguiente(s) mesa(s): " + respuesta);
 
-
             string mensaje_adios = "0/";
 
             byte[] msg_adios = System.Text.Encoding.ASCII.GetBytes(mensaje_adios);
@@ -212,7 +217,6 @@ namespace WindowsFormsApplication1
             string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec);
             MessageBox.Show("Último ganador en la mesa 2: " + respuesta);
 
-
             string mensaje_adios = "0/";
 
             byte[] msg_adios = System.Text.Encoding.ASCII.GetBytes(mensaje_adios);
@@ -223,5 +227,46 @@ namespace WindowsFormsApplication1
             server.Shutdown(SocketShutdown.Both);
             server.Close();
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            // Preparamos el mensaje para solicitar la lista de conectados
+            string mensaje = "DAME_CONECTADOS/";
+
+            // Convertimos el mensaje a bytes
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+
+            // Verificamos la conexión al servidor
+            if (!server.Connected) {
+                MessageBox.Show("No estás conectado al servidor.");
+                return;
+            }
+
+            try {
+                // Enviamos el mensaje al servidor
+                server.Send(msg);
+
+                // Recibimos la respuesta del servidor
+                byte[] buffer = new byte[512]; // Aumentamos el tamaño del buffer
+                int bytesRec = server.Receive(buffer);
+
+                // Convertimos el buffer a string y mostramos la respuesta
+                string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec).Trim('\0'); // Limpiar el string
+
+                // Separa los nombres en una lista
+                List<string> nombresConectados = respuesta.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                // Creamos una instancia del nuevo formulario "ListaConectados"
+                ListaConectados listaConectadosForm = new ListaConectados();
+                listaConectadosForm.SetConectados(nombresConectados);
+
+                // Mostramos el nuevo formulario
+                listaConectadosForm.Show();
+            }
+            catch (SocketException ex) {
+                MessageBox.Show("Error al enviar o recibir el mensaje: " + ex.Message);
+            }
+        }
+
     }
 }
