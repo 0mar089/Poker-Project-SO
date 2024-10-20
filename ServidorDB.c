@@ -86,11 +86,11 @@ void DameConectados(ListaConectados *lista, char conectados[300]) {
 		sprintf(conectados, "%s/%s", conectados, lista->conectados[i].nombre);
 }
 
+pthread_mutex_t mutexLista = PTHREAD_MUTEX_INITIALIZER;
+ListaConectados conectados;
 
 
-// Definimos la funcion que maneja cada cliente en un hilo independiente
 void* AtenderCliente(void* socket_desc);
-
 
 // Funcion que ejecuta scripts SQL
 void EjecutarScript(MYSQL *conn, const char *filename) {
@@ -128,6 +128,7 @@ void EjecutarScript(MYSQL *conn, const char *filename) {
 int main(int argc, char *argv[]) {
 	
 	// Inicializar MySQL
+	conectados.num = 0;
 	MYSQL *conn;
 	conn = mysql_init(NULL);
 	if (conn == NULL) {
@@ -169,7 +170,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(9070);
+	serv_adr.sin_port = htons(9130);
 	
 	
 	
@@ -207,8 +208,6 @@ int main(int argc, char *argv[]) {
 void* AtenderCliente(void* socket_desc) {
 	int sock_conn = *(int*)socket_desc;
 	free(socket_desc);  // Liberar memoria
-	ListaConectados conectados;
-	conectados.num=0;
 	
 	MYSQL *conn;
 	conn = mysql_init(NULL);
@@ -294,8 +293,9 @@ void* AtenderCliente(void* socket_desc) {
 							strcpy(response, "ERROR AL INSERTAR EL NUEVO USUARIO");
 						} else {
 							strcpy(response, "REGISTERED");
+							pthread_mutex_lock(&mutexLista);							
 							AddPlayer(&conectados, nombre, sock_conn);
-							
+							pthread_mutex_unlock(&mutexLista);
 						}
 					}
 				}
@@ -322,8 +322,30 @@ void* AtenderCliente(void* socket_desc) {
 			} else if (mysql_num_rows(res) > 0) {
 				char nombre[20];
 				strcpy(response, "LOGGED_IN\0");
-				sprintf(nombre, "SELECT nombre FROM Jugadores WHERE cuenta='%s' AND contrasenya='%s';", cuenta, contrasenya);
-				AddPlayer(&conectados, nombre, sock_conn);
+				
+				// Ejecutar la consulta para obtener el nombre
+				char query_nombre[100];
+				sprintf(query_nombre, "SELECT nombre FROM Jugadores WHERE cuenta='%s' AND contrasenya='%s';", cuenta, contrasenya);
+				if (mysql_query(conn, query_nombre)) {
+					printf("FAILED QUERY");
+				} 
+				else {
+					MYSQL_RES *res = mysql_store_result(conn);
+					if (res && mysql_num_rows(res) > 0) {
+						MYSQL_ROW row = mysql_fetch_row(res);
+						strcpy(nombre, row[0]); // Asignar el nombre obtenido de la consulta a la variable nombre
+						mysql_free_result(res);
+						// Agregar el jugador a la lista de conectados
+						pthread_mutex_lock(&mutexLista);						
+						AddPlayer(&conectados, nombre, sock_conn);
+						pthread_mutex_unlock(&mutexLista);
+						// Obtener y mostrar la lista de conectados
+						char Misconectados[300];
+						DameConectados(&conectados, Misconectados);
+						printf("Resultado: %s\n", Misconectados);
+					}
+				}		
+				
 			} else {
 				strcpy(response, "LOGIN_FAILED\0");
 			}
@@ -418,7 +440,7 @@ void* AtenderCliente(void* socket_desc) {
 		write(sock_conn, response, strlen(response) + 1);  // Enviar el mensaje al cliente
 	}
 	if (strcmp(p, "ULTIMO_GANADOR_MESA2") == 0) {
-		// Consulta para obtener el ID del ganador de la ??\u0192???ltima partida en la mesa 2
+		// Consulta para obtener el ID del ganador de la ultima partida en la mesa 2
 		sprintf(response, "SELECT ganador FROM Historial WHERE id_mesa=2 ORDER BY date_id DESC LIMIT 1;");
 		
 		if (mysql_query(conn, response)) {
@@ -449,7 +471,7 @@ void* AtenderCliente(void* socket_desc) {
 							if (row_nombre[0] != NULL) {
 								strcpy(response, row_nombre[0]);  // Guardamos el nombre del ganador
 							} else {
-								strcpy(response, "No se encontr??\u0192??? al ganador.");
+								strcpy(response, "No se encontro al ganador.");
 							}
 							mysql_free_result(res_nombre);
 						}
@@ -465,12 +487,13 @@ void* AtenderCliente(void* socket_desc) {
 	}
 	else if(strcmp(p, "DAME_CONECTADOS") == 0) {
 		printf("Dame conectados");
-		char *nombre[300];
-		DameConectados(&conectados, nombre);
-		strcpy(response, *nombre);
+		char Misconectados[300];
+		DameConectados(&conectados, Misconectados);
+		strcpy(response, Misconectados);
 		
 	}
 	
+	printf("1111");
 	write(sock_conn, response, strlen(response) + 1);  // Enviar el tama??o de la cadena incluyendo el \0
 	close(sock_conn);  // Cierra la conexi??n individual
 	mysql_close(conn);

@@ -30,7 +30,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse(IP.Text);
-            IPEndPoint ipep = new IPEndPoint(direc, 9070);
+            IPEndPoint ipep = new IPEndPoint(direc, 9130);
             
 
             //Creamos el socket 
@@ -216,16 +216,21 @@ namespace WindowsFormsApplication1
             // Convertimos el buffer a string y mostramos la respuesta
             string respuesta = Encoding.ASCII.GetString(buffer, 0, bytesRec);
             MessageBox.Show("Último ganador en la mesa 2: " + respuesta);
+            if (server != null && server.Connected) {
+                string mensaje_adios = "0/";
 
-            string mensaje_adios = "0/";
+                byte[] msg_adios = System.Text.Encoding.ASCII.GetBytes(mensaje_adios);
+                server.Send(msg_adios);
 
-            byte[] msg_adios = System.Text.Encoding.ASCII.GetBytes(mensaje_adios);
-            server.Send(msg_adios);
-
-            // Nos desconectamos
-            this.BackColor = Color.Gray;
-            server.Shutdown(SocketShutdown.Both);
-            server.Close();
+                // Nos desconectamos
+                this.BackColor = Color.Gray;
+                server.Shutdown(SocketShutdown.Both);
+                server.Close();
+            }
+            else {
+                MessageBox.Show("No estás conectado al servidor.");
+            }
+            
         }
 
         private void button6_Click(object sender, EventArgs e)
@@ -247,7 +252,7 @@ namespace WindowsFormsApplication1
                 server.Send(msg);
 
                 // Recibimos la respuesta del servidor
-                byte[] buffer = new byte[512]; // Aumentamos el tamaño del buffer
+                byte[] buffer = new byte[2048]; // Aumentamos el tamaño del buffer
                 int bytesRec = server.Receive(buffer);
 
                 // Convertimos el buffer a string y mostramos la respuesta
