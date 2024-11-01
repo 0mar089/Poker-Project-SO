@@ -153,7 +153,7 @@ void EjecutarScript(MYSQL *conn, const char *filename) {
 			query[0] = '\0';
 		}
 	}
-	if(file_executed) printf("Script de la base de datos ejecutado");
+	if(file_executed) printf("Script de la base de datos ejecutado \n");
 	fclose(file);
 }
 
@@ -260,6 +260,9 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 	}
 }
 
+int socket_num;
+int sockets[300];
+
 void* AtenderCliente(void* socket_desc) {
 	int sock_conn = *(int*)socket_desc;
 	free(socket_desc);
@@ -269,9 +272,9 @@ void* AtenderCliente(void* socket_desc) {
 	mysql_select_db(conn, "PokerDB");
 	char buff[512];
 	char response[512];
+	int stop = 0;
 	
-	
-	while(1) {
+	while(stop == 0) {
 		int ret = read(sock_conn, buff, sizeof(buff));
 		if (ret > 0) {
 			buff[ret] = '\0';
@@ -280,6 +283,7 @@ void* AtenderCliente(void* socket_desc) {
 		else {
 			printf("Error al recibir datos\n");
 			close(sock_conn);
+			stop = 1;
 			return 0;
 		}
 		char *p = strtok(buff, "/");
@@ -295,9 +299,9 @@ void* AtenderCliente(void* socket_desc) {
 			EliminarWithSocket(&conectados, sock_conn);
 			pthread_mutex_unlock(&mutexLista);
 			
-			printf("11111");
 			
 			close(sock_conn);
+			stop = 1;
 			return 0;
 		}
 		else if (strcmp(p, "REGISTER") == 0) {
@@ -316,16 +320,21 @@ void* AtenderCliente(void* socket_desc) {
 			DameConectados(&conectados, Misconectados);
 			strcpy(response, Misconectados);
 		}
+		else if(strcmp(p, "UPDATE_CONECTADOS") == 0) {
+			char notificacion[900];
+			int j;
+			for (j = 0; j<socket_num; j++) {
+				
+				write (sockets[j], notificacion, strlen(notificacion));
+				
+			}
+			
+		}
 		write(sock_conn, response, strlen(response) + 1);
 	}
-	
 	mysql_close(conn);
 	return 0;
 }
-
-
-
-
 
 
 int main(int argc, char *argv[]) {
@@ -373,7 +382,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(9300);
+	serv_adr.sin_port = htons(9340);
 	
 	
 	
@@ -384,20 +393,19 @@ int main(int argc, char *argv[]) {
 	
 	printf("Servidor a la espera...\n");
 	
+	pthread_t thread;
+	socket_num = 0;
 	while (1) {
 		sock_conn = accept(sock_listen, NULL, NULL);
 		printf("Conexion recibida\n");
 		
-		// Crear un nuevo hilo para manejar esta conexi??n
-		pthread_t thread;
 		int* new_sock = malloc(sizeof(int));
 		*new_sock = sock_conn;
 		
-		if (pthread_create(&thread, NULL, AtenderCliente, (void*)new_sock) < 0) {
-			perror("No se pudo crear el hilo");
-			return 1;
-		}
 		
+		sockets[socket_num] = sock_conn;
+		pthread_create(&thread, NULL, AtenderCliente, &sockets[socket_num]);
+		socket_num=socket_num+1;
 		// El hilo se encarga de liberar los recursos, por lo que no necesitamos esperar a que termine
 		pthread_detach(thread);
 	}

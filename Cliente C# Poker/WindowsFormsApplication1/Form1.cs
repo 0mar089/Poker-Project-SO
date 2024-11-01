@@ -8,12 +8,14 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
     {
         Socket server;
+        Thread atender;
         public Form1()
         {
             InitializeComponent();
@@ -21,16 +23,40 @@ namespace WindowsFormsApplication1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            button6.Visible = false;
            
         }
 
-        private void button1_Click(object sender, EventArgs e)
+
+        private void AtenderServidor()
+        {
+            while (true) {
+                byte[] msg = new byte[80];
+                server.Receive(msg);
+                string mensaje = Encoding.ASCII.GetString(msg);
+                string[] nombresConectados = mensaje.Split(new[] { '/' } , StringSplitOptions.RemoveEmptyEntries); // Parto el string
+                DataTable dt = new DataTable();
+                dt.Columns.Add("Nombre");
+
+                if (nombresConectados.Length == 0) {
+                    MessageBox.Show("No hay gente conectada");
+                }
+                else {
+                    for (int i = 1; i < nombresConectados.Length; i++) {
+                        dt.Rows.Add(nombresConectados[i]);
+                    }
+                    dataGridViewConectados.DataSource = dt;
+                }
+            }
+        }
+
+        // CONECTARSE AL SERVIDOR
+
+        private void Conectar_Click(object sender, EventArgs e)
         {
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse(IP.Text);
-            IPEndPoint ipep = new IPEndPoint(direc, 9300);
+            IPEndPoint ipep = new IPEndPoint(direc, 9340);
             
 
             //Creamos el socket 
@@ -49,6 +75,9 @@ namespace WindowsFormsApplication1
                 return;
             }
 
+            // pongo en marcha en thread que atenderá los mensajes del servidor
+
+
         }
 
         // Botón para registrar
@@ -65,7 +94,9 @@ namespace WindowsFormsApplication1
 
                 if (respuesta == "REGISTERED") {
                     MessageBox.Show("Registro exitoso.");
-                    button6.Visible = true;
+                    ThreadStart ts = delegate { AtenderServidor(); };
+                    atender = new Thread(ts);
+                    atender.Start();
                 }
 
                 else
@@ -92,7 +123,9 @@ namespace WindowsFormsApplication1
 
                 if (respuesta == "LOGGED_IN") {
                     MessageBox.Show("Inicio de sesión exitoso.");
-                    button6.Visible = true;
+                    ThreadStart ts = delegate { AtenderServidor(); };
+                    atender = new Thread(ts);
+                    atender.Start();
                 }
 
                 else if (respuesta == "ERROR AL INSERTAR EL NUEVO USUARIO")
@@ -110,89 +143,87 @@ namespace WindowsFormsApplication1
 
         private void Desconectar_Click(object sender, EventArgs e)
         {
-            try {
-                string mensaje = "0/";
 
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
+            string mensaje = "0/";
 
-                // Nos desconectamos
-                this.BackColor = Color.Gray;
-                server.Shutdown(SocketShutdown.Both);
-                server.Close();
-            }
-            catch(Exception ex) {
-                MessageBox.Show("Desconectado...");
-                this.BackColor = Color.Gray;
-            }
-            
-          
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            // Nos desconectamos
+            this.BackColor = Color.Gray;
+            server.Shutdown(SocketShutdown.Both);
+
+            atender.Abort();
+            MessageBox.Show("Desconectando...");
+
+            this.BackColor = Color.Gray;
+            server.Close();
         }
 
         public void Desconnect()
         {
-            try {
-                string mensaje = "0/";
 
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
+            string mensaje = "0/";
 
-                // Nos desconectamos
-                this.BackColor = Color.Gray;
-                server.Shutdown(SocketShutdown.Both);
-                server.Close();
-            }
-            catch (Exception ex) {
-                MessageBox.Show("Desconectado...");
-                this.BackColor = Color.Gray;
-            }
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
+            // Nos desconectamos
+            this.BackColor = Color.Gray;
+            server.Shutdown(SocketShutdown.Both);
+
+            atender.Abort();
+            MessageBox.Show("Desconectando...");
+
+            this.BackColor = Color.Gray;
+            server.Close();
         }
 
 
 
-        private void button6_Click(object sender , EventArgs e)
-        {
-            try {
+        //private void button6_Click(object sender , EventArgs e)
+        //{
+        //    try {
 
-                string mensaje = "DAME_CONECTADOS/";
+        //        string mensaje = "DAME_CONECTADOS/";
 
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        //        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
 
-                if (!server.Connected) {
-                    MessageBox.Show("No estás conectado al servidor.");
-                    return;
-                }
+        //        if (!server.Connected) {
+        //            MessageBox.Show("No estás conectado al servidor.");
+        //            return;
+        //        }
 
-                server.Send(msg);
+        //        server.Send(msg);
 
-                byte[] buffer = new byte[2048]; 
-                int bytesRec = server.Receive(buffer);
+        //        byte[] buffer = new byte[2048]; 
+        //        int bytesRec = server.Receive(buffer);
 
-                string respuesta = Encoding.ASCII.GetString(buffer , 0 , bytesRec).Trim('\0'); // Limpiar el string
+        //        string respuesta = Encoding.ASCII.GetString(buffer , 0 , bytesRec).Trim('\0'); // Limpiar el string
 
-                // Separa los nombres en un array de strings
-                string[] nombresConectados = respuesta.Split(new[] { '/' } , StringSplitOptions.RemoveEmptyEntries);
+        //        // Separa los nombres en un array de strings
+        //        string[] nombresConectados = respuesta.Split(new[] { '/' } , StringSplitOptions.RemoveEmptyEntries);
 
-                DataTable dt = new DataTable();
 
-                dt.Columns.Add("Nombre");
+        //        DataTable dt = new DataTable();
+        //        dt.Columns.Add("Nombre");
 
-                if(nombresConectados.Length == 0) {
-                    MessageBox.Show("No hay gente conectada");
-                }
-                else {
-                    for(int i = 0; i< nombresConectados.Length; i++) {
-                        dt.Rows.Add(nombresConectados[i]);
-                    }
-                    dataGridViewConectados.DataSource = dt;
-                }
+        //        if(nombresConectados.Length == 0) {
+        //            MessageBox.Show("No hay gente conectada");
+        //        }
+        //        else {
+        //            for(int i = 1; i< nombresConectados.Length; i++) {
+        //                dt.Rows.Add(nombresConectados[i]);
+        //            }
+        //            dataGridViewConectados.DataSource = dt;
+        //        }
 
-            }
-            catch (Exception ex) {
-                MessageBox.Show("Error: " + ex.Message);
-                Desconnect(); 
-            }
-        }
+        //    }
+        //    catch (Exception ex) {
+        //        MessageBox.Show("Error: " + ex.Message);
+        //        Desconnect(); 
+        //    }
+        //}
 
 
     }

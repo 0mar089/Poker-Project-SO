@@ -1,7 +1,5 @@
-﻿namespace WindowsFormsApplication1
-{
-    partial class Form1
-    {
+﻿namespace WindowsFormsApplication1 {
+    partial class Form1 {
         /// <summary>
         /// Variable del diseñador requerida.
         /// </summary>
@@ -13,8 +11,7 @@
         /// <param name="disposing">true si los recursos administrados se deben eliminar; false en caso contrario, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -30,7 +27,7 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.IP = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.Conectar = new System.Windows.Forms.Button();
             this.buttonRegister = new System.Windows.Forms.Button();
             this.buttonLogin = new System.Windows.Forms.Button();
             this.nombre = new System.Windows.Forms.TextBox();
@@ -40,11 +37,6 @@
             this.cuenta = new System.Windows.Forms.TextBox();
             this.contraseña = new System.Windows.Forms.TextBox();
             this.Desconectar = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
             this.dataGridViewConectados = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConectados)).BeginInit();
             this.SuspendLayout();
@@ -69,16 +61,16 @@
             this.IP.TabIndex = 2;
             this.IP.Text = "192.168.56.102";
             // 
-            // button1
+            // Conectar
             // 
-            this.button1.Location = new System.Drawing.Point(383, 57);
-            this.button1.Margin = new System.Windows.Forms.Padding(4);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(112, 38);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "conectar";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.Conectar.Location = new System.Drawing.Point(383, 57);
+            this.Conectar.Margin = new System.Windows.Forms.Padding(4);
+            this.Conectar.Name = "Conectar";
+            this.Conectar.Size = new System.Drawing.Size(112, 38);
+            this.Conectar.TabIndex = 4;
+            this.Conectar.Text = "conectar";
+            this.Conectar.UseVisualStyleBackColor = true;
+            this.Conectar.Click += new System.EventHandler(this.Conectar_Click);
             // 
             // buttonRegister
             // 
@@ -158,44 +150,6 @@
             this.Desconectar.UseVisualStyleBackColor = true;
             this.Desconectar.Click += new System.EventHandler(this.Desconectar_Click);
             // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(0, 0);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 22;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(0, 0);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
-            this.button3.TabIndex = 21;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(0, 0);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 20;
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(0, 0);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 19;
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(481, 475);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(152, 50);
-            this.button6.TabIndex = 18;
-            this.button6.Text = "Lista de Conectados";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
-            // 
             // dataGridViewConectados
             // 
             this.dataGridViewConectados.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -212,11 +166,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(988, 692);
             this.Controls.Add(this.dataGridViewConectados);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.Desconectar);
             this.Controls.Add(this.contraseña);
             this.Controls.Add(this.cuenta);
@@ -226,7 +175,7 @@
             this.Controls.Add(this.nombre);
             this.Controls.Add(this.buttonLogin);
             this.Controls.Add(this.buttonRegister);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.Conectar);
             this.Controls.Add(this.IP);
             this.Controls.Add(this.label1);
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -243,7 +192,7 @@
 
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox IP;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button Conectar;
         private System.Windows.Forms.Button buttonRegister;
         private System.Windows.Forms.Button buttonLogin;
         private System.Windows.Forms.TextBox nombre;
@@ -253,11 +202,6 @@
         private System.Windows.Forms.TextBox cuenta;
         private System.Windows.Forms.TextBox contraseña;
         private System.Windows.Forms.Button Desconectar;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
         private System.Windows.Forms.DataGridView dataGridViewConectados;
     }
 }
