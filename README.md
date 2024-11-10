@@ -1,19 +1,22 @@
-# Poker-Project-SO
+# Poker-Project-SO - Documentación de Versiones
 
-Version 1 PROYECTO 
-URL Youtube: https://www.youtube.com/watch?v=uQp3AUzeZZ0 --> Grabada por Omar
+## Versión 1 - Proyecto Inicial
 
+- [Ejercicio de Queries - Video en YouTube - Grabación por Omar](https://www.youtube.com/watch?v=uQp3AUzeZZ0)
 
-Version 2 PROYECTO
+---
 
+## Versión 2 - Interfaz Gráfica y Funcionalidades Adicionales
 
+- [Interfaz Gráfica - Video en YouTube, Grabación por Diego](https://youtu.be/k3PsX1AGdEY)
 
-Interfaz Grafica URL Youtube: https://youtu.be/k3PsX1AGdEY --> Grabada por Diego
+- [Lista de Conectados - Video en YouTube, Grabación por Kirill](https://youtu.be/lrq0H9zfqRg)
 
+- [Lista de Conectados Automatica - Video en YouTube, Grabación por Alex](https://youtu.be/a0Ts37mjHMM)
 
-Lista de Conectados URL Youtube: https://youtu.be/lrq0H9zfqRg --> Grabada por Kirill
+---
 
+## Resumen
 
-Lista de Conectados URL Youtube: https://youtu.be/a0Ts37mjHMM --> Grabada por Alex
-
-
+Este documento ofrece un registro de los hitos alcanzados en el desarrollo de Poker-Project-SO, incluyendo la interfaz gráfica y la lista de usuarios conectados. Cada versión muestra los avances específicos en el proyecto, con enlaces a los videos explicativos correspondientes. 
+Grupo formado por: Alex, Kirill, Omar y Diego
