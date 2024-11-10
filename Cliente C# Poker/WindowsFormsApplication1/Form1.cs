@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Drawing.Drawing2D;
 
 namespace WindowsFormsApplication1
 {
@@ -19,11 +20,12 @@ namespace WindowsFormsApplication1
         public Form1()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
+
         }
 
 
@@ -32,21 +34,61 @@ namespace WindowsFormsApplication1
             while (true) {
                 byte[] msg = new byte[80];
                 server.Receive(msg);
-                string mensaje = Encoding.ASCII.GetString(msg);
-                string[] nombresConectados = mensaje.Split(new[] { '/' } , StringSplitOptions.RemoveEmptyEntries); // Parto el string
-                DataTable dt = new DataTable();
-                dt.Columns.Add("Nombre");
+                string[] trozos = Encoding.ASCII.GetString(msg).Split('/');
+                int codigo = Convert.ToInt32(trozos[0]);
+                string mensaje = trozos[1].Split('\0')[0];
 
-                if (nombresConectados.Length == 0) {
-                    MessageBox.Show("No hay gente conectada");
+                switch (codigo) {
+                    case 1:
+                        // Respuesta al Register
+                        if (mensaje == "REGISTERED") {
+                            
+                            MessageBox.Show("Registro Exitoso");
+                        }
+                        else {
+                            
+                            MessageBox.Show("Registro Fallido");
+                        }
+                        break;
+
+                    case 2:
+                        // Respuesta al Login
+                        if (mensaje == "LOGGED_IN") {
+
+                            MessageBox.Show("Login Exitoso");
+                        }
+                        else {
+
+                            MessageBox.Show("Login Fallido");
+                        }
+                        break;
+
+                    case 4:
+
+                        
+
+                        int numConectados = Convert.ToInt32(mensaje);
+
+
+                        DataTable dt = new DataTable();
+                        dt.Columns.Add("Nombre");
+
+
+                        for (int i = 0; i < numConectados; i++) {
+
+                            string Nombres = trozos[i + 2].Split('\0')[0];
+                            dt.Rows.Add(Nombres); 
+                        }
+
+
+                        dataGridViewConectados.DataSource = dt;
+
+                        break;
+
                 }
-                else {
-                    for (int i = 1; i < nombresConectados.Length; i++) {
-                        dt.Rows.Add(nombresConectados[i]);
-                    }
-                    dataGridViewConectados.DataSource = dt;
-                }
+
             }
+                
         }
 
         // CONECTARSE AL SERVIDOR
@@ -56,7 +98,7 @@ namespace WindowsFormsApplication1
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse(IP.Text);
-            IPEndPoint ipep = new IPEndPoint(direc, 9340);
+            IPEndPoint ipep = new IPEndPoint(direc, 1290);
             
 
             //Creamos el socket 
@@ -75,8 +117,7 @@ namespace WindowsFormsApplication1
                 return;
             }
 
-            // pongo en marcha en thread que atenderá los mensajes del servidor
-
+            
 
         }
 
@@ -84,61 +125,39 @@ namespace WindowsFormsApplication1
         private void buttonRegister_Click_1(object sender, EventArgs e)
         {
             try {
-                string mensaje = "REGISTER/" + nombre.Text + "/" + cuenta.Text + "/" + contraseña.Text;
+                string mensaje = "1/" + nombre.Text + "/" + cuenta.Text + "/" + contraseña.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
-                byte[] msg2 = new byte[512];
-                int bytesRecibidos = server.Receive(msg2);
-                string respuesta = Encoding.ASCII.GetString(msg2 , 0 , bytesRecibidos).Trim('\0');  // Limpiar la respuesta
-
-                if (respuesta == "REGISTERED") {
-                    MessageBox.Show("Registro exitoso.");
-                    ThreadStart ts = delegate { AtenderServidor(); };
-                    atender = new Thread(ts);
-                    atender.Start();
-                }
-
-                else
-                    MessageBox.Show("Error en el registro.");
             }
             catch(Exception ex) {
 
                 MessageBox.Show("Error");
                 Desconnect();
             }
+            // pongo en marcha en thread que atenderá los mensajes del servidor
+            ThreadStart ts = delegate { AtenderServidor(); };
+            atender = new Thread(ts);
+            atender.Start();
         }
 
         // Botón para iniciar sesión
         private void buttonLogin_Click_1(object sender, EventArgs e)
         {
             try {
-                string mensaje = "LOGIN/" + cuenta.Text + "/" + contraseña.Text;
+                string mensaje = "2/" + cuenta.Text + "/" + contraseña.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
-                byte[] msg2 = new byte[512];
-                int bytesRecibidos = server.Receive(msg2);
-                string respuesta = Encoding.ASCII.GetString(msg2 , 0 , bytesRecibidos).Trim('\0');  // Limpiar la respuesta
-
-                if (respuesta == "LOGGED_IN") {
-                    MessageBox.Show("Inicio de sesión exitoso.");
-                    ThreadStart ts = delegate { AtenderServidor(); };
-                    atender = new Thread(ts);
-                    atender.Start();
-                }
-
-                else if (respuesta == "ERROR AL INSERTAR EL NUEVO USUARIO")
-                    MessageBox.Show("ERROR AL INSERTAR EL NUEVO USUARIO");
-                else if (respuesta == "ERROR USUARIO CON LA MISMA CUENTA")
-                    MessageBox.Show("ERROR USUARIO CON LA MISMA CUENTA");
-                else
-                    MessageBox.Show("Error en el inicio de sesión.");
             }
             catch(Exception ex) {
                 MessageBox.Show("Error");
                 Desconnect();
             }
+            // pongo en marcha en thread que atenderá los mensajes del servidor
+            ThreadStart ts = delegate { AtenderServidor(); };
+            atender = new Thread(ts);
+            atender.Start();
         }
 
         private void Desconectar_Click(object sender, EventArgs e)
@@ -178,53 +197,5 @@ namespace WindowsFormsApplication1
             this.BackColor = Color.Gray;
             server.Close();
         }
-
-
-
-        //private void button6_Click(object sender , EventArgs e)
-        //{
-        //    try {
-
-        //        string mensaje = "DAME_CONECTADOS/";
-
-        //        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-
-        //        if (!server.Connected) {
-        //            MessageBox.Show("No estás conectado al servidor.");
-        //            return;
-        //        }
-
-        //        server.Send(msg);
-
-        //        byte[] buffer = new byte[2048]; 
-        //        int bytesRec = server.Receive(buffer);
-
-        //        string respuesta = Encoding.ASCII.GetString(buffer , 0 , bytesRec).Trim('\0'); // Limpiar el string
-
-        //        // Separa los nombres en un array de strings
-        //        string[] nombresConectados = respuesta.Split(new[] { '/' } , StringSplitOptions.RemoveEmptyEntries);
-
-
-        //        DataTable dt = new DataTable();
-        //        dt.Columns.Add("Nombre");
-
-        //        if(nombresConectados.Length == 0) {
-        //            MessageBox.Show("No hay gente conectada");
-        //        }
-        //        else {
-        //            for(int i = 1; i< nombresConectados.Length; i++) {
-        //                dt.Rows.Add(nombresConectados[i]);
-        //            }
-        //            dataGridViewConectados.DataSource = dt;
-        //        }
-
-        //    }
-        //    catch (Exception ex) {
-        //        MessageBox.Show("Error: " + ex.Message);
-        //        Desconnect(); 
-        //    }
-        //}
-
-
     }
 }
