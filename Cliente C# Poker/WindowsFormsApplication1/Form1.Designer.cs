@@ -153,11 +153,11 @@
             // dataGridViewConectados
             // 
             this.dataGridViewConectados.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewConectados.Location = new System.Drawing.Point(800, 172);
+            this.dataGridViewConectados.Location = new System.Drawing.Point(646, 172);
             this.dataGridViewConectados.Name = "dataGridViewConectados";
             this.dataGridViewConectados.RowHeadersWidth = 51;
             this.dataGridViewConectados.RowTemplate.Height = 24;
-            this.dataGridViewConectados.Size = new System.Drawing.Size(139, 205);
+            this.dataGridViewConectados.Size = new System.Drawing.Size(293, 306);
             this.dataGridViewConectados.TabIndex = 23;
             // 
             // Form1

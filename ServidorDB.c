@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>  // Para manejar hilos
+#include <my_global.h
 
 
 typedef struct{
@@ -165,22 +166,22 @@ void RegisterUser(MYSQL *conn, char *nombre, char *cuenta, char *contrasenya, in
 	sprintf(response, "SELECT * FROM Jugadores WHERE cuenta='%s';", cuenta);
 	if (mysql_query(conn, response)) {
 		printf("Error al ejecutar consulta SELECT: %s\n", mysql_error(conn));
-		strcpy(response, "ERROR AL REALIZAR LA CONSULTA DE VERIFICACION");
+		strcpy(response, "1/ERROR AL REALIZAR LA CONSULTA DE VERIFICACION");
 	} 
 	else {
 		MYSQL_RES *res = mysql_store_result(conn);
 		if (res == NULL) {
 			printf("Error al obtener resultado: %s\n", mysql_error(conn));
-			strcpy(response, "ERROR AL OBTENER RESULTADO");
+			strcpy(response, "1/ERROR AL OBTENER RESULTADO");
 		} 
 		else if (mysql_num_rows(res) > 0) {
-			strcpy(response, "YA HAY UN USUARIO CON ESA CUENTA");
+			strcpy(response, "1/YA HAY UN USUARIO CON ESA CUENTA");
 		}
 		else {
 			sprintf(response, "SELECT MAX(id) FROM Jugadores;");
 			if (mysql_query(conn, response)) {
 				printf("Error al ejecutar consulta SELECT MAX(id): %s\n", mysql_error(conn));
-				strcpy(response, "ERROR AL OBTENER EL ID MAS GRANDE");
+				strcpy(response, "1/ERROR AL OBTENER EL ID MAS GRANDE");
 			}
 			else {
 				MYSQL_RES *res = mysql_store_result(conn);
@@ -195,10 +196,10 @@ void RegisterUser(MYSQL *conn, char *nombre, char *cuenta, char *contrasenya, in
 				sprintf(response, "INSERT INTO Jugadores (id, nombre, cuenta, contrasenya, capital) VALUES (%d, '%s', '%s', '%s', 0.00);", nuevo_id, nombre, cuenta, contrasenya);
 				if (mysql_query(conn, response)) {
 					printf("Error al insertar nuevo usuario: %s\n", mysql_error(conn));
-					strcpy(response, "ERROR AL INSERTAR EL NUEVO USUARIO");
+					strcpy(response, "1/ERROR AL INSERTAR EL NUEVO USUARIO");
 				}
 				else {
-					strcpy(response, "REGISTERED");
+					strcpy(response, "1/REGISTERED");
 					pthread_mutex_lock(&mutexLista);
 					AddPlayer(&conectados, nombre, sock_conn);
 					
@@ -231,7 +232,7 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 		else if (mysql_num_rows(res) > 0) {
 			
 			char nombre[20];
-			strcpy(response, "LOGGED_IN");
+			strcpy(response, "2/LOGGED_IN");
 			char query_nombre[100];
 			sprintf(query_nombre, "SELECT nombre FROM Jugadores WHERE cuenta='%s' AND contrasenya='%s';", cuenta, contrasenya);
 			
@@ -254,7 +255,7 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 			}
 		} 
 		else {
-			strcpy(response, "LOGIN_FAILED");
+			strcpy(response, "2/LOGIN_FAILED");
 		}
 		mysql_free_result(res);
 	}
@@ -265,7 +266,7 @@ int sockets[300];
 
 void* AtenderCliente(void* socket_desc) {
 	int sock_conn = *(int*)socket_desc;
-	free(socket_desc);
+	//free(socket_desc);
 	MYSQL *conn;
 	conn = mysql_init(NULL);
 	conn = mysql_real_connect(conn, "localhost", "root", "mysql", NULL, 0, NULL, 0);
@@ -299,38 +300,55 @@ void* AtenderCliente(void* socket_desc) {
 			EliminarWithSocket(&conectados, sock_conn);
 			pthread_mutex_unlock(&mutexLista);
 			
-			
-			close(sock_conn);
-			stop = 1;
-			return 0;
 		}
-		else if (strcmp(p, "REGISTER") == 0) {
+		// REGISTER
+		else if (strcmp(p, "1") == 0) {
 			char *nombre = strtok(NULL, "/");
 			char *cuenta = strtok(NULL, "/");
 			char *contrasenya = strtok(NULL, "/");
 			RegisterUser(conn, nombre, cuenta, contrasenya, sock_conn, response);
+			write (sock_conn, response, strlen(response));
 		}
-		else if (strcmp(p, "LOGIN") == 0) {
+		// LOGIN
+		else if (strcmp(p, "2") == 0) {
 			char *cuenta = strtok(NULL, "/");
 			char *contrasenya = strtok(NULL, "/");
 			LoginUser(conn, cuenta, contrasenya, sock_conn, response);
+			write (sock_conn, response, strlen(response));
 		}
-		else if (strcmp(p, "DAME_CONECTADOS") == 0) {
-			char Misconectados[300];
-			DameConectados(&conectados, Misconectados);
-			strcpy(response, Misconectados);
-		}
-		else if(strcmp(p, "UPDATE_CONECTADOS") == 0) {
+		
+		
+		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
+			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
 			char notificacion[900];
+			char connectedUsers[300];
+			DameConectados(&conectados, connectedUsers);
+			sprintf(notificacion, "4/%s", connectedUsers);
 			int j;
-			for (j = 0; j<socket_num; j++) {
+			for (j = 0; j<conectados.num; j++) {
 				
 				write (sockets[j], notificacion, strlen(notificacion));
-				
 			}
-			
+			printf("Lista Conectados: %s\n", notificacion);
 		}
-		write(sock_conn, response, strlen(response) + 1);
+		if(strcmp(p, "0") == 0) {
+			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
+			char notificacion[900];
+			char connectedUsers[300];
+			DameConectados(&conectados, connectedUsers);
+			sprintf(notificacion, "4/%s", connectedUsers);
+			int j;
+			for (j = 0; j<conectados.num; j++) {
+				
+				write (sockets[j], notificacion, strlen(notificacion));
+			}
+			printf("Se ha ido un usuario \n");
+			printf("Lista Conectados: %s\n", notificacion);
+			close(sock_conn);
+			stop = 1;
+			return 0;
+		}
+		// write(sock_conn, response, strlen(response) + 1);
 	}
 	mysql_close(conn);
 	return 0;
@@ -347,7 +365,7 @@ int main(int argc, char *argv[]) {
 		printf("Error al crear la conexion: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		exit(1);
 	}
-	conn = mysql_real_connect(conn, "localhost", "root", "mysql", NULL, 0, NULL, 0); // AQUI VA SHIVA2 
+	conn = mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", NULL, 0, NULL, 0); // AQUI VA SHIVA2 
 	if (conn == NULL) {
 		printf("Error al inicializar la conexion: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		exit(1);
@@ -355,7 +373,7 @@ int main(int argc, char *argv[]) {
 	
 	EjecutarScript(conn, "PokerDB.sql");
 	
-	if (mysql_select_db(conn, "PokerDB") != 0) {
+	if (mysql_select_db(conn, "T2_BBDDPoker") != 0) {
 		printf("Error seleccionando la base de datos: %s\n", mysql_error(conn));
 		if (mysql_select_db(conn, "PokerDB") != 0) {
 			printf("Error seleccionando la base de datos: %s\n", mysql_error(conn));
@@ -382,7 +400,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(9340);
+	serv_adr.sin_port = htons(1290);
 	
 	
 	
@@ -395,19 +413,20 @@ int main(int argc, char *argv[]) {
 	
 	pthread_t thread;
 	socket_num = 0;
+	
 	while (1) {
 		sock_conn = accept(sock_listen, NULL, NULL);
 		printf("Conexion recibida\n");
 		
-		int* new_sock = malloc(sizeof(int));
-		*new_sock = sock_conn;
+		//int* new_sock = malloc(sizeof(int));
+		//*new_sock = sock_conn;
 		
 		
 		sockets[socket_num] = sock_conn;
 		pthread_create(&thread, NULL, AtenderCliente, &sockets[socket_num]);
 		socket_num=socket_num+1;
 		// El hilo se encarga de liberar los recursos, por lo que no necesitamos esperar a que termine
-		pthread_detach(thread);
+		// pthread_detach(thread);
 	}
 	
 	mysql_close(conn);
