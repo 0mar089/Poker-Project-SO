@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>  // Para manejar hilos
-#include <my_global.h>
+
 
 
 typedef struct{
@@ -26,10 +26,10 @@ typedef struct {
 
 
 int AddPlayer(ListaConectados *lista, char nombre[20], int socket) {
-	// A?ade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta? llena.
+	// Añade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta¡ llena.
 	
 	if (lista->num == 100) {
-		// La lista esta? llena, no se puede a??adir m??s usuarios
+		// La lista esta¡ llena, no se puede aÃ±adir mÃ¡s usuarios
 		return -1;
 	} else {
 		// Copiar el nombre del usuario y asignar el socket
@@ -101,7 +101,7 @@ int DamePosSock(ListaConectados *lista, int socket) {
 		if(lista->conectados[i].socket == socket) {
 			return i;  // Si encontramos el socket, devolvemos la posicion
 		}
-		i++;  // Incrementamos el ??ndice en cada iteracion
+		i++;  // Incrementamos el Ã­ndice en cada iteracion
 	}
 	return -1;  // Si no encontramos el socket, devolvemos -1
 }
@@ -270,7 +270,7 @@ void* AtenderCliente(void* socket_desc) {
 	MYSQL *conn;
 	conn = mysql_init(NULL);
 	conn = mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", "T2_BBDDPoker", 0, NULL, 0);
-	mysql_select_db(conn, "PokerDB");
+	mysql_select_db(conn, "T2_BBDDPoker");
 	char buff[512];
 	char response[512];
 	int stop = 0;
@@ -365,17 +365,17 @@ int main(int argc, char *argv[]) {
 		printf("Error al crear la conexion: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		exit(1);
 	}
-	conn = mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql","T2_BBDDPoker" , 0, NULL, 0); // AQUI VA SHIVA2 
+	conn = mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", "T2_BBDDPoker", 0, NULL, 0); // AQUI VA SHIVA2 
 	if (conn == NULL) {
 		printf("Error al inicializar la conexion: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		exit(1);
 	}
 	
-	//EjecutarScript(conn, "PokerDB.sql");
+	// EjecutarScript(conn, "PokerDB.sql");
 	
 	if (mysql_select_db(conn, "T2_BBDDPoker") != 0) {
 		printf("Error seleccionando la base de datos: %s\n", mysql_error(conn));
-		if (mysql_select_db(conn, "PokerDB") != 0) {
+		if (mysql_select_db(conn, "T2_BBDDPoker") != 0) {
 			printf("Error seleccionando la base de datos: %s\n", mysql_error(conn));
 			exit(1);  // O manejar el error de otra forma
 		}
@@ -400,7 +400,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(1290);
+	serv_adr.sin_port = htons(50055);
 	
 	
 	
@@ -432,7 +432,6 @@ int main(int argc, char *argv[]) {
 	mysql_close(conn);
 	return 0;
 }
-
 
 
 

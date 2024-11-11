@@ -11,10 +11,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Drawing.Drawing2D;
 
-namespace WindowsFormsApplication1
-{
-    public partial class Form1 : Form
-    {
+namespace WindowsFormsApplication1 {
+    public partial class Form1 : Form {
         Socket server;
         Thread atender;
         public Form1()
@@ -23,7 +21,7 @@ namespace WindowsFormsApplication1
             CheckForIllegalCrossThreadCalls = false;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender , EventArgs e)
         {
 
         }
@@ -42,11 +40,11 @@ namespace WindowsFormsApplication1
                     case 1:
                         // Respuesta al Register
                         if (mensaje == "REGISTERED") {
-                            
+
                             MessageBox.Show("Registro Exitoso");
                         }
                         else {
-                            
+
                             MessageBox.Show("Registro Fallido");
                         }
                         break;
@@ -65,7 +63,7 @@ namespace WindowsFormsApplication1
 
                     case 4:
 
-                        
+
 
                         int numConectados = Convert.ToInt32(mensaje);
 
@@ -77,7 +75,7 @@ namespace WindowsFormsApplication1
                         for (int i = 0; i < numConectados; i++) {
 
                             string Nombres = trozos[i + 2].Split('\0')[0];
-                            dt.Rows.Add(Nombres); 
+                            dt.Rows.Add(Nombres);
                         }
 
 
@@ -88,45 +86,39 @@ namespace WindowsFormsApplication1
                 }
 
             }
-                
+
         }
 
         // CONECTARSE AL SERVIDOR
 
-        private void Conectar_Click(object sender, EventArgs e)
+        private void Conectar_Click(object sender , EventArgs e)
         {
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
             IPAddress direc = IPAddress.Parse(IP.Text);
-<<<<<<< HEAD
-            IPEndPoint ipep = new IPEndPoint(direc, 1300);
-=======
-            IPEndPoint ipep = new IPEndPoint(direc, 1290);
->>>>>>> b5aa42c292b052d1e80023151ea31e420cdabff9
-            
+            IPEndPoint ipep = new IPEndPoint(direc , 50055);
+
 
             //Creamos el socket 
-            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try
-            {
+            server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
+            try {
                 server.Connect(ipep);//Intentamos conectar el socket
                 this.BackColor = Color.Green;
                 MessageBox.Show("Conectado");
 
             }
-            catch (SocketException ex)
-            {
+            catch (SocketException ex) {
                 //Si hay excepcion imprimimos error y salimos del programa con return 
                 MessageBox.Show("No he podido conectar con el servidor");
                 return;
             }
 
-            
+
 
         }
 
         // Botón para registrar
-        private void buttonRegister_Click_1(object sender, EventArgs e)
+        private void buttonRegister_Click_1(object sender , EventArgs e)
         {
             try {
                 string mensaje = "1/" + nombre.Text + "/" + cuenta.Text + "/" + contraseña.Text;
@@ -134,7 +126,7 @@ namespace WindowsFormsApplication1
                 server.Send(msg);
 
             }
-            catch(Exception ex) {
+            catch (Exception ex) {
 
                 MessageBox.Show("Error");
                 Desconnect();
@@ -146,7 +138,7 @@ namespace WindowsFormsApplication1
         }
 
         // Botón para iniciar sesión
-        private void buttonLogin_Click_1(object sender, EventArgs e)
+        private void buttonLogin_Click_1(object sender , EventArgs e)
         {
             try {
                 string mensaje = "2/" + cuenta.Text + "/" + contraseña.Text;
@@ -154,7 +146,7 @@ namespace WindowsFormsApplication1
                 server.Send(msg);
 
             }
-            catch(Exception ex) {
+            catch (Exception ex) {
                 MessageBox.Show("Error");
                 Desconnect();
             }
@@ -164,7 +156,7 @@ namespace WindowsFormsApplication1
             atender.Start();
         }
 
-        private void Desconectar_Click(object sender, EventArgs e)
+        private void Desconectar_Click(object sender , EventArgs e)
         {
 
             string mensaje = "0/";
