@@ -371,7 +371,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 	
-	EjecutarScript(conn, "PokerDB.sql");
+	//EjecutarScript(conn, "PokerDB.sql");
 	
 	if (mysql_select_db(conn, "T2_BBDDPoker") != 0) {
 		printf("Error seleccionando la base de datos: %s\n", mysql_error(conn));
