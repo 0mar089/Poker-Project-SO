@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>  // Para manejar hilos
-#include <my_global.h
+#include <my_global.h>
 
 
 typedef struct{
@@ -269,7 +269,7 @@ void* AtenderCliente(void* socket_desc) {
 	//free(socket_desc);
 	MYSQL *conn;
 	conn = mysql_init(NULL);
-	conn = mysql_real_connect(conn, "localhost", "root", "mysql", NULL, 0, NULL, 0);
+	conn = mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", "T2_BBDDPoker", 0, NULL, 0);
 	mysql_select_db(conn, "PokerDB");
 	char buff[512];
 	char response[512];
@@ -365,7 +365,7 @@ int main(int argc, char *argv[]) {
 		printf("Error al crear la conexion: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		exit(1);
 	}
-	conn = mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql", NULL, 0, NULL, 0); // AQUI VA SHIVA2 
+	conn = mysql_real_connect(conn, "shiva2.upc.es", "root", "mysql","T2_BBDDPoker" , 0, NULL, 0); // AQUI VA SHIVA2 
 	if (conn == NULL) {
 		printf("Error al inicializar la conexion: %u %s\n", mysql_errno(conn), mysql_error(conn));
 		exit(1);
