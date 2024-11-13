@@ -12,7 +12,7 @@
 
 - [Lista de Conectados - Video en YouTube, Grabación por Kirill](https://youtu.be/lrq0H9zfqRg)
 
-  ## Versión 3 - Lista de conectados automatica
+## Versión 3 - Lista de conectados automatica
 
 - [Lista de Conectados Automatica - Video en YouTube, Grabación por Alex](https://youtu.be/a0Ts37mjHMM)
 
