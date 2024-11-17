@@ -38,7 +38,13 @@
             this.contraseña = new System.Windows.Forms.TextBox();
             this.Desconectar = new System.Windows.Forms.Button();
             this.dataGridViewConectados = new System.Windows.Forms.DataGridView();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.opcionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iNVITARJUGADORESStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ButtonInvite = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConectados)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -59,7 +65,7 @@
             this.IP.Name = "IP";
             this.IP.Size = new System.Drawing.Size(172, 22);
             this.IP.TabIndex = 2;
-            this.IP.Text = "192.168.56.102";
+            this.IP.Text = "10.4.119.5";
             // 
             // Conectar
             // 
@@ -160,11 +166,57 @@
             this.dataGridViewConectados.Size = new System.Drawing.Size(293, 306);
             this.dataGridViewConectados.TabIndex = 23;
             // 
+            // toolStrip1
+            // 
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStrip1.Location = new System.Drawing.Point(0, 28);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(988, 25);
+            this.toolStrip1.TabIndex = 24;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.opcionesToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(988, 28);
+            this.menuStrip1.TabIndex = 25;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // opcionesToolStripMenuItem
+            // 
+            this.opcionesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.iNVITARJUGADORESStripMenuItem});
+            this.opcionesToolStripMenuItem.Name = "opcionesToolStripMenuItem";
+            this.opcionesToolStripMenuItem.Size = new System.Drawing.Size(85, 24);
+            this.opcionesToolStripMenuItem.Text = "Opciones";
+            // 
+            // iNVITARJUGADORESStripMenuItem
+            // 
+            this.iNVITARJUGADORESStripMenuItem.Name = "iNVITARJUGADORESStripMenuItem";
+            this.iNVITARJUGADORESStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            // 
+            // ButtonInvite
+            // 
+            this.ButtonInvite.Location = new System.Drawing.Point(531, 446);
+            this.ButtonInvite.Name = "ButtonInvite";
+            this.ButtonInvite.Size = new System.Drawing.Size(90, 32);
+            this.ButtonInvite.TabIndex = 26;
+            this.ButtonInvite.Text = "Invitar";
+            this.ButtonInvite.UseVisualStyleBackColor = true;
+            this.ButtonInvite.Click += new System.EventHandler(this.buttonInvite_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(988, 692);
+            this.Controls.Add(this.ButtonInvite);
+            this.Controls.Add(this.toolStrip1);
+            this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.dataGridViewConectados);
             this.Controls.Add(this.Desconectar);
             this.Controls.Add(this.contraseña);
@@ -178,11 +230,14 @@
             this.Controls.Add(this.Conectar);
             this.Controls.Add(this.IP);
             this.Controls.Add(this.label1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConectados)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -203,6 +258,11 @@
         private System.Windows.Forms.TextBox contraseña;
         private System.Windows.Forms.Button Desconectar;
         private System.Windows.Forms.DataGridView dataGridViewConectados;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem opcionesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem iNVITARJUGADORESStripMenuItem;
+        private System.Windows.Forms.Button ButtonInvite;
     }
 }
 

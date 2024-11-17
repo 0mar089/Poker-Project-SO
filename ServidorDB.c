@@ -24,10 +24,9 @@ typedef struct {
 }ListaConectados;
 
 
-
+// AÒade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta° llena.
 int AddPlayer(ListaConectados *lista, char nombre[20], int socket) {
-	// AÒade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta° llena.
-	
+
 	if (lista->num == 100) {
 		// La lista esta° llena, no se puede a√±adir m√°s usuarios
 		return -1;
@@ -44,9 +43,8 @@ int AddPlayer(ListaConectados *lista, char nombre[20], int socket) {
 
 
 
-
+// TE DEVUELVE LA POSICION DEL USUARIO A PARTIR DE SU NOMBRE EN LA LISTA DE CONECTADOS
 int DamePosicion(ListaConectados *lista, char nombre[20]) {
-	// Esta funcion devuelve el socket del usuario que le des de la lista de conectados
 	int i=0;
 	int encontrado = 0;
 	while ((i < lista->num) && !encontrado)
@@ -77,9 +75,20 @@ int Eliminar(ListaConectados *lista, char nombre[20]) {
 		return 0;
 	}
 }
+// TE DEVUELVE LA POSICION DEL USUARIO EN LA LISTA A PARTIR DEL SOCKET
+int DamePosSock(ListaConectados *lista, int socket) {
+	int i = 0;
+	while(i < lista->num) {
+		if(lista->conectados[i].socket == socket) {
+			return i;  // Si encontramos el socket, devolvemos la posicion
+		}
+		i++;  // Incrementamos el √≠ndice en cada iteracion
+	}
+	return -1;  // Si no encontramos el socket, devolvemos -1
+}
+
 
 int EliminarWithSocket(ListaConectados *lista, int sock) {
-	
 	int pos = DamePosSock(lista, sock);
 	if(pos == -1)
 		return -1;
@@ -94,17 +103,6 @@ int EliminarWithSocket(ListaConectados *lista, int sock) {
 	}
 }
 
-
-int DamePosSock(ListaConectados *lista, int socket) {
-	int i = 0;
-	while(i < lista->num) {
-		if(lista->conectados[i].socket == socket) {
-			return i;  // Si encontramos el socket, devolvemos la posicion
-		}
-		i++;  // Incrementamos el √≠ndice en cada iteracion
-	}
-	return -1;  // Si no encontramos el socket, devolvemos -1
-}
 
 
 
@@ -280,6 +278,7 @@ void* AtenderCliente(void* socket_desc) {
 		if (ret > 0) {
 			buff[ret] = '\0';
 			printf("Mensaje recibido: %s\n", buff);
+
 		}
 		else {
 			printf("Error al recibir datos\n");
@@ -315,6 +314,23 @@ void* AtenderCliente(void* socket_desc) {
 			char *contrasenya = strtok(NULL, "/");
 			LoginUser(conn, cuenta, contrasenya, sock_conn, response);
 			write (sock_conn, response, strlen(response));
+		}
+
+		if ( strcmp(p, "5") == 0 ) {
+
+			char *name = strtok(NULL, "/");
+			char *nameInvited = strtok(NULL, "/");
+			if (name == NULL) {
+				printf("Error: name es NULL\n");
+			} else {
+				printf("El que invita: '%s'\n", name);
+				printf("El que es invitado: '%s'\n", nameInvited);
+			}
+			int pos = DamePosicion(&conectados, nameInvited);
+			int socketInvited = conectados.conectados[pos].socket;
+			sprintf(response, "5/%s/Te ha invitado %s", nameInvited, name);
+			write(sockets[1], response, strlen(response));
+			printf("InvitaciÛn enviada a %s (socket: %d)\n", nameInvited, socketInvited);
 		}
 		
 		

@@ -13,8 +13,10 @@ using System.Drawing.Drawing2D;
 
 namespace WindowsFormsApplication1 {
     public partial class Form1 : Form {
+
         Socket server;
         Thread atender;
+        string usuario;
         public Form1()
         {
             InitializeComponent();
@@ -64,22 +66,50 @@ namespace WindowsFormsApplication1 {
                     case 4:
 
 
+                        int numConectados;
 
-                        int numConectados = Convert.ToInt32(mensaje);
-
+                        // Verifica que el mensaje contiene un número válido de usuarios conectados
+                        if (!int.TryParse(mensaje , out numConectados) || numConectados < 0) {
+                            MessageBox.Show("Datos inválidos recibidos del servidor.");
+                            break;
+                        }
 
                         DataTable dt = new DataTable();
                         dt.Columns.Add("Nombre");
 
-
                         for (int i = 0; i < numConectados; i++) {
-
-                            string Nombres = trozos[i + 2].Split('\0')[0];
-                            dt.Rows.Add(Nombres);
+                            // Verifica que el índice existe en el array
+                            if (i + 2 < trozos.Length) {
+                                string Nombres = trozos[i + 2].Split('\0')[0];
+                                dt.Rows.Add(Nombres);
+                            }
+                            else {
+                                MessageBox.Show("Datos incompletos recibidos del servidor.");
+                                break;
+                            }
                         }
 
+                        // Asignar el DataSource
+                        this.Invoke((MethodInvoker)delegate {
+                            dataGridViewConectados.DataSource = dt;
+                        });
+                        break;
 
-                        dataGridViewConectados.DataSource = dt;
+                    case 5:
+                        // El mensaje recibido es del tipo: 5/name/Te ha invitado name
+
+                        if (trozos.Length >= 3) // Verifica que el mensaje contiene al menos 3 partes
+                        {
+                            string nombre = trozos[1]; // Nombre del usuario que invita
+                            string mensajeInvitacion = trozos[2].Split('\0')[0]; // Mensaje completo de invitación
+
+                            // Muestra un mensaje en la interfaz
+                            MessageBox.Show($"{mensajeInvitacion}" , $"Invitación recibida de {nombre}");
+                        }
+                        else {
+                            // Manejo de error si el mensaje no tiene el formato esperado
+                            MessageBox.Show("Mensaje de invitación incompleto recibido.");
+                        }
 
                         break;
 
@@ -142,12 +172,13 @@ namespace WindowsFormsApplication1 {
         {
             try {
                 string mensaje = "2/" + cuenta.Text + "/" + contraseña.Text;
+                this.usuario = nombre.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
             }
             catch (Exception ex) {
-                MessageBox.Show("Error");
+                MessageBox.Show("Error de servidor o no has puesto todos los campos");
                 Desconnect();
             }
             // pongo en marcha en thread que atenderá los mensajes del servidor
@@ -192,6 +223,30 @@ namespace WindowsFormsApplication1 {
 
             this.BackColor = Color.Gray;
             server.Close();
+        }
+
+        private void buttonInvite_Click(object sender , EventArgs e)
+        {
+            try {
+                // Verifica que hay un usuario seleccionado en el DataGridView
+                if (dataGridViewConectados.CurrentRow == null) {
+                    MessageBox.Show("Selecciona un usuario para invitar.");
+                    return;
+                }
+
+                // Obtén el nombre del usuario seleccionado
+                string usuarioInvitado = dataGridViewConectados.CurrentRow.Cells[0].Value.ToString();
+
+                // Envía la invitación al servidor
+                string mensaje = "5/" + this.usuario + "/" + usuarioInvitado;
+                byte[] msg = Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+
+                MessageBox.Show($"Se ha enviado una invitacion a {usuarioInvitado}.");
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Error al enviar la invitación: " + ex.Message);
+            }
         }
     }
 }
