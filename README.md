@@ -18,6 +18,10 @@
 
 ---
 
+## Versión 4 - Invitación a Usuario conectado
+
+- [Invitación a un usuario - Video en YouTube, Grabación por Omar](https://youtu.be/SfmMohPnLzs)
+
 ## Resumen
 
 Este documento ofrece un registro de los hitos alcanzados en el desarrollo de Poker-Project-SO, incluyendo la interfaz gráfica y la lista de usuarios conectados. Cada versión muestra los avances específicos en el proyecto, con enlaces a los videos explicativos correspondientes. 
