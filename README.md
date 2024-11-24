@@ -22,6 +22,10 @@
 
 - [Invitación a un usuario - Video en YouTube, Grabación por Omar](https://youtu.be/SfmMohPnLzs)
 
+## Versión 5 - Chat + Pequeña interfaz grafica
+
+- [Chat + Pequeña interfaz grafica - Video en YouTube, Grabación por Diego](https://youtu.be/7AeCnWBaqSw)
+
 ## Resumen
 
 Este documento ofrece un registro de los hitos alcanzados en el desarrollo de Poker-Project-SO, incluyendo la interfaz gráfica y la lista de usuarios conectados. Cada versión muestra los avances específicos en el proyecto, con enlaces a los videos explicativos correspondientes. 
