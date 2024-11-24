@@ -4,6 +4,8 @@ C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.AssemblyReference.cache
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Form1.resources
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Sala.resources
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Welcome.resources
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.GenerateResource.cache
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.CoreCompileInputs.cache
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe

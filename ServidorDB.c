@@ -329,11 +329,29 @@ void* AtenderCliente(void* socket_desc) {
 			int pos = DamePosicion(&conectados, nameInvited);
 			int socketInvited = conectados.conectados[pos].socket;
 			sprintf(response, "5/%s/Te ha invitado %s", nameInvited, name);
-			write(sockets[1], response, strlen(response));
+			write(sockets[pos], response, strlen(response));
 			printf("Invitación enviada a %s (socket: %d)\n", nameInvited, socketInvited);
 		}
+		if ( strcmp(p, "6") == 0) {
+			char nombreAutor[20];
+			char mensajeChat[512];
+			char chatMessage[512]; //mensaje a enviar por el chat
+
+			p = strtok(NULL, "/");
+			strcpy(nombreAutor, p);
+			p = strtok(NULL, "/");
+			strcpy(mensajeChat, p);
+
+			sprintf(chatMessage, "%s: %s", nombreAutor, mensajeChat);
+			sprintf(response, "6/%s\n", chatMessage);
+			int j;
+			for (j = 0; j<conectados.num; j++) {
+				
+				write (sockets[j], response, strlen(response));
+			}
+			
 		
-		
+		}
 		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
 			char notificacion[900];

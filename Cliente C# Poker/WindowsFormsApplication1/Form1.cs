@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Drawing.Drawing2D;
+using System.Security.Cryptography;
 
 namespace WindowsFormsApplication1 {
     public partial class Form1 : Form {
@@ -113,44 +114,44 @@ namespace WindowsFormsApplication1 {
 
                         break;
 
+                    case 6:
+
+                        // Asignar el DataSource
+                        this.Invoke((MethodInvoker)delegate {
+                            Chat.Items.Add(trozos[1]);
+                        });
+                        break;
+
                 }
 
             }
 
         }
 
-        // CONECTARSE AL SERVIDOR
-
-        private void Conectar_Click(object sender , EventArgs e)
-        {
-            //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
-            //al que deseamos conectarnos
-            IPAddress direc = IPAddress.Parse(IP.Text);
-            IPEndPoint ipep = new IPEndPoint(direc , 50055);
-
-
-            //Creamos el socket 
-            server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
-            try {
-                server.Connect(ipep);//Intentamos conectar el socket
-                this.BackColor = Color.Green;
-                MessageBox.Show("Conectado");
-
-            }
-            catch (SocketException ex) {
-                //Si hay excepcion imprimimos error y salimos del programa con return 
-                MessageBox.Show("No he podido conectar con el servidor");
-                return;
-            }
-
-
-
-        }
 
         // Botón para registrar
         private void buttonRegister_Click_1(object sender , EventArgs e)
         {
             try {
+                //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
+                //al que deseamos conectarnos
+                IPAddress direc = IPAddress.Parse("10.4.119.5");
+                IPEndPoint ipep = new IPEndPoint(direc , 50058);
+
+                //Creamos el socket 
+                server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
+                try {
+                    server.Connect(ipep);//Intentamos conectar el socket
+                    this.BackColor = Color.Green;
+                    MessageBox.Show("Conectado");
+
+                }
+                catch (SocketException ex) {
+                    //Si hay excepcion imprimimos error y salimos del programa con return 
+                    MessageBox.Show("No he podido conectar con el servidor");
+                    this.Close();
+                }
+
                 string mensaje = "1/" + nombre.Text + "/" + cuenta.Text + "/" + contraseña.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
@@ -167,10 +168,33 @@ namespace WindowsFormsApplication1 {
             atender.Start();
         }
 
+
+
+
         // Botón para iniciar sesión
         private void buttonLogin_Click_1(object sender , EventArgs e)
         {
             try {
+
+                //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
+                //al que deseamos conectarnos
+                IPAddress direc = IPAddress.Parse("10.4.119.5");
+                IPEndPoint ipep = new IPEndPoint(direc , 50055);
+
+                //Creamos el socket 
+                server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
+                try {
+                    server.Connect(ipep);//Intentamos conectar el socket
+                    this.BackColor = Color.Green;
+                    MessageBox.Show("Conectado");
+
+                }
+                catch (SocketException ex) {
+                    //Si hay excepcion imprimimos error y salimos del programa con return 
+                    MessageBox.Show("No he podido conectar con el servidor");
+                    this.Close();
+                }
+
                 string mensaje = "2/" + cuenta.Text + "/" + contraseña.Text;
                 this.usuario = nombre.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
@@ -187,24 +211,6 @@ namespace WindowsFormsApplication1 {
             atender.Start();
         }
 
-        private void Desconectar_Click(object sender , EventArgs e)
-        {
-
-            string mensaje = "0/";
-
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
-
-            // Nos desconectamos
-            this.BackColor = Color.Gray;
-            server.Shutdown(SocketShutdown.Both);
-
-            atender.Abort();
-            MessageBox.Show("Desconectando...");
-
-            this.BackColor = Color.Gray;
-            server.Close();
-        }
 
         public void Desconnect()
         {
@@ -247,6 +253,22 @@ namespace WindowsFormsApplication1 {
             catch (Exception ex) {
                 MessageBox.Show("Error al enviar la invitación: " + ex.Message);
             }
+        }
+
+        private void Escribir_Click(object sender , EventArgs e)
+        {
+            string mensaje = "6/" + nombre.Text + "/" + textChat.Text;
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+            textChat.Clear();
+        }
+
+
+        // BOTON PARA SALIR
+        private void button1_Click(object sender , EventArgs e)
+        {
+            Desconnect();
+            Application.Exit();
         }
     }
 }
