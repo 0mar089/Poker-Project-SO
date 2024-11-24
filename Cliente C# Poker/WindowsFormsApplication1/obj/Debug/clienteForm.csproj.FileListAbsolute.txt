@@ -10,3 +10,6 @@ C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.CoreCompileInputs.cache
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
 C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\bin\Debug\DeckCard.dll
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\bin\Debug\DeckCard.pdb
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\WindowsFormsApplication1\obj\Debug\clienteF.7CC6B152.Up2Date

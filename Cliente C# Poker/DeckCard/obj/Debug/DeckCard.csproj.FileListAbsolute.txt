@@ -1,0 +1,6 @@
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\DeckCard\bin\Debug\DeckCard.dll
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\DeckCard\bin\Debug\DeckCard.pdb
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\DeckCard\obj\Debug\DeckCard.csproj.AssemblyReference.cache
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\DeckCard\obj\Debug\DeckCard.csproj.CoreCompileInputs.cache
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\DeckCard\obj\Debug\DeckCard.dll
+C:\Users\omarb\OneDrive\Documents\UNIVERSIDAD\SEGUNDO\1 quatrimestre\SO\PROYECTO-POKER\Poker-Project-SO\Cliente C# Poker\DeckCard\obj\Debug\DeckCard.pdb

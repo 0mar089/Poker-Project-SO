@@ -41,7 +41,11 @@
             this.CallButton = new System.Windows.Forms.Button();
             this.FoldButton = new System.Windows.Forms.Button();
             this.RaiseButton = new System.Windows.Forms.Button();
+            this.player2Label = new System.Windows.Forms.Label();
             this.player1Label = new System.Windows.Forms.Label();
+            this.labelDynamicBalance = new System.Windows.Forms.Label();
+            this.labelStaticBalance = new System.Windows.Forms.Label();
+            this.randomCards = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -179,14 +183,67 @@
             this.RaiseButton.Text = "Raise";
             this.RaiseButton.UseVisualStyleBackColor = true;
             // 
+            // player2Label
+            // 
+            this.player2Label.AutoSize = true;
+            this.player2Label.BackColor = System.Drawing.Color.Black;
+            this.player2Label.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player2Label.ForeColor = System.Drawing.Color.Snow;
+            this.player2Label.Location = new System.Drawing.Point(461, 592);
+            this.player2Label.Name = "player2Label";
+            this.player2Label.Size = new System.Drawing.Size(195, 37);
+            this.player2Label.TabIndex = 16;
+            this.player2Label.Text = "JUGADOR 2";
+            // 
             // player1Label
             // 
             this.player1Label.AutoSize = true;
-            this.player1Label.Location = new System.Drawing.Point(530, 70);
+            this.player1Label.BackColor = System.Drawing.Color.Black;
+            this.player1Label.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player1Label.ForeColor = System.Drawing.Color.Snow;
+            this.player1Label.Location = new System.Drawing.Point(469, 58);
             this.player1Label.Name = "player1Label";
-            this.player1Label.Size = new System.Drawing.Size(83, 16);
-            this.player1Label.TabIndex = 15;
+            this.player1Label.Size = new System.Drawing.Size(187, 37);
+            this.player1Label.TabIndex = 17;
             this.player1Label.Text = "JUGADOR 1";
+            // 
+            // labelDynamicBalance
+            // 
+            this.labelDynamicBalance.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.labelDynamicBalance.BackColor = System.Drawing.Color.Transparent;
+            this.labelDynamicBalance.Font = new System.Drawing.Font("Candara", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelDynamicBalance.ForeColor = System.Drawing.Color.DeepSkyBlue;
+            this.labelDynamicBalance.Location = new System.Drawing.Point(384, 663);
+            this.labelDynamicBalance.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelDynamicBalance.Name = "labelDynamicBalance";
+            this.labelDynamicBalance.Size = new System.Drawing.Size(459, 43);
+            this.labelDynamicBalance.TabIndex = 19;
+            this.labelDynamicBalance.Text = "$0.00";
+            this.labelDynamicBalance.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // labelStaticBalance
+            // 
+            this.labelStaticBalance.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.labelStaticBalance.BackColor = System.Drawing.Color.Transparent;
+            this.labelStaticBalance.Font = new System.Drawing.Font("Candara", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelStaticBalance.ForeColor = System.Drawing.Color.AliceBlue;
+            this.labelStaticBalance.Location = new System.Drawing.Point(583, 630);
+            this.labelStaticBalance.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelStaticBalance.Name = "labelStaticBalance";
+            this.labelStaticBalance.Size = new System.Drawing.Size(260, 33);
+            this.labelStaticBalance.TabIndex = 18;
+            this.labelStaticBalance.Text = "BALANCE";
+            this.labelStaticBalance.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // randomCards
+            // 
+            this.randomCards.Location = new System.Drawing.Point(147, 176);
+            this.randomCards.Name = "randomCards";
+            this.randomCards.Size = new System.Drawing.Size(115, 57);
+            this.randomCards.TabIndex = 20;
+            this.randomCards.Text = "RANDOM ";
+            this.randomCards.UseVisualStyleBackColor = true;
+            this.randomCards.Click += new System.EventHandler(this.randomCards_Click);
             // 
             // Sala
             // 
@@ -195,7 +252,11 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1203, 724);
+            this.Controls.Add(this.randomCards);
+            this.Controls.Add(this.labelDynamicBalance);
+            this.Controls.Add(this.labelStaticBalance);
             this.Controls.Add(this.player1Label);
+            this.Controls.Add(this.player2Label);
             this.Controls.Add(this.RaiseButton);
             this.Controls.Add(this.FoldButton);
             this.Controls.Add(this.CallButton);
@@ -248,6 +309,10 @@
         private System.Windows.Forms.Button CallButton;
         private System.Windows.Forms.Button FoldButton;
         private System.Windows.Forms.Button RaiseButton;
+        private System.Windows.Forms.Label player2Label;
         private System.Windows.Forms.Label player1Label;
+        private System.Windows.Forms.Label labelDynamicBalance;
+        private System.Windows.Forms.Label labelStaticBalance;
+        private System.Windows.Forms.Button randomCards;
     }
 }

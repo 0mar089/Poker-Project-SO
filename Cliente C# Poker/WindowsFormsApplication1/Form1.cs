@@ -106,6 +106,8 @@ namespace WindowsFormsApplication1 {
 
                             // Muestra un mensaje en la interfaz
                             MessageBox.Show($"{mensajeInvitacion}" , $"Invitación recibida de {nombre}");
+
+                            // EN VEZ DE UN MESSAGE BOX SE TENDRIA QUE ABRIR UN FORMULARIO PARA ACEPTAR LA INVITACIÓN
                         }
                         else {
                             // Manejo de error si el mensaje no tiene el formato esperado

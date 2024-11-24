@@ -111,7 +111,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\DeckCard\DeckCard.csproj">
+      <Project>{8d0dcd3b-1027-4b0e-b8e6-9983f2d73287}</Project>
+      <Name>DeckCard</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\10C.png" />
     <Content Include="Resources\10D.png" />
