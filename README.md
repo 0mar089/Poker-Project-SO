@@ -29,4 +29,8 @@
 ## Resumen
 
 Este documento ofrece un registro de los hitos alcanzados en el desarrollo de Poker-Project-SO, incluyendo la interfaz gráfica y la lista de usuarios conectados. Cada versión muestra los avances específicos en el proyecto, con enlaces a los videos explicativos correspondientes. 
+
+
 Grupo formado por: Alex, Kirill, Omar y Diego
+
+PD: La version 2 de la interfaz grafica esta hecha en unity pero las versiones mas adelante fueron hechas por Windows forms de c#. Tuvimos problemas con unity por eso el cambio. 
