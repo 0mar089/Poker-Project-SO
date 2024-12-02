@@ -124,6 +124,67 @@ namespace WindowsFormsApplication1 {
                         });
                         break;
 
+
+                    // CASE 7 Y 8 SON PARA EL NUMERO DE SALAS Y QUIEN SE INTENTA UNIR
+
+                    case 7:
+
+                        int gente = Convert.ToInt32(mensaje);
+
+                        if(gente != -1 ) {
+                            MessageBox.Show("Te has unido");
+                            int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            switch ( numSala ) {
+                                case 1:
+                                    label1.Text = $"{gente+1}/4";
+                                    break;
+                                case 2:
+                                    label5.Text = $"{gente+1}/4";
+                                    break;
+                                case 3:
+                                    label6.Text = $"{gente+1}/4";
+                                    break;
+                                case 4:
+                                    label7.Text = $"{gente+1}/4";
+                                    break;
+                            }
+
+
+
+                        }
+                        else {
+                            MessageBox.Show("Sala llena");
+                        }
+
+
+                        break;
+
+                    case 8:
+
+                        /*
+                         Aqui recibimos el mensaje que tiene la gente que hay en las 4 salas divididas en / , Pero
+                         lo que hay que hacer primero es que cada vez que alguien se una a una sala hay que cambiar la DB
+                         en la tabla Mesa. 
+                         */
+
+                        int numGenteSala = Convert.ToInt32(mensaje);
+                        label1.Text = $"{numGenteSala}/4";
+
+                        for ( int i = 2; i < 5; i++ ) {
+                            numGenteSala = Convert.ToInt32(trozos[i].Split('\0')[0]);
+                            if(i == 2 ) {
+                                label5.Text = $"{numGenteSala}/4";
+                            }
+                            if ( i == 3 ) {
+                                label6.Text = $"{numGenteSala}/4";
+                            }
+                            if ( i == 4 ) {
+                                label7.Text = $"{numGenteSala}/4";
+                            }
+                        }
+                        break;
+
                 }
 
             }
@@ -271,6 +332,43 @@ namespace WindowsFormsApplication1 {
         {
             Desconnect();
             Application.Exit();
+        }
+
+        private void contraseña_TextChanged(object sender , EventArgs e) {
+            contraseña.PasswordChar = '*';
+        }
+
+
+
+        // BOTONES PARA UNIRSE A LAS SALAS, CADA UNO ENVIA EL MENSAJE PERO CAMBIA EL NUM DE SALA
+
+        private void BtnSala1_Click(object sender , EventArgs e) {
+            string mensaje = "7/" + this.usuario + "/1";
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+            textChat.Clear();
+
+        }
+
+        private void BtnSala2_Click(object sender , EventArgs e) {
+            string mensaje = "7/" + this.usuario + "/2";
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+            textChat.Clear();
+        }
+
+        private void BtnSala3_Click(object sender , EventArgs e) {
+            string mensaje = "7/" + this.usuario + "/3";
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+            textChat.Clear();
+        }
+
+        private void BtnSala4_Click(object sender , EventArgs e) {
+            string mensaje = "7/" + this.usuario + "/4";
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+            textChat.Clear();
         }
     }
 }

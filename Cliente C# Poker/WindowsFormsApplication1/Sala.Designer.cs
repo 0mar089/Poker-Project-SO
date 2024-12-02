@@ -216,7 +216,7 @@
             this.labelDynamicBalance.Location = new System.Drawing.Point(384, 663);
             this.labelDynamicBalance.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDynamicBalance.Name = "labelDynamicBalance";
-            this.labelDynamicBalance.Size = new System.Drawing.Size(459, 43);
+            this.labelDynamicBalance.Size = new System.Drawing.Size(460, 43);
             this.labelDynamicBalance.TabIndex = 19;
             this.labelDynamicBalance.Text = "$0.00";
             this.labelDynamicBalance.TextAlign = System.Drawing.ContentAlignment.TopRight;

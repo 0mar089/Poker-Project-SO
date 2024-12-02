@@ -124,39 +124,6 @@ ListaConectados conectados;
 
 void* AtenderCliente(void* socket_desc);
 
-// Funcion que ejecuta scripts SQL
-void EjecutarScript(MYSQL *conn, const char *filename) {
-	FILE *file = fopen(filename, "r");
-	if (file == NULL) {
-		printf("No se pudo abrir el archivo %s\n", filename);
-		exit(1);
-	}
-	
-	char query[4096];
-	char line[1024];
-	query[0] = '\0';
-	int file_executed = 0;
-	while (fgets(line, sizeof(line), file)) {
-		if (line[strlen(line) - 1] == '\n') {
-			line[strlen(line) - 1] = '\0';
-		}
-		
-		strcat(query, line);
-		if (strchr(line, ';')) {
-			if (mysql_query(conn, query)) {
-				printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
-			} 
-			else {
-				file_executed = 1;
-			}
-			query[0] = '\0';
-		}
-	}
-	if(file_executed) printf("Script de la base de datos ejecutado \n");
-	fclose(file);
-}
-
-
 
 // FUNCION REGISTER USER
 void RegisterUser(MYSQL *conn, char *nombre, char *cuenta, char *contrasenya, int sock_conn, char *response) {
@@ -259,6 +226,79 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 	}
 }
 
+
+// REVISTA SI HAY GENTE EN LA SALA. 0 SI ESTA VACIA, -1 SI ESTA LLENA. Solo cuando alguien intenta unirse
+int CheckRoom(MYSQL *conn, int NumSala, char *response, char *nombre){
+	
+	sprintf(response, "SELECT num_jug FROM Mesa WHERE id_mesa='%d';", NumSala);
+	if(mysql_query(conn, response)) {
+		printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
+		strcpy(response, "ERROR");
+	}
+	else{
+		MYSQL_RES *res = mysql_store_result(conn);
+		if (res == NULL) {
+			
+			printf("Error al obtener el resultado: %s\n", mysql_error(conn));
+			strcpy(response, "ERROR");
+		}
+		else{
+			MYSQL_ROW row = mysql_fetch_row(res);
+			int numGenteSala = atoi(row[0]);
+			printf("%s quiere entrar en la sala %d que hay %d personas\n", nombre, NumSala, numGenteSala);
+			
+			
+			if( numGenteSala < 4 ) {
+				char query[500];
+				sprintf(query,"UPDATE Mesa SET num_jug=num_jug+1 WHERE id_mesa='%d';", NumSala);
+				mysql_query(conn, response);
+				return numGenteSala;
+			}
+			return -1;
+			
+		}
+	}
+	
+}
+	
+void CheckAllRooms(MYSQL *conn, char *response, int GenteSala[4]){
+	sprintf(response, "SELECT num_jug FROM Mesa");
+	if(mysql_query(conn, response)) {
+		printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
+		strcpy(response, "ERROR");
+	}
+	else{
+		MYSQL_RES *res = mysql_store_result(conn);
+		if (res == NULL) {
+			
+			printf("Error al obtener el resultado: %s\n", mysql_error(conn));
+			strcpy(response, "ERROR");
+		}
+		else{
+			MYSQL_ROW row = mysql_fetch_row(res);
+			
+			for (int i = 0; i < 4; i++) {
+				GenteSala[i] = 0;
+			}
+			int j = 0;
+			while(row != NULL){
+				GenteSala[j] = atoi(row[0]);
+				row = mysql_fetch_row(res);
+				printf("Sala %d: %d\n", j, GenteSala[j]); 
+				j++;
+			}
+			
+		}
+		mysql_free_result(res);
+	}
+	
+	
+}
+
+
+
+
+
 int socket_num;
 int sockets[300];
 
@@ -315,9 +355,10 @@ void* AtenderCliente(void* socket_desc) {
 			LoginUser(conn, cuenta, contrasenya, sock_conn, response);
 			write (sock_conn, response, strlen(response));
 		}
-
+		
+		
+		// Para invitar a alguien
 		if ( strcmp(p, "5") == 0 ) {
-
 			char *name = strtok(NULL, "/");
 			char *nameInvited = strtok(NULL, "/");
 			if (name == NULL) {
@@ -332,6 +373,8 @@ void* AtenderCliente(void* socket_desc) {
 			write(sockets[pos], response, strlen(response));
 			printf("Invitación enviada a %s (socket: %d)\n", nameInvited, socketInvited);
 		}
+		
+		// Para enviar mensaje al chat
 		if ( strcmp(p, "6") == 0) {
 			char nombreAutor[20];
 			char mensajeChat[512];
@@ -349,9 +392,33 @@ void* AtenderCliente(void* socket_desc) {
 				
 				write (sockets[j], response, strlen(response));
 			}
-			
-		
 		}
+		if( strcmp(p, "7") == 0 ) {
+			
+			char nombreCliente[30];
+			int numSala;
+			p = strtok(NULL, "/");
+			strcpy(nombreCliente, p);
+			p = strtok(NULL, "/");
+			numSala = atoi(p);
+			
+			// Ahora como sabemos el numero de sala, podemos llamar a la funcion que compruebe el num de sala si esta lleno
+			int err = CheckRoom(conn, numSala, response, nombreCliente);
+			if(err != -1){
+				// Devolvemos el numero de gente si no esta llena
+				sprintf(response, "7/%d/%d", err, numSala);
+				
+				// AQUI EN TEORIA SE DEBERIA DE CAMBIAR EN LA BASE DE DATOS CUANTA GENTE HAY PERO DE MOMENTO NO
+				write (sock_conn, response, strlen(response));
+			}
+			else{
+				sprintf(response, "7/-1");
+				write (sock_conn, response, strlen(response));
+			}
+			
+		}
+		
+		// Lista de conectados
 		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
 			char notificacion[900];
@@ -365,6 +432,26 @@ void* AtenderCliente(void* socket_desc) {
 			}
 			printf("Lista Conectados: %s\n", notificacion);
 		}
+		
+		
+		// CAMBIAR NUMERO DE JUGADORES EN LA SALA CON NOTIFICACIONES
+		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) || (strcmp(p, "7") == 0) ){
+			
+			int GenteNumSala[4];
+			char notificacion[900];
+			CheckAllRooms(conn, response, GenteNumSala);
+			int j;
+			sprintf(notificacion, "8/%d/%d/%d/%d", GenteNumSala[0], GenteNumSala[1], GenteNumSala[2], GenteNumSala[3]);
+			for (j = 0; j<conectados.num; j++) {
+				
+				write (sockets[j], notificacion, strlen(notificacion));
+			}
+			printf("Actualizando Salas... \n");
+			printf("Mensaje Recibido: %s", notificacion);
+		}
+		
+		
+		
 		if(strcmp(p, "0") == 0) {
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
 			char notificacion[900];
@@ -409,11 +496,20 @@ int main(int argc, char *argv[]) {
 	
 	if (mysql_select_db(conn, "T2_BBDDPoker") != 0) {
 		printf("Error seleccionando la base de datos: %s\n", mysql_error(conn));
-		if (mysql_select_db(conn, "T2_BBDDPoker") != 0) {
-			printf("Error seleccionando la base de datos: %s\n", mysql_error(conn));
-			exit(1);  // O manejar el error de otra forma
-		}
+		exit(1);
 	}
+	
+	// EJECUTAMOS UNA CONSULTA PARA PONER EN 0 EL NOMBRE D EJUGADORES DE LAS SALAS
+	char query[500];
+	sprintf(query, "UPDATE Mesa SET num_jug = 0;");
+	mysql_query(conn, query);
+	if(mysql_query(conn, query)){
+		printf("Error al vaciar las salas");
+		exit(1);
+	}
+	printf("Salas vaciadas\n");
+	
+	
 	
 	int sock_conn, sock_listen;
 	struct sockaddr_in serv_adr;
