@@ -5,20 +5,33 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Drawing.Drawing2D;
+using System.Security.Cryptography;
 using DeckCard;
 
 namespace WindowsFormsApplication1 {
     public partial class Sala : Form {
 
-        public PictureBox[] Imagenes = new PictureBox[10];
+        public PictureBox[] Imagenes = new PictureBox[9];
         List<Carta> player1;
         List<Carta> player2;
 
-        public Sala() {
+        public string usuario;
+        public Socket server;
+
+        public Sala(string usuario , int num_sala , Socket server) {
             InitializeComponent();
+
+            this.usuario = usuario;
+            this.server = server;
+
         }
+
+
 
         /*
          
@@ -44,7 +57,7 @@ namespace WindowsFormsApplication1 {
             PictureBox[] pictureBoxes =
             {
                 pictureBox1, pictureBox2, pictureBox3, pictureBox4, pictureBox5,
-                pictureBox6, pictureBox7, pictureBox8, pictureBox9, pictureBox10, pictureBox11
+                pictureBox6, pictureBox7, pictureBox9, pictureBox8
             };
 
 
@@ -57,18 +70,19 @@ namespace WindowsFormsApplication1 {
             }
 
 
-            // Fijamos las cartas en el form, del 1 al 5 son comunitarias y 6,7,8 son del jugador y las demás oponente
+            // Fijamos las cartas en el form, del 0 al 4 son comunitarias y 5,6 son del jugador y las demás oponente
             pictureBoxes[0].Location = new Point(338 , 282);
             pictureBoxes[1].Location = new Point(430 , 282);
             pictureBoxes[2].Location = new Point(523 , 282);
             pictureBoxes[3].Location = new Point(615 , 282);
             pictureBoxes[4].Location = new Point(708 , 282);
-            pictureBoxes[5].Location = new Point(429 , 439);
-            pictureBoxes[6].Location = new Point(534 , 439);
-            pictureBoxes[7].Location = new Point(628 , 439);
-            pictureBoxes[8].Location = new Point(638 , 118);
-            pictureBoxes[9].Location = new Point(534 , 118);
-            pictureBoxes[10].Location = new Point(429 , 118);
+
+            pictureBoxes[5].Location = new Point(468 , 439);
+            pictureBoxes[6].Location = new Point(569 , 439);
+
+            pictureBoxes[7].Location = new Point(468 , 118);
+            pictureBoxes[8].Location = new Point(569 , 118);
+            
 
 
 
@@ -83,10 +97,12 @@ namespace WindowsFormsApplication1 {
             CheckButton.Location = new Point(1027 , 456);
 
 
-            player1Label.Location = new Point(469 , 58);
-            player2Label.Location = new Point(469 , 592);
+            player2Lbl.Location = new Point(469 , 58);
+            player1Lbl.Location = new Point(469 , 592);
 
             this.Imagenes = pictureBoxes;
+
+            player1Lbl.Text = this.usuario;
 
         }
 
@@ -94,7 +110,29 @@ namespace WindowsFormsApplication1 {
 
 
 
+        public void SetNombres(string[] trozos, string usuario) {
 
+            // recibo esto: 9/numSala/Nombre1/Nombre2.../0/0/0/0
+
+            string nombre;
+
+            for(int i = 0; i<trozos.Length; i++ ) {
+
+                if ( trozos[i+2] == "/0" ) {
+                    break;
+                }
+                else {
+                    nombre = trozos[i + 2];
+
+                    if(nombre == usuario ) {
+                        player1Lbl.Text = usuario;
+                    }
+                    else {
+                        player2Lbl.Text = nombre;
+                    }
+                }
+            }
+        }
 
         /*
          ----------------------------------------------------------------------------------------------------------------
@@ -122,7 +160,7 @@ namespace WindowsFormsApplication1 {
             // ASIGNAMOS LAS IMAGENES RANDOM EN LA INTERFAZ
 
             // PLAYER 1
-            for(int i = 0, j = 5; i<3 && j<8; i++, j++) {
+            for(int i = 0, j = 5; i<3 && j<7; i++, j++) {
             
                 string photoName = this.player1[i].ObtenerNombreImagen();
                 var imageProperty = Properties.Resources.ResourceManager.GetObject(photoName) as Image;
@@ -130,15 +168,12 @@ namespace WindowsFormsApplication1 {
             }
 
             // PLAYER 2
-            for ( int i = 0, j = 8; i < 3 && j < 11; i++, j++ ) {
+            for ( int i = 0, j = 7; i < 3 && j < 9; i++, j++ ) {
 
                 string photoName = this.player2[i].ObtenerNombreImagen();
                 var imageProperty = Properties.Resources.ResourceManager.GetObject(photoName) as Image;
                 this.Imagenes[j].Image = imageProperty;
             }
-
-
-
         }
 
     }

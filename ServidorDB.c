@@ -23,12 +23,27 @@ typedef struct {
 	int num;
 }ListaConectados;
 
+typedef struct{
+	char nombre[20];
+	int socket;
+}Player;
 
-// A�ade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta� llena.
+typedef struct{
+	
+	Player players[4];
+	int num_players;
+}Sala;
+
+typedef struct{
+	Sala salas[4];
+}ListaSalas;
+
+
+// Añade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta� llena.
 int AddPlayer(ListaConectados *lista, char nombre[20], int socket) {
 
 	if (lista->num == 100) {
-		// La lista esta� llena, no se puede añadir más usuarios
+		// La lista esta� llena, no se puede añadir más usuarios
 		return -1;
 	} else {
 		// Copiar el nombre del usuario y asignar el socket
@@ -120,7 +135,7 @@ void DameConectados(ListaConectados *lista, char conectados[300]) {
 
 pthread_mutex_t mutexLista = PTHREAD_MUTEX_INITIALIZER;
 ListaConectados conectados;
-
+ListaSalas salas;
 
 void* AtenderCliente(void* socket_desc);
 
@@ -164,7 +179,7 @@ void RegisterUser(MYSQL *conn, char *nombre, char *cuenta, char *contrasenya, in
 					strcpy(response, "1/ERROR AL INSERTAR EL NUEVO USUARIO");
 				}
 				else {
-					strcpy(response, "1/REGISTERED");
+					strcpy(response, "1/REGISTERED/");
 					pthread_mutex_lock(&mutexLista);
 					AddPlayer(&conectados, nombre, sock_conn);
 					
@@ -185,6 +200,7 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 		
 		printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
 		strcpy(response, "ERROR");
+		
 	}
 	else {
 		
@@ -197,7 +213,7 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 		else if (mysql_num_rows(res) > 0) {
 			
 			char nombre[20];
-			strcpy(response, "2/LOGGED_IN");
+			strcpy(response, "2/LOGGED_IN/");
 			char query_nombre[100];
 			sprintf(query_nombre, "SELECT nombre FROM Jugadores WHERE cuenta='%s' AND contrasenya='%s';", cuenta, contrasenya);
 			
@@ -220,40 +236,43 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 			}
 		} 
 		else {
-			strcpy(response, "2/LOGIN_FAILED");
+			strcpy(response, "2/LOGIN_FAILED/");
 		}
 		mysql_free_result(res);
 	}
 }
 
 
-// REVISTA SI HAY GENTE EN LA SALA. 0 SI ESTA VACIA, -1 SI ESTA LLENA. Solo cuando alguien intenta unirse
-int CheckRoom(MYSQL *conn, int NumSala, char *response, char *nombre){
+// REVISA SI HAY GENTE EN LA SALA. 0 SI ESTA VACIA, -1 SI ESTA LLENA. Solo cuando alguien intenta unirse
+int CheckRoom(MYSQL *conn, int NumSala, char *nombre){
 	
-	sprintf(response, "SELECT num_jug FROM Mesa WHERE id_mesa='%d';", NumSala);
-	if(mysql_query(conn, response)) {
+	char consulta[500];
+	sprintf(consulta, "SELECT num_jug FROM Mesa WHERE id_mesa='%d';", NumSala);
+	if(mysql_query(conn, consulta)) {
 		printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
-		strcpy(response, "ERROR");
+		return -1;
 	}
 	else{
 		MYSQL_RES *res = mysql_store_result(conn);
 		if (res == NULL) {
 			
 			printf("Error al obtener el resultado: %s\n", mysql_error(conn));
-			strcpy(response, "ERROR");
+			return -1;
 		}
 		else{
 			MYSQL_ROW row = mysql_fetch_row(res);
 			int numGenteSala = atoi(row[0]);
 			printf("%s quiere entrar en la sala %d que hay %d personas\n", nombre, NumSala, numGenteSala);
 			
+			mysql_free_result(res);
 			
 			if( numGenteSala < 4 ) {
 				char query[500];
 				sprintf(query,"UPDATE Mesa SET num_jug=num_jug+1 WHERE id_mesa='%d';", NumSala);
-				mysql_query(conn, response);
+				mysql_query(conn, query);
+				printf("+1 persona en la Mesa: %d \n", NumSala);
 				return numGenteSala;
-			}
+			}	
 			return -1;
 			
 		}
@@ -284,7 +303,7 @@ void CheckAllRooms(MYSQL *conn, char *response, int GenteSala[4]){
 			while(row != NULL){
 				GenteSala[j] = atoi(row[0]);
 				row = mysql_fetch_row(res);
-				printf("Sala %d: %d\n", j, GenteSala[j]); 
+				printf("Numero de gente en la Sala %d: %d\n", j+1, GenteSala[j]); 
 				j++;
 			}
 			
@@ -295,9 +314,53 @@ void CheckAllRooms(MYSQL *conn, char *response, int GenteSala[4]){
 	
 }
 
+int AddPlayerSala(ListaSalas *salas, char nombre[20], int numSala, int socket) {
 
+    int salaIndex = numSala - 1;
 
+    // Añadimos al jugador directamente, asumiendo que hay espacio
+    strcpy(salas->salas[salaIndex].players[salas->salas[salaIndex].num_players].nombre, nombre);
+    salas->salas[salaIndex].num_players++;
+	salas->salas[salaIndex].players[salas->salas[salaIndex].num_players].socket = socket;
+    printf("Jugador %s añadido a la Estructura sala[%d] en la posición %d.\n", 
+           nombre, salaIndex, salas->salas[salaIndex].num_players);
+	
+	return salas->salas[salaIndex].num_players;
 
+}
+
+void ObtenerPlayersSala(ListaSalas *salas, int numSala, char nombres[100]) {
+
+	int salaIndex = numSala - 1;
+    int i;
+	nombres[0] = '\0';
+	printf("%s\n", nombres);
+
+    // Recorremos los jugadores de la sala y añadimos sus nombres separados por '/'
+    for (i = 0; i < salas->salas[salaIndex].num_players; i++) {
+        // Añadimos el nombre del jugador al string
+        strcat(nombres, salas->salas[salaIndex].players[i].nombre);
+		strcat(nombres, "/");
+    }
+	printf("aqui viene el bug\n");
+	printf("%s\n",nombres);
+}
+
+void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int sockets[4]) {
+
+	int salaIndex = numSala - 1;
+    int i;
+
+    // Inicializamos el arreglo de sockets a -1 (valor de error o vacío)
+    for (i = 0; i < 4; i++) {
+        sockets[i] = -1;
+    }
+
+    // Recorremos los jugadores de la sala y almacenamos sus sockets
+    for (i = 0; i < salas->salas[salaIndex].num_players; i++) {
+        sockets[i] = salas->salas[salaIndex].players[i].socket;
+    }
+}
 
 int socket_num;
 int sockets[300];
@@ -331,9 +394,12 @@ void* AtenderCliente(void* socket_desc) {
 			
 			printf("Cliente desconectado.\n");
 			
+			memset(response, 0, sizeof(response));
+			
 			strcpy(response, "DISCONNECT");
 			
 			write(sock_conn, response, strlen(response) + 1);
+			usleep(100000);
 			
 			pthread_mutex_lock(&mutexLista);
 			EliminarWithSocket(&conectados, sock_conn);
@@ -345,15 +411,19 @@ void* AtenderCliente(void* socket_desc) {
 			char *nombre = strtok(NULL, "/");
 			char *cuenta = strtok(NULL, "/");
 			char *contrasenya = strtok(NULL, "/");
+			memset(response, 0, sizeof(response));			
 			RegisterUser(conn, nombre, cuenta, contrasenya, sock_conn, response);
 			write (sock_conn, response, strlen(response));
+			usleep(100000);
 		}
 		// LOGIN
 		else if (strcmp(p, "2") == 0) {
 			char *cuenta = strtok(NULL, "/");
 			char *contrasenya = strtok(NULL, "/");
+			memset(response, 0, sizeof(response));			
 			LoginUser(conn, cuenta, contrasenya, sock_conn, response);
 			write (sock_conn, response, strlen(response));
+			usleep(100000);
 		}
 		
 		
@@ -367,11 +437,14 @@ void* AtenderCliente(void* socket_desc) {
 				printf("El que invita: '%s'\n", name);
 				printf("El que es invitado: '%s'\n", nameInvited);
 			}
+			memset(response, 0, sizeof(response));
+			
 			int pos = DamePosicion(&conectados, nameInvited);
 			int socketInvited = conectados.conectados[pos].socket;
-			sprintf(response, "5/%s/Te ha invitado %s", nameInvited, name);
+			sprintf(response, "5/%s/Te ha invitado %s/", nameInvited, name);
 			write(sockets[pos], response, strlen(response));
-			printf("Invitaci�n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
+			usleep(100000);
+			printf("Invitaci�n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
 		}
 		
 		// Para enviar mensaje al chat
@@ -386,12 +459,15 @@ void* AtenderCliente(void* socket_desc) {
 			strcpy(mensajeChat, p);
 
 			sprintf(chatMessage, "%s: %s", nombreAutor, mensajeChat);
-			sprintf(response, "6/%s\n", chatMessage);
+			memset(response, 0, sizeof(response));
+			
+			sprintf(response, "6/%s/", chatMessage);
 			int j;
 			for (j = 0; j<conectados.num; j++) {
 				
 				write (sockets[j], response, strlen(response));
 			}
+			usleep(100000);
 		}
 		if( strcmp(p, "7") == 0 ) {
 			
@@ -401,19 +477,45 @@ void* AtenderCliente(void* socket_desc) {
 			strcpy(nombreCliente, p);
 			p = strtok(NULL, "/");
 			numSala = atoi(p);
+			memset(response, 0, sizeof(response));
+			
 			
 			// Ahora como sabemos el numero de sala, podemos llamar a la funcion que compruebe el num de sala si esta lleno
-			int err = CheckRoom(conn, numSala, response, nombreCliente);
+			int err = CheckRoom(conn, numSala, nombreCliente);
 			if(err != -1){
 				// Devolvemos el numero de gente si no esta llena
-				sprintf(response, "7/%d/%d", err, numSala);
-				
-				// AQUI EN TEORIA SE DEBERIA DE CAMBIAR EN LA BASE DE DATOS CUANTA GENTE HAY PERO DE MOMENTO NO
+				sprintf(response, "7/%d/%d/", err, numSala);
+				int gente = AddPlayerSala(&salas, nombreCliente, numSala, sock_conn);
 				write (sock_conn, response, strlen(response));
+
+				usleep(100000);
+				// Deberiamos enviar los nombres de la gente que esta en esa sala para que cuando se una otra persona el server envie los nombres y asi en el form salga la gente
+				char nombres[100];
+				nombres[0] = '\0';
+				int sockets_players[4];
+				printf("%s\n", nombres);
+				ObtenerPlayersSala(&salas, numSala, nombres);
+				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+				
+				char notificacion[300];
+				notificacion[0] = '\0';
+				strcpy(notificacion, "9/");
+				sprintf(notificacion, "%d/", numSala);
+				printf("%s", notificacion);
+				strcat(notificacion, nombres);
+
+				int j;
+				for (j = 0; j<gente; j++) {
+					
+					write (sockets_players[j], notificacion, strlen(notificacion));
+					printf("\nEnviando nombres con 9/\n");
+				}
+				usleep(100000);
 			}
 			else{
-				sprintf(response, "7/-1");
+				sprintf(response, "7/-1/");
 				write (sock_conn, response, strlen(response));
+				usleep(100000);
 			}
 			
 		}
@@ -422,14 +524,16 @@ void* AtenderCliente(void* socket_desc) {
 		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
 			char notificacion[900];
+			memset(notificacion, 0, sizeof(notificacion));
 			char connectedUsers[300];
 			DameConectados(&conectados, connectedUsers);
-			sprintf(notificacion, "4/%s", connectedUsers);
+			sprintf(notificacion, "4/%s/", connectedUsers);
 			int j;
 			for (j = 0; j<conectados.num; j++) {
 				
 				write (sockets[j], notificacion, strlen(notificacion));
 			}
+			usleep(100000);
 			printf("Lista Conectados: %s\n", notificacion);
 		}
 		
@@ -439,15 +543,17 @@ void* AtenderCliente(void* socket_desc) {
 			
 			int GenteNumSala[4];
 			char notificacion[900];
-			CheckAllRooms(conn, response, GenteNumSala);
+			CheckAllRooms(conn, notificacion, GenteNumSala);
 			int j;
-			sprintf(notificacion, "8/%d/%d/%d/%d", GenteNumSala[0], GenteNumSala[1], GenteNumSala[2], GenteNumSala[3]);
+			memset(notificacion, 0, sizeof(notificacion));
+			sprintf(notificacion, "8/%d/%d/%d/%d/", GenteNumSala[0], GenteNumSala[1], GenteNumSala[2], GenteNumSala[3]);
 			for (j = 0; j<conectados.num; j++) {
 				
 				write (sockets[j], notificacion, strlen(notificacion));
 			}
+			usleep(100000);
 			printf("Actualizando Salas... \n");
-			printf("Mensaje Recibido: %s", notificacion);
+			printf("Mensaje Recibido: %s \n", notificacion);
 		}
 		
 		
@@ -457,12 +563,14 @@ void* AtenderCliente(void* socket_desc) {
 			char notificacion[900];
 			char connectedUsers[300];
 			DameConectados(&conectados, connectedUsers);
-			sprintf(notificacion, "4/%s", connectedUsers);
+			memset(notificacion, 0, sizeof(notificacion));
+			sprintf(notificacion, "4/%s/", connectedUsers);
 			int j;
 			for (j = 0; j<conectados.num; j++) {
 				
 				write (sockets[j], notificacion, strlen(notificacion));
 			}
+			usleep(100000);
 			printf("Se ha ido un usuario \n");
 			printf("Lista Conectados: %s\n", notificacion);
 			close(sock_conn);

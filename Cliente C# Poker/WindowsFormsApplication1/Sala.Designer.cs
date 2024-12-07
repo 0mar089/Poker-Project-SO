@@ -33,16 +33,14 @@
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.pictureBox6 = new System.Windows.Forms.PictureBox();
             this.pictureBox7 = new System.Windows.Forms.PictureBox();
-            this.pictureBox8 = new System.Windows.Forms.PictureBox();
             this.pictureBox9 = new System.Windows.Forms.PictureBox();
-            this.pictureBox10 = new System.Windows.Forms.PictureBox();
-            this.pictureBox11 = new System.Windows.Forms.PictureBox();
+            this.pictureBox8 = new System.Windows.Forms.PictureBox();
             this.CheckButton = new System.Windows.Forms.Button();
             this.CallButton = new System.Windows.Forms.Button();
             this.FoldButton = new System.Windows.Forms.Button();
             this.RaiseButton = new System.Windows.Forms.Button();
-            this.player2Label = new System.Windows.Forms.Label();
-            this.player1Label = new System.Windows.Forms.Label();
+            this.player1Lbl = new System.Windows.Forms.Label();
+            this.player2Lbl = new System.Windows.Forms.Label();
             this.labelDynamicBalance = new System.Windows.Forms.Label();
             this.labelStaticBalance = new System.Windows.Forms.Label();
             this.randomCards = new System.Windows.Forms.Button();
@@ -53,10 +51,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox10)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -101,51 +97,35 @@
             // 
             // pictureBox6
             // 
-            this.pictureBox6.Location = new System.Drawing.Point(429, 439);
+            this.pictureBox6.Location = new System.Drawing.Point(468, 439);
             this.pictureBox6.Name = "pictureBox6";
             this.pictureBox6.Size = new System.Drawing.Size(87, 115);
-            this.pictureBox6.TabIndex = 5;
+            this.pictureBox6.TabIndex = 6;
             this.pictureBox6.TabStop = false;
             // 
             // pictureBox7
             // 
-            this.pictureBox7.Location = new System.Drawing.Point(534, 439);
+            this.pictureBox7.Location = new System.Drawing.Point(569, 439);
             this.pictureBox7.Name = "pictureBox7";
             this.pictureBox7.Size = new System.Drawing.Size(87, 115);
-            this.pictureBox7.TabIndex = 6;
+            this.pictureBox7.TabIndex = 7;
             this.pictureBox7.TabStop = false;
-            // 
-            // pictureBox8
-            // 
-            this.pictureBox8.Location = new System.Drawing.Point(638, 439);
-            this.pictureBox8.Name = "pictureBox8";
-            this.pictureBox8.Size = new System.Drawing.Size(87, 115);
-            this.pictureBox8.TabIndex = 7;
-            this.pictureBox8.TabStop = false;
             // 
             // pictureBox9
             // 
-            this.pictureBox9.Location = new System.Drawing.Point(638, 118);
+            this.pictureBox9.Location = new System.Drawing.Point(569, 118);
             this.pictureBox9.Name = "pictureBox9";
             this.pictureBox9.Size = new System.Drawing.Size(87, 115);
             this.pictureBox9.TabIndex = 10;
             this.pictureBox9.TabStop = false;
             // 
-            // pictureBox10
+            // pictureBox8
             // 
-            this.pictureBox10.Location = new System.Drawing.Point(534, 118);
-            this.pictureBox10.Name = "pictureBox10";
-            this.pictureBox10.Size = new System.Drawing.Size(87, 115);
-            this.pictureBox10.TabIndex = 9;
-            this.pictureBox10.TabStop = false;
-            // 
-            // pictureBox11
-            // 
-            this.pictureBox11.Location = new System.Drawing.Point(429, 118);
-            this.pictureBox11.Name = "pictureBox11";
-            this.pictureBox11.Size = new System.Drawing.Size(87, 115);
-            this.pictureBox11.TabIndex = 8;
-            this.pictureBox11.TabStop = false;
+            this.pictureBox8.Location = new System.Drawing.Point(468, 118);
+            this.pictureBox8.Name = "pictureBox8";
+            this.pictureBox8.Size = new System.Drawing.Size(87, 115);
+            this.pictureBox8.TabIndex = 9;
+            this.pictureBox8.TabStop = false;
             // 
             // CheckButton
             // 
@@ -183,29 +163,29 @@
             this.RaiseButton.Text = "Raise";
             this.RaiseButton.UseVisualStyleBackColor = true;
             // 
-            // player2Label
+            // player1Lbl
             // 
-            this.player2Label.AutoSize = true;
-            this.player2Label.BackColor = System.Drawing.Color.Black;
-            this.player2Label.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.player2Label.ForeColor = System.Drawing.Color.Snow;
-            this.player2Label.Location = new System.Drawing.Point(461, 592);
-            this.player2Label.Name = "player2Label";
-            this.player2Label.Size = new System.Drawing.Size(195, 37);
-            this.player2Label.TabIndex = 16;
-            this.player2Label.Text = "JUGADOR 2";
+            this.player1Lbl.AutoSize = true;
+            this.player1Lbl.BackColor = System.Drawing.Color.Black;
+            this.player1Lbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player1Lbl.ForeColor = System.Drawing.Color.Snow;
+            this.player1Lbl.Location = new System.Drawing.Point(461, 592);
+            this.player1Lbl.Name = "player1Lbl";
+            this.player1Lbl.Size = new System.Drawing.Size(57, 37);
+            this.player1Lbl.TabIndex = 16;
+            this.player1Lbl.Text = "TÚ";
             // 
-            // player1Label
+            // player2Lbl
             // 
-            this.player1Label.AutoSize = true;
-            this.player1Label.BackColor = System.Drawing.Color.Black;
-            this.player1Label.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.player1Label.ForeColor = System.Drawing.Color.Snow;
-            this.player1Label.Location = new System.Drawing.Point(469, 58);
-            this.player1Label.Name = "player1Label";
-            this.player1Label.Size = new System.Drawing.Size(187, 37);
-            this.player1Label.TabIndex = 17;
-            this.player1Label.Text = "JUGADOR 1";
+            this.player2Lbl.AutoSize = true;
+            this.player2Lbl.BackColor = System.Drawing.Color.Black;
+            this.player2Lbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player2Lbl.ForeColor = System.Drawing.Color.Snow;
+            this.player2Lbl.Location = new System.Drawing.Point(469, 58);
+            this.player2Lbl.Name = "player2Lbl";
+            this.player2Lbl.Size = new System.Drawing.Size(179, 37);
+            this.player2Lbl.TabIndex = 17;
+            this.player2Lbl.Text = "OPONENTE";
             // 
             // labelDynamicBalance
             // 
@@ -255,15 +235,13 @@
             this.Controls.Add(this.randomCards);
             this.Controls.Add(this.labelDynamicBalance);
             this.Controls.Add(this.labelStaticBalance);
-            this.Controls.Add(this.player1Label);
-            this.Controls.Add(this.player2Label);
+            this.Controls.Add(this.player2Lbl);
+            this.Controls.Add(this.player1Lbl);
             this.Controls.Add(this.RaiseButton);
             this.Controls.Add(this.FoldButton);
             this.Controls.Add(this.CallButton);
             this.Controls.Add(this.CheckButton);
             this.Controls.Add(this.pictureBox9);
-            this.Controls.Add(this.pictureBox10);
-            this.Controls.Add(this.pictureBox11);
             this.Controls.Add(this.pictureBox8);
             this.Controls.Add(this.pictureBox7);
             this.Controls.Add(this.pictureBox6);
@@ -283,10 +261,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox6)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox10)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -301,16 +277,14 @@
         private System.Windows.Forms.PictureBox pictureBox5;
         private System.Windows.Forms.PictureBox pictureBox6;
         private System.Windows.Forms.PictureBox pictureBox7;
-        private System.Windows.Forms.PictureBox pictureBox8;
         private System.Windows.Forms.PictureBox pictureBox9;
-        private System.Windows.Forms.PictureBox pictureBox10;
-        private System.Windows.Forms.PictureBox pictureBox11;
+        private System.Windows.Forms.PictureBox pictureBox8;
         private System.Windows.Forms.Button CheckButton;
         private System.Windows.Forms.Button CallButton;
         private System.Windows.Forms.Button FoldButton;
         private System.Windows.Forms.Button RaiseButton;
-        private System.Windows.Forms.Label player2Label;
-        private System.Windows.Forms.Label player1Label;
+        private System.Windows.Forms.Label player1Lbl;
+        private System.Windows.Forms.Label player2Lbl;
         private System.Windows.Forms.Label labelDynamicBalance;
         private System.Windows.Forms.Label labelStaticBalance;
         private System.Windows.Forms.Button randomCards;

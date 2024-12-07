@@ -18,6 +18,8 @@ namespace WindowsFormsApplication1 {
         Socket server;
         Thread atender;
         string usuario;
+        int num_sala;
+        List<Sala> salas = new List<Sala>();
         public Form1()
         {
             InitializeComponent();
@@ -150,6 +152,11 @@ namespace WindowsFormsApplication1 {
                                     break;
                             }
 
+                            // ENTRA AL NUEVO FORMULARIO PARA JUGAR AL POKER
+
+                            ThreadStart ts = delegate { EntrarSalaPoker(); };
+                            Thread t = new Thread(ts);
+                            t.Start();
 
 
                         }
@@ -185,12 +192,25 @@ namespace WindowsFormsApplication1 {
                         }
                         break;
 
+                    case 9:
+
+                        int numeroSala = Convert.ToInt32(mensaje);
+                        
+                        salas[numeroSala].SetNombres(trozos, this.usuario);
+
+                        break;
                 }
 
             }
 
         }
 
+        private void EntrarSalaPoker() {
+            Sala s = new Sala(this.usuario , this.num_sala , server);
+            salas.Add(s);
+            s.ShowDialog();
+
+        }
 
         // Botón para registrar
         private void buttonRegister_Click_1(object sender , EventArgs e)
