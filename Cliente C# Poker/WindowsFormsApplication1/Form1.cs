@@ -101,21 +101,46 @@ namespace WindowsFormsApplication1 {
                     case 5:
                         // El mensaje recibido es del tipo: 5/name/Te ha invitado name
 
-                        if (trozos.Length >= 3) // Verifica que el mensaje contiene al menos 3 partes
-                        {
-                            string nombre = trozos[1]; // Nombre del usuario que invita
-                            string mensajeInvitacion = trozos[2].Split('\0')[0]; // Mensaje completo de invitación
+                        if ( mensaje == "0" ) {
+                            if ( trozos.Length >= 3 ) // Verifica que el mensaje contiene al menos 3 partes
+                            {
+                                string nombre = trozos[2]; // Nombre del usuario que invita
+                                string mensajeInvitacion = trozos[3].Split('\0')[0]; // Mensaje completo de invitación
 
-                            // Muestra un mensaje en la interfaz
-                            MessageBox.Show($"{mensajeInvitacion}" , $"Invitación recibida de {nombre}");
+                                // Muestra un MessageBox con botones "Sí" y "No"
+                                DialogResult resultado = MessageBox.Show(
+                                    mensajeInvitacion ,
+                                    $"Invitación recibida de {nombre}" ,
+                                    MessageBoxButtons.OKCancel // Botones Aceptar y Cnacelar
+                                );
 
-                            // EN VEZ DE UN MESSAGE BOX SE TENDRIA QUE ABRIR UN FORMULARIO PARA ACEPTAR LA INVITACIÓN
+                                if ( resultado == DialogResult.OK ) {
+                                    // Lógica para aceptar la invitación
+                                    MessageBox.Show("Has aceptado la invitación." , "Resultado");
+                                }
+                                else if ( resultado == DialogResult.Cancel ) {
+                                    // Lógica para rechazar la invitación
+                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario;
+                                    byte[] msg2 = Encoding.ASCII.GetBytes(mensaje);
+                                    server.Send(msg2);
+                                    MessageBox.Show("Has rechazado la invitación." , "Resultado");
+                                }
+                            }
+                            else {
+                                // Manejo de error si el mensaje no tiene el formato esperado
+                                MessageBox.Show("Mensaje de invitación incompleto recibido.");
+                            }
+
+
                         }
-                        else {
-                            // Manejo de error si el mensaje no tiene el formato esperado
-                            MessageBox.Show("Mensaje de invitación incompleto recibido.");
-                        }
+                        else if ( mensaje == "1" ) {
+                            string mensajeInvitacion = trozos[2]; // Nombre del usuario que invita
 
+
+                            // Muestra un MessageBox con botones "Sí" y "No"
+                            DialogResult resultado = MessageBox.Show(
+                                $" {mensajeInvitacion} ha rechazado tu invitación");
+                        }
                         break;
 
                     case 6:

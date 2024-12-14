@@ -429,22 +429,35 @@ void* AtenderCliente(void* socket_desc) {
 		
 		// Para invitar a alguien
 		if ( strcmp(p, "5") == 0 ) {
+			char *decision = strtok(NULL,"/");
 			char *name = strtok(NULL, "/");
 			char *nameInvited = strtok(NULL, "/");
-			if (name == NULL) {
-				printf("Error: name es NULL\n");
-			} else {
-				printf("El que invita: '%s'\n", name);
-				printf("El que es invitado: '%s'\n", nameInvited);
-			}
-			memset(response, 0, sizeof(response));
+			if(strcmp(decision,"0")==0)
+			{
+				if (name == NULL) {
+					printf("Error: name es NULL\n");
+				} else {
+					printf("El que invita: '%s'\n", name);
+					printf("El que es invitado: '%s'\n", nameInvited);
+				}
+				memset(response, 0, sizeof(response));
 			
-			int pos = DamePosicion(&conectados, nameInvited);
-			int socketInvited = conectados.conectados[pos].socket;
-			sprintf(response, "5/%s/Te ha invitado %s/", nameInvited, name);
-			write(sockets[pos], response, strlen(response));
-			usleep(100000);
-			printf("Invitaci�n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
+				int pos = DamePosicion(&conectados, nameInvited);
+				int socketInvited = conectados.conectados[pos].socket;
+				sprintf(response, "5/0/%s/Te ha invitado %s/", nameInvited, name);
+				write(sockets[pos], response, strlen(response));
+				usleep(100000);
+				printf("Invitaci�n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
+			}
+			else if(strcmp(decision,"1")==0)
+			{
+				int pos = DamePosicion(&conectados, name);
+				int socket_anfitrion = conectados.conectados[pos].socket;
+				printf("%s ha rechazado la invitación de: %s", nameInvited, name);
+				sprintf(response, "5/1/%s/", nameInvited);
+				write(sockets[pos], response, strlen(response));
+				usleep(100000);
+			}	
 		}
 		
 		// Para enviar mensaje al chat
