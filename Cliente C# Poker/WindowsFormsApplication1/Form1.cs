@@ -28,7 +28,7 @@ namespace WindowsFormsApplication1 {
 
         private void Form1_Load(object sender , EventArgs e)
         {
-
+            ButtonInvite.Enabled = false;
         }
 
 
@@ -99,29 +99,28 @@ namespace WindowsFormsApplication1 {
                         break;
 
                     case 5:
-                        // El mensaje recibido es del tipo: 5/name/Te ha invitado name
+                        // El mensaje recibido es del tipo: 5/n/name/Te ha invitado name
 
-                        if ( mensaje == "0" ) {
-                            if ( trozos.Length >= 3 ) // Verifica que el mensaje contiene al menos 3 partes
+                        if ( mensaje == "2" ) {
+                            if ( trozos.Length >= 4 ) // Verifica que el mensaje contiene al menos 3 partes
                             {
                                 string nombre = trozos[2]; // Nombre del usuario que invita
-                                string mensajeInvitacion = trozos[3].Split('\0')[0]; // Mensaje completo de invitación
-
                                 // Muestra un MessageBox con botones "Sí" y "No"
-                                DialogResult resultado = MessageBox.Show(
-                                    mensajeInvitacion ,
-                                    $"Invitación recibida de {nombre}" ,
+                                DialogResult resultado = MessageBox.Show($"Invitación recibida de {nombre}" , 
+                                    "" ,
                                     MessageBoxButtons.OKCancel // Botones Aceptar y Cnacelar
                                 );
-
                                 if ( resultado == DialogResult.OK ) {
                                     // Lógica para aceptar la invitación
+                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario + "/SI";
+                                    byte[] msg2 = Encoding.ASCII.GetBytes(mensaje_decision);
+                                    server.Send(msg2);
                                     MessageBox.Show("Has aceptado la invitación." , "Resultado");
                                 }
                                 else if ( resultado == DialogResult.Cancel ) {
                                     // Lógica para rechazar la invitación
-                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario;
-                                    byte[] msg2 = Encoding.ASCII.GetBytes(mensaje);
+                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario + "/NO";
+                                    byte[] msg2 = Encoding.ASCII.GetBytes(mensaje_decision);
                                     server.Send(msg2);
                                     MessageBox.Show("Has rechazado la invitación." , "Resultado");
                                 }
@@ -134,12 +133,19 @@ namespace WindowsFormsApplication1 {
 
                         }
                         else if ( mensaje == "1" ) {
+
                             string mensajeInvitacion = trozos[2]; // Nombre del usuario que invita
+                            string respuesta = trozos[3]; // Su respuesta
 
-
-                            // Muestra un MessageBox con botones "Sí" y "No"
-                            DialogResult resultado = MessageBox.Show(
+                            if(respuesta == "SI" ) {
+                                DialogResult resultado = MessageBox.Show(
+                                $" {mensajeInvitacion} ha aceptado tu invitación");
+                            }
+                            else if(respuesta == "NO" ) {
+                                DialogResult resultado = MessageBox.Show(
                                 $" {mensajeInvitacion} ha rechazado tu invitación");
+                            }
+                            
                         }
                         break;
 
@@ -178,6 +184,8 @@ namespace WindowsFormsApplication1 {
                             }
 
                             // ENTRA AL NUEVO FORMULARIO PARA JUGAR AL POKER
+
+                            this.num_sala = numSala;
 
                             ThreadStart ts = delegate { EntrarSalaPoker(); };
                             Thread t = new Thread(ts);
@@ -233,6 +241,7 @@ namespace WindowsFormsApplication1 {
         private void EntrarSalaPoker() {
             Sala s = new Sala(this.usuario , this.num_sala , server);
             salas.Add(s);
+            ButtonInvite.Enabled = true;
             s.ShowDialog();
 
         }
@@ -287,7 +296,7 @@ namespace WindowsFormsApplication1 {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50055);
+                IPEndPoint ipep = new IPEndPoint(direc , 50058);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
@@ -352,7 +361,7 @@ namespace WindowsFormsApplication1 {
                 string usuarioInvitado = dataGridViewConectados.CurrentRow.Cells[0].Value.ToString();
 
                 // Envía la invitación al servidor
-                string mensaje = "5/" + this.usuario + "/" + usuarioInvitado;
+                string mensaje = "5/2/" + this.usuario + "/" + usuarioInvitado;
                 byte[] msg = Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 

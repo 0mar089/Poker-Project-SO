@@ -20,14 +20,17 @@ namespace WindowsFormsApplication1 {
         List<Carta> player1;
         List<Carta> player2;
 
+
         public string usuario;
         public Socket server;
+        public int num_sala;
 
         public Sala(string usuario , int num_sala , Socket server) {
             InitializeComponent();
 
             this.usuario = usuario;
             this.server = server;
+            this.num_sala = num_sala;
 
         }
 

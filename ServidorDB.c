@@ -23,6 +23,7 @@ typedef struct {
 	int num;
 }ListaConectados;
 
+
 typedef struct{
 	char nombre[20];
 	int socket;
@@ -260,6 +261,7 @@ int CheckRoom(MYSQL *conn, int NumSala, char *nombre){
 			return -1;
 		}
 		else{
+			
 			MYSQL_ROW row = mysql_fetch_row(res);
 			int numGenteSala = atoi(row[0]);
 			printf("%s quiere entrar en la sala %d que hay %d personas\n", nombre, NumSala, numGenteSala);
@@ -362,6 +364,44 @@ void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int sockets[4]) {
     }
 }
 
+// Elimina a un jugador de la sala
+
+int DeletePlayerSala(ListaSalas *salas, char nombre[20], int numSala, int socket) 
+{
+    int salaIndex = numSala - 1; // Convertir número de sala a índice
+
+    // Buscar al jugador por nombre en la sala
+    int jugadorIndex = -1;
+    for (int i = 0; i < salas->salas[salaIndex].num_players; i++) {
+        if (strcmp(salas->salas[salaIndex].players[i].nombre, nombre) == 0) {
+            jugadorIndex = i;
+            break;
+        }
+    }
+
+    // Si el jugador no se encuentra, devolver error
+    if (jugadorIndex == -1) {
+        printf("Jugador %s no encontrado en la sala %d.\n", nombre, numSala);
+        return -1; // Error: jugador no encontrado
+    }
+
+    // Eliminar al jugador y reorganizar la lista
+    for (int i = jugadorIndex; i < salas->salas[salaIndex].num_players - 1; i++) {
+        salas->salas[salaIndex].players[i] = salas->salas[salaIndex].players[i + 1]; // Mover jugadores hacia atrás
+    }
+
+    // Reducir el número de jugadores en la sala
+    salas->salas[salaIndex].num_players--;
+
+    // Limpiar la última posición (opcional, para evitar datos residuales)
+    memset(&salas->salas[salaIndex].players[salas->salas[salaIndex].num_players], 0, sizeof(Player));
+
+    printf("Jugador %s eliminado de la sala %d. Ahora hay %d jugadores.\n",
+           nombre, numSala, salas->salas[salaIndex].num_players);
+
+    return salas->salas[salaIndex].num_players; // Devolver el nuevo número de jugadores
+}
+
 int socket_num;
 int sockets[300];
 
@@ -432,7 +472,8 @@ void* AtenderCliente(void* socket_desc) {
 			char *decision = strtok(NULL,"/");
 			char *name = strtok(NULL, "/");
 			char *nameInvited = strtok(NULL, "/");
-			if(strcmp(decision,"0")==0)
+			// Invitar a alguien
+			if(strcmp(decision,"2")==0)
 			{
 				if (name == NULL) {
 					printf("Error: name es NULL\n");
@@ -444,19 +485,36 @@ void* AtenderCliente(void* socket_desc) {
 			
 				int pos = DamePosicion(&conectados, nameInvited);
 				int socketInvited = conectados.conectados[pos].socket;
-				sprintf(response, "5/0/%s/Te ha invitado %s/", nameInvited, name);
+				sprintf(response, "5/2/%s/", name);
 				write(sockets[pos], response, strlen(response));
 				usleep(100000);
 				printf("Invitaci�n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
 			}
+			// Contestar a la invitación
 			else if(strcmp(decision,"1")==0)
 			{
-				int pos = DamePosicion(&conectados, name);
-				int socket_anfitrion = conectados.conectados[pos].socket;
-				printf("%s ha rechazado la invitación de: %s", nameInvited, name);
-				sprintf(response, "5/1/%s/", nameInvited);
-				write(sockets[pos], response, strlen(response));
-				usleep(100000);
+				char *respuesta = strtok(NULL, "/");
+
+				if(strcmp(respuesta, "NO")) {
+					int pos = DamePosicion(&conectados, name);
+					int socket_anfitrion = conectados.conectados[pos].socket;
+					printf("%s ha rechazado la invitación de: %s\n", nameInvited, name);
+					sprintf(response, "5/1/%s/NO/", nameInvited);
+					write(sockets[pos], response, strlen(response));
+					usleep(100000);
+				}
+				else if(strcmp(respuesta, "SI")){
+
+					int pos = DamePosicion(&conectados, name);
+					int socket_anfitrion = conectados.conectados[pos].socket;
+					printf("%s ha aceptado la invitación de: %s\n", nameInvited, name);
+					sprintf(response, "5/1/%s/SI/", nameInvited);
+					write(sockets[pos], response, strlen(response));
+					usleep(100000);
+
+				}
+				
+				
 			}	
 		}
 		
@@ -531,6 +589,17 @@ void* AtenderCliente(void* socket_desc) {
 				usleep(100000);
 			}
 			
+		}
+
+		if(strcmp(p, "10") == 0){
+			char nombreCliente[30];
+			int numSala;
+			p = strtok(NULL, "/");
+			strcpy(nombreCliente, p);
+			p = strtok(NULL, "/");
+			numSala = atoi(p);
+
+
 		}
 		
 		// Lista de conectados
@@ -651,7 +720,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(50055);
+	serv_adr.sin_port = htons(50058);
 	
 	
 	
