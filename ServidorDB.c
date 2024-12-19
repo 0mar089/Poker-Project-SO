@@ -493,9 +493,9 @@ void* AtenderCliente(void* socket_desc) {
 			// Contestar a la invitación
 			else if(strcmp(decision,"1")==0)
 			{
-				char *respuesta = strtok(NULL, "/");
+				char *respuesta = strtok(NULL, "/"); 
 
-				if(strcmp(respuesta, "NO")) {
+				if(strcmp(respuesta, "NO") == 0) {
 					int pos = DamePosicion(&conectados, name);
 					int socket_anfitrion = conectados.conectados[pos].socket;
 					printf("%s ha rechazado la invitación de: %s\n", nameInvited, name);
@@ -503,7 +503,7 @@ void* AtenderCliente(void* socket_desc) {
 					write(sockets[pos], response, strlen(response));
 					usleep(100000);
 				}
-				else if(strcmp(respuesta, "SI")){
+				else if(strcmp(respuesta, "SI") == 0){
 
 					int pos = DamePosicion(&conectados, name);
 					int socket_anfitrion = conectados.conectados[pos].socket;
@@ -720,7 +720,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(50058);
+	serv_adr.sin_port = htons(50055);
 	
 	
 	
