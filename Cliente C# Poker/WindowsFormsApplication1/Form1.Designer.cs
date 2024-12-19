@@ -173,14 +173,14 @@
             // 
             // textChat
             // 
-            this.textChat.Location = new System.Drawing.Point(1010, 289);
+            this.textChat.Location = new System.Drawing.Point(1010, 313);
             this.textChat.Name = "textChat";
             this.textChat.Size = new System.Drawing.Size(159, 22);
             this.textChat.TabIndex = 32;
             // 
             // Escribir
             // 
-            this.Escribir.Location = new System.Drawing.Point(1175, 289);
+            this.Escribir.Location = new System.Drawing.Point(1175, 307);
             this.Escribir.Name = "Escribir";
             this.Escribir.Size = new System.Drawing.Size(86, 34);
             this.Escribir.TabIndex = 31;
@@ -192,7 +192,7 @@
             // 
             this.Chat.FormattingEnabled = true;
             this.Chat.ItemHeight = 16;
-            this.Chat.Location = new System.Drawing.Point(1010, 28);
+            this.Chat.Location = new System.Drawing.Point(1010, 59);
             this.Chat.Name = "Chat";
             this.Chat.Size = new System.Drawing.Size(251, 244);
             this.Chat.TabIndex = 30;
