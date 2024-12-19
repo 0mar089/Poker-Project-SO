@@ -328,6 +328,48 @@ int AddPlayerSala(ListaSalas *salas, char nombre[20], int numSala, int socket) {
 	return salas->salas[salaIndex].num_players;
 
 }
+int DeletePlayerSala(MYSQL *conn, ListaSalas *salas, char nombre[20], int numSala, int socket) 
+{
+    int salaIndex = numSala - 1; // Convertir número de sala a índice
+
+    // Buscar al jugador por nombre en la sala
+    int jugadorIndex = -1;
+    for (int i = 0; i < salas->salas[salaIndex].num_players; i++) {
+        if (strcmp(salas->salas[salaIndex].players[i].nombre, nombre) == 0) {
+            jugadorIndex = i;
+            break;
+        }
+    }
+
+    // Si el jugador no se encuentra, devolver error
+    if (jugadorIndex == -1) {
+        printf("Jugador %s no encontrado en la sala %d.\n", nombre, numSala);
+        return -1; // Error: jugador no encontrado
+    }
+
+    // Eliminar al jugador y reorganizar la lista
+    for (int i = jugadorIndex; i < salas->salas[salaIndex].num_players - 1; i++) {
+        salas->salas[salaIndex].players[i] = salas->salas[salaIndex].players[i + 1]; // Mover jugadores hacia atrás
+    }
+
+    // Reducir el número de jugadores en la sala
+    salas->salas[salaIndex].num_players--;
+
+    // Limpiar la última posición (opcional, para evitar datos residuales)
+    memset(&salas->salas[salaIndex].players[salas->salas[salaIndex].num_players], 0, sizeof(Player));
+
+    printf("Jugador %s eliminado de la sala %d. Ahora hay %d jugadores.\n",
+           nombre, numSala, salas->salas[salaIndex].num_players);
+	
+   char query[500];
+   sprintf(query,"UPDATE Mesa SET num_jug=num_jug-1 WHERE id_mesa='%d';", numSala);
+   mysql_query(conn, query);
+
+    return salas->salas[salaIndex].num_players; // Devolver el nuevo número de jugadores
+}
+
+
+
 
 void ObtenerPlayersSala(ListaSalas *salas, int numSala, char nombres[100]) {
 
@@ -432,7 +474,7 @@ void* AtenderCliente(void* socket_desc) {
 			char *decision = strtok(NULL,"/");
 			char *name = strtok(NULL, "/");
 			char *nameInvited = strtok(NULL, "/");
-			if(strcmp(decision,"0")==0)
+			if(strcmp(decision,"2")==0)
 			{
 				if (name == NULL) {
 					printf("Error: name es NULL\n");
@@ -444,7 +486,7 @@ void* AtenderCliente(void* socket_desc) {
 			
 				int pos = DamePosicion(&conectados, nameInvited);
 				int socketInvited = conectados.conectados[pos].socket;
-				sprintf(response, "5/0/%s/Te ha invitado %s/", nameInvited, name);
+				sprintf(response, "5/2/%s/", name);
 				write(sockets[pos], response, strlen(response));
 				usleep(100000);
 				printf("Invitaci�n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
@@ -453,7 +495,7 @@ void* AtenderCliente(void* socket_desc) {
 			{
 				int pos = DamePosicion(&conectados, name);
 				int socket_anfitrion = conectados.conectados[pos].socket;
-				printf("%s ha rechazado la invitación de: %s", nameInvited, name);
+				printf("%s ha rechazado la invitación de: %s\n", nameInvited, name);
 				sprintf(response, "5/1/%s/", nameInvited);
 				write(sockets[pos], response, strlen(response));
 				usleep(100000);
@@ -532,7 +574,28 @@ void* AtenderCliente(void* socket_desc) {
 			}
 			
 		}
-		
+		if( strcmp(p, "10") == 0 )
+		{
+			char nombreCliente[30];
+			int numSala;
+			p = strtok(NULL, "/");
+			strcpy(nombreCliente, p);
+			p = strtok(NULL, "/");
+			numSala = atoi(p);
+
+			int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
+			
+			char notificacion[300];
+			sprintf(notificacion, "10/%d/%d", numSala, a);
+			int j;
+			for (j = 0; j<conectados.num; j++) {
+				
+				write (sockets[j], notificacion, strlen(notificacion));
+			}
+			usleep(100000);
+			
+
+		}
 		// Lista de conectados
 		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente

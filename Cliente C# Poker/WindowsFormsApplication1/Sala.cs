@@ -22,12 +22,14 @@ namespace WindowsFormsApplication1 {
 
         public string usuario;
         public Socket server;
+        public int num_sala;
 
         public Sala(string usuario , int num_sala , Socket server) {
             InitializeComponent();
 
             this.usuario = usuario;
             this.server = server;
+            this.num_sala = num_sala;
 
         }
 
@@ -176,5 +178,12 @@ namespace WindowsFormsApplication1 {
             }
         }
 
+        private void Salir_Sala_Btn_Click(object sender, EventArgs e)
+        {
+            string mensaje = "10/" + this.usuario + "/" + this.num_sala;
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+            this.Close();
+        }
     }
 }
