@@ -107,6 +107,8 @@ namespace WindowsFormsApplication1 {
 
             player1Lbl.Text = this.usuario;
 
+
+
         }
 
 
@@ -115,27 +117,34 @@ namespace WindowsFormsApplication1 {
 
         public void SetNombres(string[] trozos, string usuario) {
 
-            // recibo esto: 9/numSala/Nombre1/Nombre2.../0/0/0/0
+            // recibo esto: 7/gente/numSala/Nombre1/Nombre2.../0/0/0/0
 
             string nombre;
 
-            for(int i = 0; i<trozos.Length; i++ ) {
-
-                if ( trozos[i+2] == "/0" ) {
+            // Empieza en el índice 3 donde comienzan los nombres
+            for ( int i = 3; i < trozos.Length; i++ ) {
+                // Si el valor es "0" o está vacío, termina el bucle
+                if ( trozos[i] == "0" || string.IsNullOrEmpty(trozos[i]) ) {
                     break;
                 }
-                else {
-                    nombre = trozos[i + 2];
 
-                    if(nombre == usuario ) {
-                        player1Lbl.Text = usuario;
-                    }
-                    else {
-                        player2Lbl.Text = nombre;
-                    }
+                // Asignamos el nombre actual
+                nombre = trozos[i];
+
+                // Compara con el usuario para asignar el nombre a los labels
+                if ( nombre == usuario ) {
+                    player1Lbl.Text = usuario;
+                }
+                else {
+                    player2Lbl.Text = nombre;
                 }
             }
+
         }
+
+
+
+
 
         /*
          ----------------------------------------------------------------------------------------------------------------

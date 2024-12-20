@@ -29,13 +29,6 @@ namespace WindowsFormsApplication1 {
         private void Form1_Load(object sender , EventArgs e)
         {
             ButtonInvite.Enabled = false;
-<<<<<<< HEAD
-=======
-        }
-        public void Obtener_Numero_Sala (int num)
-        {
-            num = this.num_sala;
->>>>>>> alex
         }
 
 
@@ -108,23 +101,6 @@ namespace WindowsFormsApplication1 {
                     case 5:
                         // El mensaje recibido es del tipo: 5/n/name/Te ha invitado name
 
-<<<<<<< HEAD
-                        if ( mensaje == "2" ) {
-                            if ( trozos.Length >= 4 ) // Verifica que el mensaje contiene al menos 3 partes
-                            {
-                                string nombre = trozos[2]; // Nombre del usuario que invita
-                                // Muestra un MessageBox con botones "Sí" y "No"
-                                DialogResult resultado = MessageBox.Show($"Invitación recibida de {nombre}" , 
-                                    "" ,
-                                    MessageBoxButtons.OKCancel // Botones Aceptar y Cnacelar
-                                );
-                                if ( resultado == DialogResult.OK ) {
-                                    // Lógica para aceptar la invitación
-                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario + "/SI";
-                                    byte[] msg2 = Encoding.ASCII.GetBytes(mensaje_decision);
-                                    server.Send(msg2);
-                                    MessageBox.Show("Has aceptado la invitación." , "Resultado");
-=======
                         if (mensaje == "2")
                         {
                             if (trozos.Length >= 4) // Verifica que el mensaje contiene al menos 3 partes
@@ -140,21 +116,18 @@ namespace WindowsFormsApplication1 {
                                 if (resultado == DialogResult.OK)
                                 {
                                     // Lógica para aceptar la invitación
-                                    ThreadStart ts = delegate { EntrarSalaPoker(); };
-                                    Thread t = new Thread(ts);
-                                    t.Start();
+                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario + "/SI";
+                                    byte[] msg2 = Encoding.ASCII.GetBytes(mensaje_decision);
+                                    server.Send(msg2);
+
+
                                     MessageBox.Show("Has aceptado la invitación.", "Resultado");
 
->>>>>>> alex
                                 }
                                 else if (resultado == DialogResult.Cancel)
                                 {
                                     // Lógica para rechazar la invitación
-<<<<<<< HEAD
                                     string mensaje_decision = "5/1/" + nombre + "/" + this.usuario + "/NO";
-=======
-                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario;
->>>>>>> alex
                                     byte[] msg2 = Encoding.ASCII.GetBytes(mensaje_decision);
                                     server.Send(msg2);
                                     MessageBox.Show("Has rechazado la invitación.", "Resultado");
@@ -168,13 +141,8 @@ namespace WindowsFormsApplication1 {
 
                             
                         }
-<<<<<<< HEAD
                         else if ( mensaje == "1" ) {
 
-=======
-                        else if(mensaje=="1")
-                        {
->>>>>>> alex
                             string mensajeInvitacion = trozos[2]; // Nombre del usuario que invita
                             string respuesta = trozos[3]; // Su respuesta
 
@@ -202,12 +170,13 @@ namespace WindowsFormsApplication1 {
 
                     case 7:
 
+                        // Se recibe tipo numGente/numSala/nombre1/nombre2... Si hay mas de un nombre en la sala. 
                         int gente = Convert.ToInt32(mensaje);
-
-                        if(gente != -1 ) {
+                        int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                        
+                        if (gente != -1 ) {
                             MessageBox.Show("Te has unido");
-                            int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
-
+                           
                             switch ( numSala ) {
                                 case 1:
                                     label1.Text = $"{gente+1}/4";
@@ -224,14 +193,10 @@ namespace WindowsFormsApplication1 {
                             }
 
                             // ENTRA AL NUEVO FORMULARIO PARA JUGAR AL POKER
-<<<<<<< HEAD
 
                             this.num_sala = numSala;
 
-=======
-                            this.num_sala = numSala;
->>>>>>> alex
-                            ThreadStart ts = delegate { EntrarSalaPoker(); };
+                            ThreadStart ts = delegate { EntrarSalaPoker(trozos); };
                             Thread t = new Thread(ts);
                             t.Start();
 
@@ -271,11 +236,7 @@ namespace WindowsFormsApplication1 {
 
                     case 9:
 
-                        int numeroSala = Convert.ToInt32(mensaje);
                         
-                        salas[numeroSala].SetNombres(trozos, this.usuario);
-
-                        break;
 
                     case 10:
                         int num_Sala = Convert.ToInt32(mensaje);
@@ -304,10 +265,12 @@ namespace WindowsFormsApplication1 {
 
         }
 
-        private void EntrarSalaPoker() {
+        private void EntrarSalaPoker(string[] trozos) {
+            
             Sala s = new Sala(this.usuario , this.num_sala , server);
             salas.Add(s);
             ButtonInvite.Enabled = true;
+            s.SetNombres(trozos , this.usuario);
             s.ShowDialog();
 
         }

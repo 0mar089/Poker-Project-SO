@@ -269,10 +269,12 @@ int CheckRoom(MYSQL *conn, int NumSala, char *nombre){
 			mysql_free_result(res);
 			
 			if( numGenteSala < 4 ) {
+
 				char query[500];
 				sprintf(query,"UPDATE Mesa SET num_jug=num_jug+1 WHERE id_mesa='%d';", NumSala);
 				mysql_query(conn, query);
 				printf("+1 persona en la Mesa: %d \n", NumSala);
+
 				return numGenteSala;
 			}	
 			return -1;
@@ -317,21 +319,27 @@ void CheckAllRooms(MYSQL *conn, char *response, int GenteSala[4]){
 }
 
 int AddPlayerSala(ListaSalas *salas, char nombre[20], int numSala, int socket) {
-
     int salaIndex = numSala - 1;
 
-    // Añadimos al jugador directamente, asumiendo que hay espacio
-    strcpy(salas->salas[salaIndex].players[salas->salas[salaIndex].num_players].nombre, nombre);
-    salas->salas[salaIndex].num_players++;
-	salas->salas[salaIndex].players[salas->salas[salaIndex].num_players].socket = socket;
-    printf("Jugador %s añadido a la Estructura sala[%d] en la posición %d.\n", 
-           nombre, salaIndex, salas->salas[salaIndex].num_players);
-	
-	return salas->salas[salaIndex].num_players;
+    // Guardamos el índice actual de num_players antes de incrementarlo
+    int gente = salas->salas[salaIndex].num_players;
 
+    // Añadimos el jugador
+    strcpy(salas->salas[salaIndex].players[gente].nombre, nombre);
+    salas->salas[salaIndex].players[gente].socket = socket;
+    salas->salas[salaIndex].num_players++; // Incrementamos después de usar el índice
+
+    printf("Jugador %s añadido a la Estructura sala[%d] en la posición %d\n", 
+           nombre, salaIndex, gente);
+    return gente; // Retornamos la cantidad total de jugadores en la sala
 }
+
+
+// Elimina jugador de la Sala
 int DeletePlayerSala(MYSQL *conn, ListaSalas *salas, char nombre[20], int numSala, int socket) 
 {
+	
+	
     int salaIndex = numSala - 1; // Convertir número de sala a índice
 
     // Buscar al jugador por nombre en la sala
@@ -363,10 +371,10 @@ int DeletePlayerSala(MYSQL *conn, ListaSalas *salas, char nombre[20], int numSal
     printf("Jugador %s eliminado de la sala %d. Ahora hay %d jugadores.\n",
            nombre, numSala, salas->salas[salaIndex].num_players);
 	
-   char query[500];
-   sprintf(query,"UPDATE Mesa SET num_jug=num_jug-1 WHERE id_mesa='%d';", numSala);
-   mysql_query(conn, query);
-
+   	char query[500];
+   	sprintf(query,"UPDATE Mesa SET num_jug=num_jug-1 WHERE id_mesa='%d';", numSala);
+   	mysql_query(conn, query);
+	
     return salas->salas[salaIndex].num_players; // Devolver el nuevo número de jugadores
 }
 
@@ -374,10 +382,9 @@ int DeletePlayerSala(MYSQL *conn, ListaSalas *salas, char nombre[20], int numSal
 
 
 void ObtenerPlayersSala(ListaSalas *salas, int numSala, char nombres[100]) {
-
+	
 	int salaIndex = numSala - 1;
-    int i;
-	nombres[0] = '\0';
+    int i;	
 	printf("%s\n", nombres);
 
     // Recorremos los jugadores de la sala y añadimos sus nombres separados por '/'
@@ -386,63 +393,28 @@ void ObtenerPlayersSala(ListaSalas *salas, int numSala, char nombres[100]) {
         strcat(nombres, salas->salas[salaIndex].players[i].nombre);
 		strcat(nombres, "/");
     }
-	printf("aqui viene el bug\n");
-	printf("%s\n",nombres);
+	printf("Se enviará a la funcion 7: %s\n",nombres);
 }
 
-void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int sockets[4]) {
+void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int SocketsPlayers[4]) {
 
+	
 	int salaIndex = numSala - 1;
     int i;
 
     // Inicializamos el arreglo de sockets a -1 (valor de error o vacío)
     for (i = 0; i < 4; i++) {
-        sockets[i] = -1;
+        SocketsPlayers[i] = -1;
     }
 
     // Recorremos los jugadores de la sala y almacenamos sus sockets
     for (i = 0; i < salas->salas[salaIndex].num_players; i++) {
-        sockets[i] = salas->salas[salaIndex].players[i].socket;
+        SocketsPlayers[i] = salas->salas[salaIndex].players[i].socket;
     }
+	
 }
 
-// Elimina a un jugador de la sala
 
-int DeletePlayerSala(ListaSalas *salas, char nombre[20], int numSala, int socket) 
-{
-    int salaIndex = numSala - 1; // Convertir número de sala a índice
-
-    // Buscar al jugador por nombre en la sala
-    int jugadorIndex = -1;
-    for (int i = 0; i < salas->salas[salaIndex].num_players; i++) {
-        if (strcmp(salas->salas[salaIndex].players[i].nombre, nombre) == 0) {
-            jugadorIndex = i;
-            break;
-        }
-    }
-
-    // Si el jugador no se encuentra, devolver error
-    if (jugadorIndex == -1) {
-        printf("Jugador %s no encontrado en la sala %d.\n", nombre, numSala);
-        return -1; // Error: jugador no encontrado
-    }
-
-    // Eliminar al jugador y reorganizar la lista
-    for (int i = jugadorIndex; i < salas->salas[salaIndex].num_players - 1; i++) {
-        salas->salas[salaIndex].players[i] = salas->salas[salaIndex].players[i + 1]; // Mover jugadores hacia atrás
-    }
-
-    // Reducir el número de jugadores en la sala
-    salas->salas[salaIndex].num_players--;
-
-    // Limpiar la última posición (opcional, para evitar datos residuales)
-    memset(&salas->salas[salaIndex].players[salas->salas[salaIndex].num_players], 0, sizeof(Player));
-
-    printf("Jugador %s eliminado de la sala %d. Ahora hay %d jugadores.\n",
-           nombre, numSala, salas->salas[salaIndex].num_players);
-
-    return salas->salas[salaIndex].num_players; // Devolver el nuevo número de jugadores
-}
 
 int socket_num;
 int sockets[300];
@@ -582,78 +554,51 @@ void* AtenderCliente(void* socket_desc) {
 			}
 			usleep(100000);
 		}
-		if( strcmp(p, "7") == 0 ) {
-			
+		if (strcmp(p, "7") == 0) {
 			char nombreCliente[30];
 			int numSala;
+
+			// Extraer parámetros del mensaje recibido
 			p = strtok(NULL, "/");
 			strcpy(nombreCliente, p);
 			p = strtok(NULL, "/");
 			numSala = atoi(p);
+
 			memset(response, 0, sizeof(response));
-			
-			
-			// Ahora como sabemos el numero de sala, podemos llamar a la funcion que compruebe el num de sala si esta lleno
+
+			// Comprobar si hay espacio en la sala
 			int err = CheckRoom(conn, numSala, nombreCliente);
-			if(err != -1){
-				// Devolvemos el numero de gente si no esta llena
-				sprintf(response, "7/%d/%d/", err, numSala);
-				int gente = AddPlayerSala(&salas, nombreCliente, numSala, sock_conn);
-				write (sock_conn, response, strlen(response));
-
-				usleep(100000);
-				// Deberiamos enviar los nombres de la gente que esta en esa sala para que cuando se una otra persona el server envie los nombres y asi en el form salga la gente
-				char nombres[100];
-				nombres[0] = '\0';
-				int sockets_players[4];
-				printf("%s\n", nombres);
-				ObtenerPlayersSala(&salas, numSala, nombres);
-				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
-				
+			if (err != -1) {
+				// Añadir al jugador a la sala
+				pthread_mutex_lock(&mutexLista);
 				char notificacion[300];
-				notificacion[0] = '\0';
-				strcpy(notificacion, "9/");
-				sprintf(notificacion, "%d/", numSala);
-				printf("%s", notificacion);
-				strcat(notificacion, nombres);
+				int gente = AddPlayerSala(&salas, nombreCliente, numSala, sock_conn);
+				// Obtener nombres de jugadores en la sala
+				char nombres[100] = {0};
+				ObtenerPlayersSala(&salas, numSala, nombres);
 
-				int j;
-				for (j = 0; j<gente; j++) {
-					
-					write (sockets_players[j], notificacion, strlen(notificacion));
-					printf("\nEnviando nombres con 9/\n");
+				// Construir mensaje de respuesta consolidado
+				sprintf(notificacion, "7/%d/%d/%s", gente, numSala, nombres);
+
+				// Notificar a todos los jugadores en la sala sobre la actualización
+				int sockets_players[4];
+				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+				pthread_mutex_unlock(&mutexLista);
+
+
+				for (int j = 0; j < gente + 1; j++) {
+					write(sockets_players[j], notificacion, strlen(notificacion));
+					printf("\nEnviando notificación a jugadores: %s\n", notificacion);
 				}
-				usleep(100000);
-			}
-			else{
+			} 
+			else {
+				// Sala llena, devolver error al cliente
 				sprintf(response, "7/-1/");
-				write (sock_conn, response, strlen(response));
-				usleep(100000);
+				write(sock_conn, response, strlen(response));
+				printf("Sala llena, mensaje enviado: %s\n", response);
 			}
-			
 		}
-		if( strcmp(p, "10") == 0 )
-		{
-			char nombreCliente[30];
-			int numSala;
-			p = strtok(NULL, "/");
-			strcpy(nombreCliente, p);
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
 
-			int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
-			
-			char notificacion[300];
-			sprintf(notificacion, "10/%d/%d", numSala, a);
-			int j;
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], notificacion, strlen(notificacion));
-			}
-			usleep(100000);
-			
-
-		}
 		// Lista de conectados
 		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
@@ -687,7 +632,6 @@ void* AtenderCliente(void* socket_desc) {
 			}
 			usleep(100000);
 			printf("Actualizando Salas... \n");
-			printf("Mensaje Recibido: %s \n", notificacion);
 		}
 		
 		
