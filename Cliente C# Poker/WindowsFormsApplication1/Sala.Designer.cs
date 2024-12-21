@@ -45,6 +45,7 @@
             this.labelStaticBalance = new System.Windows.Forms.Label();
             this.randomCards = new System.Windows.Forms.Button();
             this.Salir_Sala_Btn = new System.Windows.Forms.Button();
+            this.StartBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -236,13 +237,24 @@
             this.Salir_Sala_Btn.UseVisualStyleBackColor = true;
             this.Salir_Sala_Btn.Click += new System.EventHandler(this.Salir_Sala_Btn_Click);
             // 
+            // StartBtn
+            // 
+            this.StartBtn.Location = new System.Drawing.Point(203, 645);
+            this.StartBtn.Name = "StartBtn";
+            this.StartBtn.Size = new System.Drawing.Size(131, 61);
+            this.StartBtn.TabIndex = 22;
+            this.StartBtn.Text = "Empezar";
+            this.StartBtn.UseVisualStyleBackColor = true;
+            this.StartBtn.Click += new System.EventHandler(this.StartBtn_Click);
+            // 
             // Sala
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.ClientSize = new System.Drawing.Size(1203, 724);
+            this.ClientSize = new System.Drawing.Size(1202, 724);
+            this.Controls.Add(this.StartBtn);
             this.Controls.Add(this.Salir_Sala_Btn);
             this.Controls.Add(this.randomCards);
             this.Controls.Add(this.labelDynamicBalance);
@@ -301,5 +313,6 @@
         private System.Windows.Forms.Label labelStaticBalance;
         private System.Windows.Forms.Button randomCards;
         private System.Windows.Forms.Button Salir_Sala_Btn;
+        private System.Windows.Forms.Button StartBtn;
     }
 }

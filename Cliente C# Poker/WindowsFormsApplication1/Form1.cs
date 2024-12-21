@@ -169,6 +169,7 @@ namespace WindowsFormsApplication1 {
                     // CASE 7 Y 8 SON PARA EL NUMERO DE SALAS Y QUIEN SE INTENTA UNIR
 
                     case 7:
+
                         // Se recibe tipo numGente/numSala/nombre1/nombre2...
                         int gente = Convert.ToInt32(mensaje);
                         int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
@@ -198,7 +199,6 @@ namespace WindowsFormsApplication1 {
 
                             // Creamos la sala y lanzamos el nuevo hilo
                             this.num_sala = numSala;
-
                             ThreadStart ts = delegate { EntrarSalaPoker(trozos); };
                             Thread t = new Thread(ts);
                             t.Start();
@@ -236,10 +236,6 @@ namespace WindowsFormsApplication1 {
                         }
                         break;
 
-                    case 9:
-
-                        
-
                     case 10:
                         int num_Sala = Convert.ToInt32(mensaje);
                         int numpersonas= Convert.ToInt32(trozos[2].Split('\0')[0]);
@@ -269,7 +265,7 @@ namespace WindowsFormsApplication1 {
 
         private void EntrarSalaPoker(string[] trozos) {
             
-            Sala s = new Sala(this.usuario , this.num_sala , server);
+            Sala s = new Sala(this.usuario , this.num_sala , server, trozos[3]);
             salas.Add(s);
             ButtonInvite.Enabled = true;
             s.SetNombres(trozos , this.usuario);
@@ -284,7 +280,7 @@ namespace WindowsFormsApplication1 {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50055);
+                IPEndPoint ipep = new IPEndPoint(direc , 50058);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
@@ -327,7 +323,7 @@ namespace WindowsFormsApplication1 {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50055);
+                IPEndPoint ipep = new IPEndPoint(direc , 50058);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);

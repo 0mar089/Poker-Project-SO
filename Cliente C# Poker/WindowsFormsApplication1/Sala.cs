@@ -25,13 +25,21 @@ namespace WindowsFormsApplication1 {
         public Socket server;
         public int num_sala { get; set; }
 
-        public Sala(string usuario , int num_sala , Socket server) {
+        public bool IsHost;
+
+        public Sala(string usuario , int num_sala , Socket server, string host) {
             InitializeComponent();
 
             this.usuario = usuario;
             this.server = server;
             this.num_sala = num_sala;
 
+            if(this.usuario == host ) {
+                this.IsHost = true;
+            }
+            else {
+                this.IsHost = false;
+            }
         }
 
 
@@ -50,6 +58,7 @@ namespace WindowsFormsApplication1 {
 
         private void Sala_Load(object sender , EventArgs e) {
 
+            StartBtn.Enabled = false;
             this.ClientSize = new Size(1200 , 700);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;  // Impide que el formulario cambie de tamaño
             this.MaximizeBox = false;  // Desactiva el botón de maximizar
@@ -107,8 +116,9 @@ namespace WindowsFormsApplication1 {
 
             player1Lbl.Text = this.usuario;
 
-
-
+            if ( this.IsHost ) {
+                StartBtn.Enabled = true;
+            }
         }
 
 
@@ -198,6 +208,10 @@ namespace WindowsFormsApplication1 {
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
             this.Close();
+        }
+
+        private void StartBtn_Click(object sender , EventArgs e) {
+
         }
     }
 }

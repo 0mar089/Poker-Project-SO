@@ -585,7 +585,6 @@ void* AtenderCliente(void* socket_desc) {
 				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
 				pthread_mutex_unlock(&mutexLista);
 
-
 				for (int j = 0; j < gente + 1; j++) {
 					write(sockets_players[j], notificacion, strlen(notificacion));
 					printf("\nEnviando notificación a jugadores: %s\n", notificacion);
@@ -598,7 +597,28 @@ void* AtenderCliente(void* socket_desc) {
 				printf("Sala llena, mensaje enviado: %s\n", response);
 			}
 		}
+		if( strcmp(p, "10") == 0 )
+		{
+			char nombreCliente[30];
+			int numSala;
+			p = strtok(NULL, "/");
+			strcpy(nombreCliente, p);
+			p = strtok(NULL, "/");
+			numSala = atoi(p);
 
+			int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
+			
+			char notificacion[300];
+			sprintf(notificacion, "10/%d/%d", numSala, a);
+			int j;
+			for (j = 0; j<conectados.num; j++) {
+				
+				write (sockets[j], notificacion, strlen(notificacion));
+			}
+			usleep(100000);
+			
+
+		}
 		// Lista de conectados
 		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
@@ -716,7 +736,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(50055);
+	serv_adr.sin_port = htons(50058);
 	
 	
 	
