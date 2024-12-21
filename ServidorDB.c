@@ -396,6 +396,8 @@ void ObtenerPlayersSala(ListaSalas *salas, int numSala, char nombres[100]) {
 	printf("Se enviará a la funcion 7: %s\n",nombres);
 }
 
+
+
 void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int SocketsPlayers[4]) {
 
 	
@@ -414,6 +416,54 @@ void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int SocketsPlayer
 	
 }
 
+
+
+// Te devuelve el mazo de las 52 cartas
+void CrearMazo(char mazo[52][4]) {
+    char *palos = "SHDC"; // Spades, Hearts, Diamonds, Clubs
+    char *valores[] = {"_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_J", "_Q", "_K", "_A"};
+    int index = 0;
+
+    // Generar las cartas
+    for (int i = 0; i < 4; i++) { // Recorrer palos
+        for (int j = 0; j < 13; j++) { // Recorrer valores
+            sprintf(mazo[index], "%s%c", valores[j], palos[i]);
+            index++;
+        }
+    }
+}
+
+
+// Te devuelve el mazo mezclado de 52 
+void MezclarMazo(char mazo[52][4]) {
+    for (int i = 0; i < 52; i++) {
+        int randomIndex = rand() % 52;
+        char temp[4];
+        strcpy(temp, mazo[i]);
+        strcpy(mazo[i], mazo[randomIndex]);
+        strcpy(mazo[randomIndex], temp);
+    }
+}
+
+// Te devuelve las cartas comunitarias, las del jugador 1 y las del jugador 2
+void RepartirCartas(char mazo[52][4], char comunitarias[5][4], char jugador1[2][4], char jugador2[2][4]) {
+    int index = 0;
+
+    // Repartir 5 cartas comunitarias
+    for (int i = 0; i < 5; i++) {
+        strcpy(comunitarias[i], mazo[index++]);
+    }
+
+    // Repartir 2 cartas al jugador 1
+    for (int i = 0; i < 2; i++) {
+        strcpy(jugador1[i], mazo[index++]);
+    }
+
+    // Repartir 2 cartas al jugador 2
+    for (int i = 0; i < 2; i++) {
+        strcpy(jugador2[i], mazo[index++]);
+    }
+}
 
 
 int socket_num;
@@ -597,6 +647,39 @@ void* AtenderCliente(void* socket_desc) {
 				printf("Sala llena, mensaje enviado: %s\n", response);
 			}
 		}
+		if(strcmp(p, "9") == 0){
+
+
+			char nombreHost[30];
+			int numSala;
+			p = strtok(NULL, "/");
+			strcpy(nombreHost, p);
+			p = strtok(NULL, "/");
+			numSala = atoi(p);
+
+			char mazo[52][4];
+			char comunitarias[5][4];
+			char jugador1[2][4];
+			char jugador2[2][4];
+
+			// Aqui ya estan las comunitarias, jugador1 y jugador2
+			CrearMazo(mazo);
+    		MezclarMazo(mazo);
+
+			RepartirCartas(mazo, comunitarias, jugador1, jugador2);
+
+			int socketsPlayers[4];
+			ObtenerSocketsPlayersSala(&salas, numSala, socketsPlayers);
+			sprintf(response, "9/%s/%s", comunitarias, jugador1);
+			write(socketsPlayers[0], response, strlen(response));
+			
+			strcpy(response, "");
+
+			sprintf(response, "9/%s/%s", comunitarias, jugador2);
+			write(socketsPlayers[1], response, strlen(response));
+
+		}
+
 		if( strcmp(p, "10") == 0 )
 		{
 			char nombreCliente[30];

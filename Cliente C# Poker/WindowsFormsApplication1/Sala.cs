@@ -212,6 +212,9 @@ namespace WindowsFormsApplication1 {
 
         private void StartBtn_Click(object sender , EventArgs e) {
 
+            string mensaje = "9/" + this.usuario + "/" + this.num_sala;
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
         }
     }
 }
