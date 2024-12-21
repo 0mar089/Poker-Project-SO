@@ -21,9 +21,9 @@ namespace WindowsFormsApplication1 {
         List<Carta> player2;
 
 
-        public string usuario;
+        public string usuario { get; set; }
         public Socket server;
-        public int num_sala;
+        public int num_sala { get; set; }
 
         public Sala(string usuario , int num_sala , Socket server) {
             InitializeComponent();
@@ -123,13 +123,16 @@ namespace WindowsFormsApplication1 {
 
             // Empieza en el índice 3 donde comienzan los nombres
             for ( int i = 3; i < trozos.Length; i++ ) {
-                // Si el valor es "0" o está vacío, termina el bucle
-                if ( trozos[i] == "0" || string.IsNullOrEmpty(trozos[i]) ) {
+                // Limpia cualquier cadena con caracteres nulos y verifica si está vacía
+                string elemento = trozos[i].Trim('\0');
+
+                // Si el elemento es "0" o está vacío después de limpiar, termina el bucle
+                if ( elemento == "0" || string.IsNullOrEmpty(elemento) ) {
                     break;
                 }
 
                 // Asignamos el nombre actual
-                nombre = trozos[i];
+                nombre = elemento;
 
                 // Compara con el usuario para asignar el nombre a los labels
                 if ( nombre == usuario ) {
@@ -139,6 +142,7 @@ namespace WindowsFormsApplication1 {
                     player2Lbl.Text = nombre;
                 }
             }
+
 
         }
 

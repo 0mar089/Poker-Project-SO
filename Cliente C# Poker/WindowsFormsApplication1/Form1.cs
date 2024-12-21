@@ -169,45 +169,47 @@ namespace WindowsFormsApplication1 {
                     // CASE 7 Y 8 SON PARA EL NUMERO DE SALAS Y QUIEN SE INTENTA UNIR
 
                     case 7:
-
-                        // Se recibe tipo numGente/numSala/nombre1/nombre2... Si hay mas de un nombre en la sala. 
+                        // Se recibe tipo numGente/numSala/nombre1/nombre2...
                         int gente = Convert.ToInt32(mensaje);
                         int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
-                        
-                        if (gente != -1 ) {
+
+                        // Verificamos si la sala ya está abierta
+                        Sala salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                        if ( salaExistente == null ) {
+                            // Si no existe, es un nuevo jugador uniéndose
                             MessageBox.Show("Te has unido");
-                           
+
+                            // Actualizamos el label correspondiente según el número de sala
                             switch ( numSala ) {
                                 case 1:
-                                    label1.Text = $"{gente+1}/4";
+                                    label1.Text = $"{gente + 1}/4";
                                     break;
                                 case 2:
-                                    label5.Text = $"{gente+1}/4";
+                                    label5.Text = $"{gente + 1}/4";
                                     break;
                                 case 3:
-                                    label6.Text = $"{gente+1}/4";
+                                    label6.Text = $"{gente + 1}/4";
                                     break;
                                 case 4:
-                                    label7.Text = $"{gente+1}/4";
+                                    label7.Text = $"{gente + 1}/4";
                                     break;
                             }
 
-                            // ENTRA AL NUEVO FORMULARIO PARA JUGAR AL POKER
-
+                            // Creamos la sala y lanzamos el nuevo hilo
                             this.num_sala = numSala;
 
                             ThreadStart ts = delegate { EntrarSalaPoker(trozos); };
                             Thread t = new Thread(ts);
                             t.Start();
-
-
                         }
                         else {
-                            MessageBox.Show("Sala llena");
+                            // Si ya existe, simplemente actualizamos los nombres en la sala
+                            salaExistente.SetNombres(trozos , this.usuario);
                         }
 
-
                         break;
+
 
                     case 8:
 
