@@ -225,7 +225,6 @@
             this.randomCards.TabIndex = 20;
             this.randomCards.Text = "RANDOM ";
             this.randomCards.UseVisualStyleBackColor = true;
-            this.randomCards.Click += new System.EventHandler(this.randomCards_Click);
             // 
             // Salir_Sala_Btn
             // 

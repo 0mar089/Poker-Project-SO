@@ -17,9 +17,9 @@ namespace WindowsFormsApplication1 {
     public partial class Sala : Form {
 
         public PictureBox[] Imagenes = new PictureBox[9];
-        List<Carta> player1;
-        List<Carta> player2;
 
+        List<string> cartasJugador;
+        List<string> cartasComunitarias;
 
         public string usuario { get; set; }
         public Socket server;
@@ -122,6 +122,51 @@ namespace WindowsFormsApplication1 {
         }
 
 
+        public void SetCartas(string[] trozos) {
+            cartasJugador = new List<string>();
+            cartasComunitarias = new List<string>();
+            for ( int i = 2, j = 5; i < 9; i++) {
+
+                string elemento = trozos[i].Trim('\0');
+
+                if ( elemento == "0" || string.IsNullOrEmpty(elemento) ) {
+                    break;
+                }
+
+                if ( i <= 6 ) {
+
+                    string cartaComunitaria = elemento;
+                    
+                    this.cartasComunitarias.Add(cartaComunitaria);
+                }
+                else {
+
+                    string cartaJugador = elemento;
+                    // Asignar imagen a PictureBox
+                    this.cartasJugador.Add(cartaJugador);
+                    SetImagenCarta(cartaJugador , j);
+                    j++;
+                }
+            }
+        }
+
+        private void SetImagenCarta(string nombreCarta , int index) {
+
+            try {
+                var imageProperty = Properties.Resources.ResourceManager.GetObject(nombreCarta) as Image;
+                if ( imageProperty != null ) {
+
+                    Imagenes[index].Image = imageProperty;
+                }
+                else {
+                    // Si no se encuentra la imagen, podrías manejar el error, por ejemplo asignando una imagen predeterminada
+                    Imagenes[index].Image = Properties.Resources.back; // Imagen por defecto (o de carta invertida)
+                }
+            }
+            catch ( Exception ex ) {
+                MessageBox.Show("Error al cargar la imagen: " + ex.Message);
+            }
+        }
 
 
 
@@ -156,52 +201,6 @@ namespace WindowsFormsApplication1 {
 
         }
 
-
-
-
-
-        /*
-         ----------------------------------------------------------------------------------------------------------------
-         Código del juego / sala. 
-
-         COSAS QUE HAY QUE HACER: 
-
-            2. Interfaz de los botones y del dinero
-            3. Generar cartas random
-            4. Actualizar labels y cambiarles la posición
-            
-         ----------------------------------------------------------------------------------------------------------------
-         */
-
-
-
-        // CODIGO DE PRUEBA DEL RANDOM PARA EL JUGADOR 1 Y 2: 
-
-        private void randomCards_Click(object sender , EventArgs e) {
-
-            Player players = new Player();
-            this.player1 = players.GetPlayer1Hand();
-            this.player2 = players.GetPlayer2Hand();
-
-            // ASIGNAMOS LAS IMAGENES RANDOM EN LA INTERFAZ
-
-            // PLAYER 1
-            for(int i = 0, j = 5; i<3 && j<7; i++, j++) {
-            
-                string photoName = this.player1[i].ObtenerNombreImagen();
-                var imageProperty = Properties.Resources.ResourceManager.GetObject(photoName) as Image;
-                this.Imagenes[j].Image = imageProperty;
-            }
-
-            // PLAYER 2
-            for ( int i = 0, j = 7; i < 3 && j < 9; i++, j++ ) {
-
-                string photoName = this.player2[i].ObtenerNombreImagen();
-                var imageProperty = Properties.Resources.ResourceManager.GetObject(photoName) as Image;
-                this.Imagenes[j].Image = imageProperty;
-            }
-        }
-
         private void Salir_Sala_Btn_Click(object sender, EventArgs e)
         {
             string mensaje = "10/" + this.usuario + "/" + this.num_sala;
@@ -211,7 +210,6 @@ namespace WindowsFormsApplication1 {
         }
 
         private void StartBtn_Click(object sender , EventArgs e) {
-
             string mensaje = "9/" + this.usuario + "/" + this.num_sala;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);

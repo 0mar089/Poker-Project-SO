@@ -423,10 +423,10 @@ void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int SocketsPlayer
 void CrearMazo(char mazo[52][5]) {
 
     const char *mazoCombinaciones[] = {
-        "_2S", "_3S", "_4S", "_5S", "_6S", "_7S", "_8S", "_9S", "_10S", "_JS", "_QS", "_KS", "_AS",
-        "_2H", "_3H", "_4H", "_5H", "_6H", "_7H", "_8H", "_9H", "_10H", "_JH", "_QH", "_KH", "_AH",
-        "_2D", "_3D", "_4D", "_5D", "_6D", "_7D", "_8D", "_9D", "_10D", "_JD", "_QD", "_KD", "_AD",
-        "_2C", "_3C", "_4C", "_5C", "_6C", "_7C", "_8C", "_9C", "_10C", "_JC", "_QC", "_KC", "_AC"
+        "_2S", "_3S", "_4S", "_5S", "_6S", "_7S", "_8S", "_9S", "_10S", "JS", "QS", "KS", "AS",
+        "_2H", "_3H", "_4H", "_5H", "_6H", "_7H", "_8H", "_9H", "_10H", "JH", "QH", "KH", "AH",
+        "_2D", "_3D", "_4D", "_5D", "_6D", "_7D", "_8D", "_9D", "_10D", "JD", "QD", "KD", "AD",
+        "_2C", "_3C", "_4C", "_5C", "_6C", "_7C", "_8C", "_9C", "_10C", "JC", "QC", "KC", "AC"
     };
 
     // Copiar las cartas al mazo
@@ -715,11 +715,11 @@ void* AtenderCliente(void* socket_desc) {
 
 
 			strcpy(response, "");
-			snprintf(response, sizeof(response), "9/%s/%s/", cartasComunitarias, cartasJugador1);
+			snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador1);
 			write(socketsPlayers[0], response, strlen(response));
 
 			strcpy(response, "");
-			snprintf(response, sizeof(response), "9/%s/%s/", cartasComunitarias, cartasJugador2);
+			snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
 			write(socketsPlayers[1], response, strlen(response));
 
 		}

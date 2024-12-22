@@ -237,8 +237,12 @@ namespace WindowsFormsApplication1 {
                         break;
 
                     case 9:
+                        // se recibe tipo numSala/carta1/carta2/carta3/carta4/carta5/carta1/carta2/
+                        // de la 1 a la 5 son comunitarias, y las pareja para un jugador ( solo tienes tus cartas )
+                        numSala = Convert.ToInt32(trozos[1].Split('\0')[0]);
+                        salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                        salaExistente.SetCartas(trozos);
 
-                        string comunitarias = mensaje;
                         break;
 
                     case 10:
