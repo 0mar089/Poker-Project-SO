@@ -35,7 +35,7 @@ namespace WindowsFormsApplication1 {
         private void AtenderServidor()
         {
             while (true) {
-                byte[] msg = new byte[80];
+                byte[] msg = new byte[1024];
                 server.Receive(msg);
                 string[] trozos = Encoding.ASCII.GetString(msg).Split('/');
                 int codigo = Convert.ToInt32(trozos[0]);
@@ -236,6 +236,11 @@ namespace WindowsFormsApplication1 {
                         }
                         break;
 
+                    case 9:
+
+                        string comunitarias = mensaje;
+                        break;
+
                     case 10:
                         int num_Sala = Convert.ToInt32(mensaje);
                         int numpersonas= Convert.ToInt32(trozos[2].Split('\0')[0]);
@@ -280,7 +285,7 @@ namespace WindowsFormsApplication1 {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50058);
+                IPEndPoint ipep = new IPEndPoint(direc , 50057);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
@@ -323,7 +328,7 @@ namespace WindowsFormsApplication1 {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50058);
+                IPEndPoint ipep = new IPEndPoint(direc , 50057);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);

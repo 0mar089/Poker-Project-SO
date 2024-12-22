@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>  // Para manejar hilos
+#include <unistd.h>
+#include <time.h>
 
 
 
@@ -418,24 +420,29 @@ void ObtenerSocketsPlayersSala(ListaSalas *salas, int numSala, int SocketsPlayer
 
 
 
-// Te devuelve el mazo de las 52 cartas
-void CrearMazo(char mazo[52][4]) {
-    char *palos = "SHDC"; // Spades, Hearts, Diamonds, Clubs
-    char *valores[] = {"_2", "_3", "_4", "_5", "_6", "_7", "_8", "_9", "_10", "_J", "_Q", "_K", "_A"};
-    int index = 0;
+void CrearMazo(char mazo[52][5]) {
 
-    // Generar las cartas
-    for (int i = 0; i < 4; i++) { // Recorrer palos
-        for (int j = 0; j < 13; j++) { // Recorrer valores
-            sprintf(mazo[index], "%s%c", valores[j], palos[i]);
-            index++;
-        }
+    const char *mazoCombinaciones[] = {
+        "_2S", "_3S", "_4S", "_5S", "_6S", "_7S", "_8S", "_9S", "_10S", "_JS", "_QS", "_KS", "_AS",
+        "_2H", "_3H", "_4H", "_5H", "_6H", "_7H", "_8H", "_9H", "_10H", "_JH", "_QH", "_KH", "_AH",
+        "_2D", "_3D", "_4D", "_5D", "_6D", "_7D", "_8D", "_9D", "_10D", "_JD", "_QD", "_KD", "_AD",
+        "_2C", "_3C", "_4C", "_5C", "_6C", "_7C", "_8C", "_9C", "_10C", "_JC", "_QC", "_KC", "_AC"
+    };
+
+    // Copiar las cartas al mazo
+    for (int i = 0; i < 52; i++) {
+        strcpy(mazo[i], mazoCombinaciones[i]);
     }
+	printf("Mazo completo:\n");
+    for (int i = 0; i < 52; i++) {
+        printf("%s ", mazo[i]);
+    }
+    printf("\n");
 }
 
 
 // Te devuelve el mazo mezclado de 52 
-void MezclarMazo(char mazo[52][4]) {
+void MezclarMazo(char mazo[52][5]) {
     for (int i = 0; i < 52; i++) {
         int randomIndex = rand() % 52;
         char temp[4];
@@ -443,26 +450,38 @@ void MezclarMazo(char mazo[52][4]) {
         strcpy(mazo[i], mazo[randomIndex]);
         strcpy(mazo[randomIndex], temp);
     }
+	printf("Mazo completo:\n");
+    for (int i = 0; i < 52; i++) {
+        printf("%s ", mazo[i]);
+    }
+    printf("\n");
+
 }
 
 // Te devuelve las cartas comunitarias, las del jugador 1 y las del jugador 2
-void RepartirCartas(char mazo[52][4], char comunitarias[5][4], char jugador1[2][4], char jugador2[2][4]) {
+void RepartirCartas(char mazo[52][5], char comunitarias[5][5], char jugador1[2][5], char jugador2[2][5]) {
     int index = 0;
+
 
     // Repartir 5 cartas comunitarias
     for (int i = 0; i < 5; i++) {
-        strcpy(comunitarias[i], mazo[index++]);
+        strcpy(comunitarias[i], mazo[index]);
+		index++;
     }
+
 
     // Repartir 2 cartas al jugador 1
     for (int i = 0; i < 2; i++) {
-        strcpy(jugador1[i], mazo[index++]);
+        strcpy(jugador1[i], mazo[index]);
+		index++;
     }
 
     // Repartir 2 cartas al jugador 2
     for (int i = 0; i < 2; i++) {
-        strcpy(jugador2[i], mazo[index++]);
+        strcpy(jugador2[i], mazo[index]);
+		index++;
     }
+
 }
 
 
@@ -649,6 +668,7 @@ void* AtenderCliente(void* socket_desc) {
 		}
 		if(strcmp(p, "9") == 0){
 
+			srand(time(NULL));
 
 			char nombreHost[30];
 			int numSala;
@@ -657,25 +677,49 @@ void* AtenderCliente(void* socket_desc) {
 			p = strtok(NULL, "/");
 			numSala = atoi(p);
 
-			char mazo[52][4];
-			char comunitarias[5][4];
-			char jugador1[2][4];
-			char jugador2[2][4];
+			char mazo[52][5];
+			char comunitarias[5][5];
+			char jugador1[2][5];
+			char jugador2[2][5];
 
 			// Aqui ya estan las comunitarias, jugador1 y jugador2
 			CrearMazo(mazo);
     		MezclarMazo(mazo);
+			
+			printf("Mazo mezclado:\n");
+			for (int i = 0; i < 52; i++) {
+				printf("%s ", mazo[i]);
+			}
+			printf("\n");
+			
 
 			RepartirCartas(mazo, comunitarias, jugador1, jugador2);
 
 			int socketsPlayers[4];
 			ObtenerSocketsPlayersSala(&salas, numSala, socketsPlayers);
-			sprintf(response, "9/%s/%s", comunitarias, jugador1);
-			write(socketsPlayers[0], response, strlen(response));
-			
-			strcpy(response, "");
 
-			sprintf(response, "9/%s/%s", comunitarias, jugador2);
+
+			char cartasComunitarias[100];
+			snprintf(cartasComunitarias, sizeof(cartasComunitarias), "%s/%s/%s/%s/%s", 
+					comunitarias[0], comunitarias[1], comunitarias[2], comunitarias[3], comunitarias[4]);
+
+			char cartasJugador1[30];
+			snprintf(cartasJugador1, sizeof(cartasJugador1), "%s/%s", jugador1[0], jugador1[1]);
+
+			char cartasJugador2[30];
+			snprintf(cartasJugador2, sizeof(cartasJugador2), "%s/%s", jugador2[0], jugador2[1]);
+			
+			printf("Comunitarias: %s\n", cartasComunitarias);
+			printf("Jugador 1: %s\n", cartasJugador1);
+			printf("Jugador 2: %s\n", cartasJugador2);
+
+
+			strcpy(response, "");
+			snprintf(response, sizeof(response), "9/%s/%s/", cartasComunitarias, cartasJugador1);
+			write(socketsPlayers[0], response, strlen(response));
+
+			strcpy(response, "");
+			snprintf(response, sizeof(response), "9/%s/%s/", cartasComunitarias, cartasJugador2);
 			write(socketsPlayers[1], response, strlen(response));
 
 		}
@@ -819,7 +863,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(50058);
+	serv_adr.sin_port = htons(50057);
 	
 	
 	
