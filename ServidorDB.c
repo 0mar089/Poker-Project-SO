@@ -35,6 +35,7 @@ typedef struct{
 	
 	Player players[4];
 	int num_players;
+	int turnoActual; // Indica el indice de la lista de jugadores, del 0 al 3; osea 4 jugadores, el cual le toca jugar actualmente
 }Sala;
 
 typedef struct{
@@ -801,6 +802,53 @@ void* AtenderCliente(void* socket_desc) {
 			
 
 		}
+		if( strcmp(p, "11") == 0 )
+		{
+			int numSala;
+			p = strtok(NULL, "/");
+			numSala = atoi(p);
+
+			// enviamos a cada uno si es su turno o se tiene que esperar
+
+			pthread_mutex_lock(&mutexLista);
+			int sockets_players[4];
+			ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+
+			// Como sockets_players esta en orden de cuando se añade la gente en la sala, va de 0 a 3. Por lo tanto va sincronizado con el turno de la gente. 
+			int indexSala = numSala - 1;
+			int turnoActual = salas->salas[indexSala].turnoActual;
+
+			// Conseguimos el nombre de la persona que le toca. 
+			
+			char nombreTurno[100];
+			strcat(nombreTurno, salas-salas[indexSala].players[turnoActual].nombre);
+			
+			pthread_mutex_unlock(&mutexLista);
+			if(sockets_players[0] == sock_conn){
+				
+				char turno[60];
+				sprintf(turno, "11/1");
+				write(sock_conn, turno, strlen(turno));
+			}
+			else{
+				
+				for(int i = 0; i<4; i++){
+					
+					if(sockets_players[i] != sock_conn) {
+						char turno[60];
+						sprintf(turno, "11/0");
+						write(sockets_players[i], turno, strlen(turno));
+
+					}
+
+				}
+
+			}
+			usleep(1000000);
+
+			
+		}
+
 		// Lista de conectados
 		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
 			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente

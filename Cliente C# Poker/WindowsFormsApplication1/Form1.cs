@@ -266,6 +266,23 @@ namespace WindowsFormsApplication1 {
 
 
                         break;
+                    case 11:
+
+                        if(mensaje == "1" ) {
+                            // SI ES UN 1 ES QUE LE TOCA JUGAR AL JUGADOR
+
+
+
+                        }
+                        else {
+                            // SI ES UN 0 ES QUE LE TOCA ESPERAR AL JUGADOR
+
+
+
+                        }
+
+
+                        break;
                 }
 
             }

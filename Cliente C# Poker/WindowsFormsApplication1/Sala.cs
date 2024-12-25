@@ -152,6 +152,13 @@ namespace WindowsFormsApplication1 {
             }
             //ya se han puesto todas las cartas, ahora avisamos de que empieza la partida
             MessageBox.Show("¡Empieza la partida!");
+            if ( this.IsHost ) {
+                // Avisamos al server de que empieza la partida
+                string mensaje = "11/" + this.num_sala;
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+            }
+
         }
 
         private void SetImagenCarta(string nombreCarta , int index) {
@@ -209,6 +216,11 @@ namespace WindowsFormsApplication1 {
 
 
         }
+
+        public void SetTurno()
+
+
+
 
         private void Salir_Sala_Btn_Click(object sender, EventArgs e)
         {
