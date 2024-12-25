@@ -59,6 +59,7 @@ namespace WindowsFormsApplication1 {
         private void Sala_Load(object sender , EventArgs e) {
 
             StartBtn.Enabled = false;
+            StartBtn.Hide();
             this.ClientSize = new Size(1200 , 700);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;  // Impide que el formulario cambie de tamaño
             this.MaximizeBox = false;  // Desactiva el botón de maximizar
@@ -118,6 +119,7 @@ namespace WindowsFormsApplication1 {
 
             if ( this.IsHost ) {
                 StartBtn.Enabled = true;
+                StartBtn.Show();
             }
         }
 
@@ -148,6 +150,8 @@ namespace WindowsFormsApplication1 {
                     j++;
                 }
             }
+            //ya se han puesto todas las cartas, ahora avisamos de que empieza la partida
+            MessageBox.Show("¡Empieza la partida!");
         }
 
         private void SetImagenCarta(string nombreCarta , int index) {
@@ -172,7 +176,7 @@ namespace WindowsFormsApplication1 {
 
         public void SetNombres(string[] trozos, string usuario) {
 
-            // recibo esto: 7/gente/numSala/Nombre1/Nombre2.../0/0/0/0
+            // recibo esto: 7/gente/numSala/Nombre1/Nombre2.../balance/0/0/0/0
 
             string nombre;
 
@@ -183,6 +187,11 @@ namespace WindowsFormsApplication1 {
 
                 // Si el elemento es "0" o está vacío después de limpiar, termina el bucle
                 if ( elemento == "0" || string.IsNullOrEmpty(elemento) ) {
+                    break;
+                }
+
+                if(float.TryParse(elemento, out float numero) ) {
+                    labelDynamicBalance.Text = elemento;
                     break;
                 }
 

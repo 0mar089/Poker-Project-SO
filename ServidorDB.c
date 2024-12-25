@@ -245,6 +245,47 @@ void LoginUser(MYSQL *conn, char *cuenta, char *contrasenya, int sock_conn, char
 	}
 }
 
+float ObtenerBalanceCuenta(MYSQL *conn, ListaConectados *lista, int socket) {
+    // Obtener la posición del usuario a partir del socket
+    int pos = DamePosSock(lista, socket);
+    if (pos == -1) {
+        printf("Error: No se encontró el usuario para el socket proporcionado.\n");
+        return -1.0f; // Indicador de error
+    }
+
+    // Obtener el nombre del usuario
+    char nombre[20];
+    strcpy(nombre, lista->conectados[pos].nombre);
+
+    // Consultar el balance en la base de datos
+    char query[256];
+    sprintf(query, "SELECT capital FROM Jugadores WHERE nombre='%s';", nombre);
+
+    if (mysql_query(conn, query)) {
+        printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
+        return -1.0f; // Indicador de error
+    }
+
+    MYSQL_RES *res = mysql_store_result(conn);
+    if (res == NULL) {
+        printf("Error al obtener el resultado: %s\n", mysql_error(conn));
+        return -1.0f; // Indicador de error
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(res);
+    float balance = 0.0f;
+    if (row != NULL) {
+        balance = atof(row[0]); // Convertir el balance de texto a flotante
+    } else {
+        printf("No se encontró el balance para el usuario %s.\n", nombre);
+        balance = -1.0f; // Indicador de error
+    }
+
+    mysql_free_result(res);
+    return balance;
+}
+
+
 
 // REVISA SI HAY GENTE EN LA SALA. 0 SI ESTA VACIA, -1 SI ESTA LLENA. Solo cuando alguien intenta unirse
 int CheckRoom(MYSQL *conn, int NumSala, char *nombre){
@@ -640,24 +681,38 @@ void* AtenderCliente(void* socket_desc) {
 			if (err != -1) {
 				// Añadir al jugador a la sala
 				pthread_mutex_lock(&mutexLista);
-				char notificacion[300];
 				int gente = AddPlayerSala(&salas, nombreCliente, numSala, sock_conn);
 				// Obtener nombres de jugadores en la sala
 				char nombres[100] = {0};
 				ObtenerPlayersSala(&salas, numSala, nombres);
 
 				// Construir mensaje de respuesta consolidado
-				sprintf(notificacion, "7/%d/%d/%s", gente, numSala, nombres);
+				
 
 				// Notificar a todos los jugadores en la sala sobre la actualización
 				int sockets_players[4];
 				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
 				pthread_mutex_unlock(&mutexLista);
 
+				// Este bucle de notificacion hay que cambiarlo: 
+				/*
+					- Que dependiendo del socket, a mas de todo lo que se enviaba antes, se envia el balance de su cuenta. 
+					Que al primer socket, conseguimos su balance, luego en la notificacion añadimos el balance. Y asi succesivamente. 
+				*/
+
 				for (int j = 0; j < gente + 1; j++) {
+					
+					char notificacion[300];
+					sprintf(notificacion, "7/%d/%d/%s", gente, numSala, nombres);
+					float balance = ObtenerBalanceCuenta(conn, &conectados, sockets_players[j]);
+					char balanceString[20]; // Suficiente para contener el balance como texto
+    				sprintf(balanceString, "%.2f", balance);
+					strcat(notificacion, balanceString);
+
 					write(sockets_players[j], notificacion, strlen(notificacion));
 					printf("\nEnviando notificación a jugadores: %s\n", notificacion);
 				}
+				usleep(1000000);
 			} 
 			else {
 				// Sala llena, devolver error al cliente

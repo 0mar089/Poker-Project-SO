@@ -43,7 +43,6 @@
             this.player2Lbl = new System.Windows.Forms.Label();
             this.labelDynamicBalance = new System.Windows.Forms.Label();
             this.labelStaticBalance = new System.Windows.Forms.Label();
-            this.randomCards = new System.Windows.Forms.Button();
             this.Salir_Sala_Btn = new System.Windows.Forms.Button();
             this.StartBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -217,15 +216,6 @@
             this.labelStaticBalance.Text = "BALANCE";
             this.labelStaticBalance.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // randomCards
-            // 
-            this.randomCards.Location = new System.Drawing.Point(147, 176);
-            this.randomCards.Name = "randomCards";
-            this.randomCards.Size = new System.Drawing.Size(115, 57);
-            this.randomCards.TabIndex = 20;
-            this.randomCards.Text = "RANDOM ";
-            this.randomCards.UseVisualStyleBackColor = true;
-            // 
             // Salir_Sala_Btn
             // 
             this.Salir_Sala_Btn.Location = new System.Drawing.Point(30, 645);
@@ -255,7 +245,6 @@
             this.ClientSize = new System.Drawing.Size(1202, 724);
             this.Controls.Add(this.StartBtn);
             this.Controls.Add(this.Salir_Sala_Btn);
-            this.Controls.Add(this.randomCards);
             this.Controls.Add(this.labelDynamicBalance);
             this.Controls.Add(this.labelStaticBalance);
             this.Controls.Add(this.player2Lbl);
@@ -310,7 +299,6 @@
         private System.Windows.Forms.Label player2Lbl;
         private System.Windows.Forms.Label labelDynamicBalance;
         private System.Windows.Forms.Label labelStaticBalance;
-        private System.Windows.Forms.Button randomCards;
         private System.Windows.Forms.Button Salir_Sala_Btn;
         private System.Windows.Forms.Button StartBtn;
     }

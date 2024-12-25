@@ -170,7 +170,7 @@ namespace WindowsFormsApplication1 {
 
                     case 7:
 
-                        // Se recibe tipo numGente/numSala/nombre1/nombre2...
+                        // Se recibe tipo numGente/numSala/nombre1/nombre2.../balanceDeLaPersona
                         int gente = Convert.ToInt32(mensaje);
                         int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
 
