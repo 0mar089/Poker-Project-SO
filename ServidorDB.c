@@ -475,11 +475,7 @@ void CrearMazo(char mazo[52][5]) {
     for (int i = 0; i < 52; i++) {
         strcpy(mazo[i], mazoCombinaciones[i]);
     }
-	printf("Mazo completo:\n");
-    for (int i = 0; i < 52; i++) {
-        printf("%s ", mazo[i]);
-    }
-    printf("\n");
+
 }
 
 
@@ -492,11 +488,6 @@ void MezclarMazo(char mazo[52][5]) {
         strcpy(mazo[i], mazo[randomIndex]);
         strcpy(mazo[randomIndex], temp);
     }
-	printf("Mazo completo:\n");
-    for (int i = 0; i < 52; i++) {
-        printf("%s ", mazo[i]);
-    }
-    printf("\n");
 
 }
 
@@ -642,7 +633,6 @@ void* AtenderCliente(void* socket_desc) {
 				
 			}	
 		}
-		
 		// Para enviar mensaje al chat
 		if ( strcmp(p, "6") == 0) {
 			char nombreAutor[20];
@@ -720,6 +710,7 @@ void* AtenderCliente(void* socket_desc) {
 				sprintf(response, "7/-1/");
 				write(sock_conn, response, strlen(response));
 				printf("Sala llena, mensaje enviado: %s\n", response);
+				usleep(1000000);
 			}
 		}
 		if(strcmp(p, "9") == 0){
@@ -742,12 +733,6 @@ void* AtenderCliente(void* socket_desc) {
 			CrearMazo(mazo);
     		MezclarMazo(mazo);
 			
-			printf("Mazo mezclado:\n");
-			for (int i = 0; i < 52; i++) {
-				printf("%s ", mazo[i]);
-			}
-			printf("\n");
-			
 
 			RepartirCartas(mazo, comunitarias, jugador1, jugador2);
 
@@ -765,9 +750,13 @@ void* AtenderCliente(void* socket_desc) {
 			char cartasJugador2[30];
 			snprintf(cartasJugador2, sizeof(cartasJugador2), "%s/%s", jugador2[0], jugador2[1]);
 			
+			printf("\n-------------------------------");
+			printf("SALA %d", numSala);
 			printf("Comunitarias: %s\n", cartasComunitarias);
 			printf("Jugador 1: %s\n", cartasJugador1);
 			printf("Jugador 2: %s\n", cartasJugador2);
+			printf("-------------------------------\n");
+
 
 
 			strcpy(response, "");
@@ -777,10 +766,11 @@ void* AtenderCliente(void* socket_desc) {
 			strcpy(response, "");
 			snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
 			write(socketsPlayers[1], response, strlen(response));
+			usleep(100000);
 
 		}
 
-		if( strcmp(p, "10") == 0 )
+		if(strcmp(p, "10") == 0)
 		{
 			char nombreCliente[30];
 			int numSala;
@@ -802,12 +792,11 @@ void* AtenderCliente(void* socket_desc) {
 			
 
 		}
-		if( strcmp(p, "11") == 0 )
+		if(strcmp(p, "11") == 0)
 		{
 			int numSala;
 			p = strtok(NULL, "/");
 			numSala = atoi(p);
-
 			// enviamos a cada uno si es su turno o se tiene que esperar
 
 			pthread_mutex_lock(&mutexLista);
@@ -816,18 +805,18 @@ void* AtenderCliente(void* socket_desc) {
 
 			// Como sockets_players esta en orden de cuando se añade la gente en la sala, va de 0 a 3. Por lo tanto va sincronizado con el turno de la gente. 
 			int indexSala = numSala - 1;
-			int turnoActual = salas->salas[indexSala].turnoActual;
+			int turnoActual = salas.salas[indexSala].turnoActual;
 
 			// Conseguimos el nombre de la persona que le toca. 
 			
-			char nombreTurno[100];
-			strcat(nombreTurno, salas-salas[indexSala].players[turnoActual].nombre);
-			
+			char nombreTurno[60] = "";
+			strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
+			printf("Turno de: %s\n", nombreTurno);
 			pthread_mutex_unlock(&mutexLista);
 			if(sockets_players[0] == sock_conn){
 				
 				char turno[60];
-				sprintf(turno, "11/1");
+				snprintf(turno, sizeof(turno), "11/1/%s", nombreTurno);
 				write(sock_conn, turno, strlen(turno));
 			}
 			else{
@@ -835,8 +824,8 @@ void* AtenderCliente(void* socket_desc) {
 				for(int i = 0; i<4; i++){
 					
 					if(sockets_players[i] != sock_conn) {
-						char turno[60];
-						sprintf(turno, "11/0");
+						char turno[60] = "";
+						snprintf(turno, sizeof(turno), "11/0/%s", nombreTurno);
 						write(sockets_players[i], turno, strlen(turno));
 
 					}
@@ -845,8 +834,6 @@ void* AtenderCliente(void* socket_desc) {
 
 			}
 			usleep(1000000);
-
-			
 		}
 
 		// Lista de conectados

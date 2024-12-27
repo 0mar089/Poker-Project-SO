@@ -271,6 +271,8 @@ namespace WindowsFormsApplication1 {
                         if(mensaje == "1" ) {
                             // SI ES UN 1 ES QUE LE TOCA JUGAR AL JUGADOR
 
+                            string personaTurno = trozos[2].Split('\0')[0];
+
 
 
                         }

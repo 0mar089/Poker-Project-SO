@@ -217,7 +217,9 @@ namespace WindowsFormsApplication1 {
 
         }
 
-        public void SetTurno()
+        public void SetTurno() {
+
+        }
 
 
 
