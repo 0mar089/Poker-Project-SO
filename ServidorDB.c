@@ -43,11 +43,11 @@ typedef struct{
 }ListaSalas;
 
 
-// Añade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta� llena.
+// Añade nuevo conectado. Retorna 0 si es exitoso y -1 si la lista esta  llena.
 int AddPlayer(ListaConectados *lista, char nombre[20], int socket) {
 
 	if (lista->num == 100) {
-		// La lista esta� llena, no se puede añadir más usuarios
+		// La lista esta  llena, no se puede añadir más usuarios
 		return -1;
 	} else {
 		// Copiar el nombre del usuario y asignar el socket
@@ -604,7 +604,7 @@ void* AtenderCliente(void* socket_desc) {
 				sprintf(response, "5/2/%s/", name);
 				write(sockets[pos], response, strlen(response));
 				usleep(100000);
-				printf("Invitaci�n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
+				printf("Invitaci n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
 			}
 			// Contestar a la invitación
 			else if(strcmp(decision,"1")==0)

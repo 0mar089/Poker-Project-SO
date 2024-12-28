@@ -24,17 +24,20 @@ namespace WindowsFormsApplication1 {
         public string usuario { get; set; }
         public Socket server;
         public int num_sala { get; set; }
+        public string turno;
 
         public bool IsHost;
 
-        public Sala(string usuario , int num_sala , Socket server, string host) {
+
+        public Sala(string usuario , int num_sala , Socket server , string host , string personaTurno) {
             InitializeComponent();
 
             this.usuario = usuario;
             this.server = server;
             this.num_sala = num_sala;
+            turno = personaTurno;
 
-            if(this.usuario == host ) {
+            if ( this.usuario == host ) {
                 this.IsHost = true;
             }
             else {
@@ -42,7 +45,7 @@ namespace WindowsFormsApplication1 {
             }
         }
 
-
+        public event EventHandler CartasActualizadas;
 
         /*
          
@@ -95,7 +98,7 @@ namespace WindowsFormsApplication1 {
 
             pictureBoxes[7].Location = new Point(468 , 118);
             pictureBoxes[8].Location = new Point(569 , 118);
-            
+
 
 
 
@@ -127,7 +130,7 @@ namespace WindowsFormsApplication1 {
         public void SetCartas(string[] trozos) {
             cartasJugador = new List<string>();
             cartasComunitarias = new List<string>();
-            for ( int i = 2, j = 5; i < 9; i++) {
+            for ( int i = 2, j = 5; i < 9; i++ ) {
 
                 string elemento = trozos[i].Trim('\0');
 
@@ -138,7 +141,7 @@ namespace WindowsFormsApplication1 {
                 if ( i <= 6 ) {
 
                     string cartaComunitaria = elemento;
-                    
+
                     this.cartasComunitarias.Add(cartaComunitaria);
                 }
                 else {
@@ -158,9 +161,15 @@ namespace WindowsFormsApplication1 {
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
             }
-
+            CartasActualizadas?.Invoke(this , EventArgs.Empty);
         }
-
+        private void ActualizarCartas(List<string> cartas) {
+            // Asumiendo que 'cartas' contiene los nombres de las imágenes
+            for ( int i = 0; i < cartas.Count; i++ ) {
+                string nombreCarta = cartas[i];
+                SetImagenCarta(nombreCarta , i);
+            }
+        }
         private void SetImagenCarta(string nombreCarta , int index) {
 
             try {
@@ -181,7 +190,7 @@ namespace WindowsFormsApplication1 {
 
 
 
-        public void SetNombres(string[] trozos, string usuario) {
+        public void SetNombres(string[] trozos , string usuario) {
 
             // recibo esto: 7/gente/numSala/Nombre1/Nombre2.../balance/0/0/0/0
 
@@ -197,7 +206,7 @@ namespace WindowsFormsApplication1 {
                     break;
                 }
 
-                if(float.TryParse(elemento, out float numero) ) {
+                if ( float.TryParse(elemento , out float numero) ) {
                     labelDynamicBalance.Text = elemento;
                     break;
                 }
@@ -216,16 +225,306 @@ namespace WindowsFormsApplication1 {
 
 
         }
+        //public class Jugador
+        //{
+        //    public string Nombre { get; set; }
+        //    public List<Carta> Mano { get; set; } = new List<Carta>();
+        //    public ManoPoker ManoValor { get; set; } // Para almacenar el valor de la mano evaluada
+        //}
+        //public class Carta
+        //{
+        //    public string Valor { get; set; }
+        //    public string Palo { get; set; }
+        //}
+        //public enum ManoPoker
+        //{
+        //    AltaCarta,
+        //    Par,
+        //    DosPares,
+        //    Trio,
+        //    Escalera,
+        //    Color,
+        //    FullHouse,
+        //    Poker,
+        //    EscaleraColor,
+        //    EscaleraReal
+        //}
+        //public List<Carta> CrearMazo()
+        //{
+        //    List<Carta> mazo = new List<Carta>();
+        //    string[] valores = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
+        //    string[] palos = { "Corazones", "Diamantes", "Tréboles", "Picas" };
 
+        //    foreach (string valor in valores)
+        //    {
+        //        foreach (string palo in palos)
+        //        {
+        //            mazo.Add(new Carta { Valor = valor, Palo = palo });
+        //        }
+        //    }
+
+        //    // Barajar el mazo
+        //    Random random = new Random();
+        //    mazo = mazo.OrderBy(carta => random.Next()).ToList();
+
+        //    return mazo;
+        //}
+        ////public void Repartircartas(List<Jugador> jugadores)
+        ////{
+        ////    // Crear un mazo barajado
+        ////    List<Carta> mazo = CrearMazo();
+
+        ////    // Repartición de cartas
+        ////    int indiceMazo = 0;
+        ////    foreach (Jugador jugador in jugadores)
+        ////    {
+        ////        for (int i = 0; i < 2; i++)
+        ////        {
+        ////            jugador.Mano.Add(mazo[indiceMazo]);
+        ////            indiceMazo++;
+        ////        }
+        ////    }
+        ////    // Actualizar la interfaz gráfica
+        ////    for (int i = 0; i < jugadores.Count; i++)
+        ////    {
+        ////        ActualizarCartas(jugadores[i].Mano, i); // Pasar el índice del jugador para asignar las cartas a los PictureBox correspondientes
+        ////    }
+        ////}
+
+        //public ManoPoker EvaluarMano(List<Carta> mano)
+        //{
+        //    // Ordenar las cartas por valor y palo para facilitar la comparación
+        //    mano = mano.OrderBy(c => c.Valor).ThenBy(c => c.Palo).ToList();
+
+        //    // Implementar la lógica para cada tipo de mano
+        //    if (EsEscaleraReal(mano)) return ManoPoker.EscaleraReal;
+        //    if (EsEscaleraColor(mano)) return ManoPoker.EscaleraColor;
+        //    if (EsPoker(mano)) return ManoPoker.Poker;
+        //    if (EsFullHouse(mano)) return ManoPoker.FullHouse;
+        //    if (EsColor(mano)) return ManoPoker.Color;
+        //    if (EsEscalera(mano)) return ManoPoker.Escalera;
+        //    if (EsTrio(mano)) return ManoPoker.Trio;
+        //    if (EsPar(mano)) return ManoPoker.Par;
+        //    // Si ninguna mano más fuerte se encuentra, se considera una alta carta
+        //    return ManoPoker.AltaCarta;
+        //}
+        //bool EsPar(List<Carta> mano)
+        //{
+        //    for (int i = 0; i < mano.Count - 1; i++)
+        //    {
+        //        if (mano[i].Valor == mano[i + 1].Valor)
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
+        //bool EsTrio(List<Carta> mano)
+        //{
+        //    for (int i = 0; i < mano.Count - 2; i++)
+        //    {
+        //        int contador = 1;
+        //        for (int j = i + 1; j < mano.Count; j++)
+        //        {
+        //            if (mano[i].Valor == mano[j].Valor)
+        //            {
+        //                contador++;
+        //            }
+        //        }
+        //        if (contador == 3)
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
+        //bool EsEscalera(List<Carta> mano)
+        //{
+        //    // Ordenamos las cartas por valor
+        //    mano.Sort((a, b) => a.Valor.CompareTo(b.Valor));
+
+        //    // Verificamos si las cartas son consecutivas
+        //    for (int i = 1; i < mano.Count; i++)
+        //    {
+        //        if (GetValorNumerico(mano[i].Valor) - GetValorNumerico(mano[i - 1].Valor) != 1)
+        //        {
+        //            return false; // Si la diferencia entre dos cartas consecutivas no es 1, no es una escalera
+        //        }
+        //    }
+
+        //    return true;
+        //}
+
+        //// Función auxiliar para obtener el valor numérico de una carta
+        //int GetValorNumerico(string valor)
+        //{
+        //    switch (valor)
+        //    {
+        //        case "2": return 2;
+        //        case "3": return 3;
+        //        case "4": return 4;
+        //        case "5": return 5;
+        //        case "6": return 6;
+        //        case "7": return 7;
+        //        case "8": return 8;
+        //        case "9": return 9;
+        //        case "10": return 10;
+        //        case "J": return 11;
+        //        case "Q": return 12;
+        //        case "K": return 13;
+        //        case "A": return 14;
+        //        default: return 0;
+        //    }
+        //}
+        //// Diccionario para mapear los valores de las cartas a números
+        //Dictionary<string, int> valoresCartas = new Dictionary<string, int>
+        //{
+        //    {"2", 2},
+        //    {"3", 3},
+        //    {"4", 4},
+        //    {"5", 5},
+        //    {"6", 6},
+        //    {"7", 7},
+        //    {"8", 8},
+        //    {"9", 9},
+        //    {"10", 10},
+        //    {"J", 11},
+        //    {"Q", 12},
+        //    {"K", 13},
+        //    {"A", 14}
+        //};
+        //bool EsColor(List<Carta> mano)
+        //{
+        //    // Tomamos el palo de la primera carta como referencia
+        //    string paloReferencia = mano[0].Palo;
+
+        //    // Iteramos sobre todas las cartas, excepto la primera
+        //    for (int i = 1; i < mano.Count; i++)
+        //    {
+        //        // Si el palo de la carta actual es diferente al palo de referencia, no es un color
+        //        if (mano[i].Palo != paloReferencia)
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    // Si llegamos al final del bucle sin encontrar ningún palo diferente, es un color
+        //    return true;
+        //}
+        //bool EsFullHouse(List<Carta> mano)
+        //{
+        //    // Ordenamos las cartas por valor para facilitar el conteo
+        //    mano.Sort((a, b) => a.Valor.CompareTo(b.Valor));
+
+        //    // Inicializamos variables para contar las ocurrencias de cada valor
+        //    string valorAnterior = mano[0].Valor;
+        //    int contador = 1;
+        //    string valorTrio = "";
+        //    string valorPar = "";
+
+        //    for (int i = 1; i < mano.Count; i++)
+        //    {
+        //        if (mano[i].Valor == valorAnterior)
+        //        {
+        //            contador++;
+        //        }
+        //        else
+        //        {
+        //            // Si cambiamos de valor, verificamos si tenemos un trío o un par
+        //            if (contador == 3)
+        //            {
+        //                valorTrio = valorAnterior;
+        //            }
+        //            else if (contador == 2)
+        //            {
+        //                valorPar = valorAnterior;
+        //            }
+
+        //            // Reseteamos el contador y actualizamos el valor anterior
+        //            contador = 1;
+        //            valorAnterior = mano[i].Valor;
+        //        }
+        //    }
+
+        //    // Verificamos si encontramos un trío y un par
+        //    return valorTrio != "" && valorPar != "";
+        //}
+        //bool EsPoker(List<Carta> mano)
+        //{
+        //    // Ordenamos las cartas por valor
+        //    mano.Sort((a, b) => a.Valor.CompareTo(b.Valor));
+
+        //    // Comparamos las cuatro primeras cartas para ver si son iguales
+        //    return mano[0].Valor == mano[3].Valor;
+        //}
+        //bool EsEscaleraColor(List<Carta> mano)
+        //{
+        //    // Ordenamos las cartas por valor y palo
+        //    mano.Sort((a, b) => a.Valor.CompareTo(b.Valor) != 0 ? a.Valor.CompareTo(b.Valor) : a.Palo.CompareTo(b.Palo));
+
+        //    // Verificamos si todas las cartas tienen el mismo palo
+        //    string paloReferencia = mano[0].Palo;
+        //    for (int i = 1; i < mano.Count; i++)
+        //    {
+        //        if (mano[i].Palo != paloReferencia)
+        //        {
+        //            return false; // Si algún palo es diferente, no es una escalera de color
+        //        }
+        //    }
+
+        //    // Verificamos si las cartas son consecutivas
+        //    for (int i = 1; i < mano.Count; i++)
+        //    {
+        //        if (GetValorNumerico(mano[i].Valor) - GetValorNumerico(mano[i - 1].Valor) != 1)
+        //        {
+        //            return false; // Si la diferencia entre dos cartas consecutivas no es 1, no es una escalera
+        //        }
+        //    }
+
+        //    return true; // Si pasamos todas las verificaciones, es una escalera de color
+        //}
+        //bool EsEscaleraReal(List<Carta> mano)
+        //{
+        //    // Ordenamos las cartas por valor y palo (As siempre es el valor más alto)
+        //    mano.Sort((a, b) => a.Valor.CompareTo(b.Valor) != 0 ? a.Valor.CompareTo(b.Valor) : a.Palo.CompareTo(b.Palo));
+
+        //    // Verificamos si el As es la primera carta y el 10 es la última
+        //    if (mano[0].Valor != "A" || mano[4].Valor != "10")
+        //    {
+        //        return false;
+        //    }
+
+        //    // Verificamos si todas las cartas tienen el mismo palo
+        //    string paloReferencia = mano[0].Palo;
+        //    for (int i = 1; i < mano.Count; i++)
+        //    {
+        //        if (mano[i].Palo != paloReferencia)
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    // Verificamos si las cartas son consecutivas (As es considerado el valor más alto)
+        //    for (int i = 1; i < mano.Count; i++)
+        //    {
+        //        if (GetValorNumerico(mano[i].Valor) - GetValorNumerico(mano[i - 1].Valor) != 1)
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    return true;
+        //}
         public void SetTurno() {
 
         }
 
+        public void Empezar_Partida() {
+
+        }
 
 
-
-        private void Salir_Sala_Btn_Click(object sender, EventArgs e)
-        {
+        private void Salir_Sala_Btn_Click(object sender , EventArgs e) {
             string mensaje = "10/" + this.usuario + "/" + this.num_sala;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
@@ -233,6 +532,7 @@ namespace WindowsFormsApplication1 {
         }
 
         private void StartBtn_Click(object sender , EventArgs e) {
+            label1.Text = "Turno de: " + turno;
             string mensaje = "9/" + this.usuario + "/" + this.num_sala;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
