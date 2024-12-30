@@ -29,6 +29,7 @@ typedef struct {
 typedef struct{
 	char nombre[20];
 	int socket;
+	float apuesta;
 }Player;
 
 typedef struct{
@@ -177,7 +178,7 @@ void RegisterUser(MYSQL *conn, char *nombre, char *cuenta, char *contrasenya, in
 					}
 					mysql_free_result(res);
 				}
-				sprintf(response, "INSERT INTO Jugadores (id, nombre, cuenta, contrasenya, capital) VALUES (%d, '%s', '%s', '%s', 0.00);", nuevo_id, nombre, cuenta, contrasenya);
+				sprintf(response, "INSERT INTO Jugadores (id, nombre, cuenta, contrasenya, capital) VALUES (%d, '%s', '%s', '%s', 1000.00);", nuevo_id, nombre, cuenta, contrasenya);
 				if (mysql_query(conn, response)) {
 					printf("Error al insertar nuevo usuario: %s\n", mysql_error(conn));
 					strcpy(response, "1/ERROR AL INSERTAR EL NUEVO USUARIO");
@@ -517,6 +518,58 @@ void RepartirCartas(char mazo[52][5], char comunitarias[5][5], char jugador1[2][
 
 }
 
+	//FUNCION PARA NOTIFICAR A TODOS LOS CONECTADOS CUANDO SE LOGUEA/REGISTRA ALGUIEN (Siempre que se loguea/registre alguien o se desconecte)
+
+void NotificarListaConectados(ListaConectados *conectados) {
+	char notificacion[900];
+	memset(notificacion, 0, sizeof(notificacion));
+
+
+	char connectedUsers[300];
+	DameConectados(conectados, connectedUsers); 
+	sprintf(notificacion, "4/%s/", connectedUsers);
+
+
+	for (int i = 0; i < conectados->num; i++) {
+		write(conectados->conectados[i].socket, notificacion, strlen(notificacion));
+		printf("Notificación enviada a %s: %s\n", conectados->conectados[i].nombre, notificacion);
+	}
+	usleep(100000); // Para evitar sobrecarga
+}
+
+
+	//FUNCION CUANDO SE UNE ALGUIEN O SE VA DE LA SALA (siempre que se vaya alguien o se una)
+
+void NotificarEstadoSalas(MYSQL *conn, ListaConectados *conectados) {
+    int GenteNumSala[4];
+    char notificacion[900];
+    memset(notificacion, 0, sizeof(notificacion));
+
+    // Obtener el estado de todas las salas
+    CheckAllRooms(conn, notificacion, GenteNumSala);
+
+    // Construir el mensaje con el estado de las salas
+    sprintf(notificacion, "8/%d/%d/%d/%d/", 
+            GenteNumSala[0], GenteNumSala[1], GenteNumSala[2], GenteNumSala[3]);
+
+    // Enviar el mensaje a todos los clientes conectados
+    for (int j = 0; j < conectados->num; j++) {
+        write(conectados->conectados[j].socket, notificacion, strlen(notificacion));
+        usleep(100000); // Evitar saturación
+    }
+
+    printf("Actualizando Salas: %s\n", notificacion);
+}
+
+
+float generarApuesta() {
+    int num = rand() % 50 + 1; // Genera un número entre 1 y 50
+
+    return (float) num; // Convierte el número entero a float
+}
+
+
+
 
 int socket_num;
 int sockets[300];
@@ -532,728 +585,331 @@ void* AtenderCliente(void* socket_desc) {
 	char response[512];
 	int stop = 0;
 	
-	while(stop == 0) {
+	
+
+	while (stop == 0) {
 		int ret = read(sock_conn, buff, sizeof(buff));
 		if (ret > 0) {
 			buff[ret] = '\0';
 			printf("Mensaje recibido: %s\n", buff);
-
-		}
-		else {
+		} else {
 			printf("Error al recibir datos\n");
 			close(sock_conn);
 			stop = 1;
 			return 0;
 		}
+
 		char *p = strtok(buff, "/");
-		if (strcmp(p, "0") == 0) {
-			
-			printf("Cliente desconectado.\n");
-			
-			memset(response, 0, sizeof(response));
-			
-			strcpy(response, "DISCONNECT");
-			
-			write(sock_conn, response, strlen(response) + 1);
-			usleep(100000);
-			
-			pthread_mutex_lock(&mutexLista);
-			EliminarWithSocket(&conectados, sock_conn);
-			pthread_mutex_unlock(&mutexLista);
-			
-		}
-		// REGISTER
-		else if (strcmp(p, "1") == 0) {
-			char *nombre = strtok(NULL, "/");
-			char *cuenta = strtok(NULL, "/");
-			char *contrasenya = strtok(NULL, "/");
-			memset(response, 0, sizeof(response));			
-			RegisterUser(conn, nombre, cuenta, contrasenya, sock_conn, response);
-			write (sock_conn, response, strlen(response));
-			usleep(100000);
-		}
-		// LOGIN
-		else if (strcmp(p, "2") == 0) {
-			char *cuenta = strtok(NULL, "/");
-			char *contrasenya = strtok(NULL, "/");
-			memset(response, 0, sizeof(response));			
-			LoginUser(conn, cuenta, contrasenya, sock_conn, response);
-			write (sock_conn, response, strlen(response));
-			usleep(100000);
-		}
-		
-		
-		// Para invitar a alguien
-		if ( strcmp(p, "5") == 0 ) {
-			char *decision = strtok(NULL,"/");
-			char *name = strtok(NULL, "/");
-			char *nameInvited = strtok(NULL, "/");
-			// Invitar a alguien
-			if(strcmp(decision,"2")==0)
-			{
-				if (name == NULL) {
-					printf("Error: name es NULL\n");
-				} else {
+
+		switch (atoi(p)) { // Convierte `p` a un número para simplificar
+			case 0: { // Desconexión
+
+				printf("Cliente desconectado.\n");
+				memset(response, 0, sizeof(response));
+				strcpy(response, "DISCONNECT");
+				write(sock_conn, response, strlen(response) + 1);
+				usleep(100000);
+
+				pthread_mutex_lock(&mutexLista);
+				EliminarWithSocket(&conectados, sock_conn);
+				NotificarListaConectados(&conectados);
+				pthread_mutex_unlock(&mutexLista);
+				break;
+			}
+
+			case 1: { // Registro
+
+				char *nombre = strtok(NULL, "/");
+				char *cuenta = strtok(NULL, "/");
+				char *contrasenya = strtok(NULL, "/");
+				memset(response, 0, sizeof(response));
+				RegisterUser(conn, nombre, cuenta, contrasenya, sock_conn, response);
+				write(sock_conn, response, strlen(response));
+				usleep(100000);
+				if (strcmp(response, "1/REGISTERED/") == 0) {
+					NotificarListaConectados(&conectados);
+					NotificarEstadoSalas(conn, &conectados);
+				}
+				break;
+			}
+
+			case 2: { // Inicio de sesión
+
+				char *cuenta = strtok(NULL, "/");
+				char *contrasenya = strtok(NULL, "/");
+				memset(response, 0, sizeof(response));
+				LoginUser(conn, cuenta, contrasenya, sock_conn, response);
+				write(sock_conn, response, strlen(response));
+				usleep(100000);
+				if (strcmp(response, "2/LOGGED_IN/") == 0) {
+					NotificarListaConectados(&conectados);
+					NotificarEstadoSalas(conn, &conectados);
+				}
+				break;
+			}
+
+			case 5:{ // Invitar
+
+				char *decision = strtok(NULL, "/");
+				char *name = strtok(NULL, "/");
+				char *nameInvited = strtok(NULL, "/");
+				if (strcmp(decision, "2") == 0) {
 					printf("El que invita: '%s'\n", name);
 					printf("El que es invitado: '%s'\n", nameInvited);
+					memset(response, 0, sizeof(response));
+					int pos = DamePosicion(&conectados, nameInvited);
+					int socketInvited = conectados.conectados[pos].socket;
+					sprintf(response, "5/2/%s/", name);
+					write(sockets[pos], response, strlen(response));
+					usleep(100000);
+					printf("Invitación enviada a %s (socket: %d)\n", nameInvited, socketInvited);
+				} else if (strcmp(decision, "1") == 0) {
+					char *respuesta = strtok(NULL, "/");
+					if (strcmp(respuesta, "NO") == 0) {
+						int pos = DamePosicion(&conectados, name);
+						printf("%s ha rechazado la invitación de: %s\n", nameInvited, name);
+						sprintf(response, "5/1/%s/NO/", nameInvited);
+						write(sockets[pos], response, strlen(response));
+						usleep(100000);
+					} else if (strcmp(respuesta, "SI") == 0) {
+						int pos = DamePosicion(&conectados, name);
+						printf("%s ha aceptado la invitación de: %s\n", nameInvited, name);
+						sprintf(response, "5/1/%s/SI/", nameInvited);
+						write(sockets[pos], response, strlen(response));
+						usleep(100000);
+					}
 				}
+				break;
+			}
+
+			case 6: { // Enviar mensaje de chat
+
+				char nombreAutor[20];
+				char mensajeChat[512];
+				char chatMessage[512];
+				p = strtok(NULL, "/");
+				strcpy(nombreAutor, p);
+				p = strtok(NULL, "/");
+				strcpy(mensajeChat, p);
+				sprintf(chatMessage, "%s: %s", nombreAutor, mensajeChat);
 				memset(response, 0, sizeof(response));
-			
-				int pos = DamePosicion(&conectados, nameInvited);
-				int socketInvited = conectados.conectados[pos].socket;
-				sprintf(response, "5/2/%s/", name);
-				write(sockets[pos], response, strlen(response));
+				sprintf(response, "6/%s/", chatMessage);
+				for (int j = 0; j < conectados.num; j++) {
+					write(sockets[j], response, strlen(response));
+				}
 				usleep(100000);
-				printf("Invitaci n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
+				break;
 			}
-			// Contestar a la invitación
-			else if(strcmp(decision,"1")==0)
-			{
-				char *respuesta = strtok(NULL, "/"); 
 
-				if(strcmp(respuesta, "NO") == 0) {
-					int pos = DamePosicion(&conectados, name);
-					int socket_anfitrion = conectados.conectados[pos].socket;
-					printf("%s ha rechazado la invitación de: %s\n", nameInvited, name);
-					sprintf(response, "5/1/%s/NO/", nameInvited);
-					write(sockets[pos], response, strlen(response));
-					usleep(100000);
+			case 7: { // Unirse a una sala
+
+				char nombreCliente[30];
+				int numSala;
+				p = strtok(NULL, "/");
+				strcpy(nombreCliente, p);
+				p = strtok(NULL, "/");
+				numSala = atoi(p); 
+
+				memset(response, 0, sizeof(response));
+
+				int err = CheckRoom(conn, numSala, nombreCliente);
+				if (err != -1) {
+
+					pthread_mutex_lock(&mutexLista);
+
+					int gente = AddPlayerSala(&salas, nombreCliente, numSala, sock_conn);
+					char nombres[100] = {0};
+					ObtenerPlayersSala(&salas, numSala, nombres);
+					int sockets_players[4];
+					ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+
+					pthread_mutex_unlock(&mutexLista);
+
+					for (int j = 0; j < gente + 1; j++) {
+						char notificacion[300];
+						sprintf(notificacion, "7/%d/%d/%s", gente, numSala, nombres);
+						float balance = ObtenerBalanceCuenta(conn, &conectados, sockets_players[j]);
+						char balanceString[20];
+						sprintf(balanceString, "%.2f", balance);
+						strcat(notificacion, balanceString);
+						write(sockets_players[j], notificacion, strlen(notificacion));
+						printf("\nEnviando notificación a jugadores: %s\n", notificacion);
+					}
+					usleep(1000000);
+				} else {
+					sprintf(response, "7/-1/");
+					write(sock_conn, response, strlen(response));
+					printf("Sala llena, mensaje enviado: %s\n", response);
+					usleep(1000000);
 				}
-				else if(strcmp(respuesta, "SI") == 0){
-
-					int pos = DamePosicion(&conectados, name);
-					int socket_anfitrion = conectados.conectados[pos].socket;
-					printf("%s ha aceptado la invitación de: %s\n", nameInvited, name);
-					sprintf(response, "5/1/%s/SI/", nameInvited);
-					write(sockets[pos], response, strlen(response));
-					usleep(100000);
-
-				}
-				
-				
-			}	
-		}
-		// Para enviar mensaje al chat
-		if ( strcmp(p, "6") == 0) {
-			char nombreAutor[20];
-			char mensajeChat[512];
-			char chatMessage[512]; //mensaje a enviar por el chat
-
-			p = strtok(NULL, "/");
-			strcpy(nombreAutor, p);
-			p = strtok(NULL, "/");
-			strcpy(mensajeChat, p);
-
-			sprintf(chatMessage, "%s: %s", nombreAutor, mensajeChat);
-			memset(response, 0, sizeof(response));
-			
-			sprintf(response, "6/%s/", chatMessage);
-			int j;
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], response, strlen(response));
+				NotificarEstadoSalas(conn, &conectados);
+				break;
 			}
-			usleep(100000);
-		}
-		if (strcmp(p, "7") == 0) {
-			char nombreCliente[30];
-			int numSala;
 
-			// Extraer parámetros del mensaje recibido
-			p = strtok(NULL, "/");
-			strcpy(nombreCliente, p);
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
+				
 
-			memset(response, 0, sizeof(response));
+			case 9: {
+				// Iniciar partida
+				srand(time(NULL));
 
-			// Comprobar si hay espacio en la sala
-			int err = CheckRoom(conn, numSala, nombreCliente);
-			if (err != -1) {
-				// Añadir al jugador a la sala
+				char nombreHost[30];
+				int numSala;
+				p = strtok(NULL, "/");
+				strcpy(nombreHost, p);
+				p = strtok(NULL, "/");
+				numSala = atoi(p);
+
+				char mazo[52][5];
+				char comunitarias[5][5];
+				char jugador1[2][5];
+				char jugador2[2][5];
+
+				// Aqui ya estan las comunitarias, jugador1 y jugador2
+				CrearMazo(mazo);
+				MezclarMazo(mazo);
+				
+
+				RepartirCartas(mazo, comunitarias, jugador1, jugador2);
+
+				int socketsPlayers[4];
+				ObtenerSocketsPlayersSala(&salas, numSala, socketsPlayers);
+
+
+				char cartasComunitarias[100];
+				snprintf(cartasComunitarias, sizeof(cartasComunitarias), "%s/%s/%s/%s/%s", 
+						comunitarias[0], comunitarias[1], comunitarias[2], comunitarias[3], comunitarias[4]);
+
+				char cartasJugador1[30];
+				snprintf(cartasJugador1, sizeof(cartasJugador1), "%s/%s", jugador1[0], jugador1[1]);
+
+				char cartasJugador2[30];
+				snprintf(cartasJugador2, sizeof(cartasJugador2), "%s/%s", jugador2[0], jugador2[1]);
+				
+				printf("\n-------------------------------\n");
+				printf("SALA %d\n", numSala);
+				printf("Comunitarias: %s\n", cartasComunitarias);
+				printf("Jugador 1: %s\n", cartasJugador1);
+				printf("Jugador 2: %s\n", cartasJugador2);
+				printf("-------------------------------\n");
+
+
+				// DE MOMENTO PARA DOS JUGADORES, SE VUELVE A COPIAR DOS VECES MAS Y CAMBIAR LA GENERACION DE CARTAS SI QUEREMOS PARA 4 JUGADORES
+				strcpy(response, "");
+				snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador1);
+				write(socketsPlayers[0], response, strlen(response));
+
+				strcpy(response, "");
+				snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
+				write(socketsPlayers[1], response, strlen(response));
+				usleep(100000);
+				break;
+			}
+
+			case 10: {
+				// Salir de una sala
+				char nombreCliente[30];
+				int numSala;
+				p = strtok(NULL, "/");
+				strcpy(nombreCliente, p);
+				p = strtok(NULL, "/");
+				numSala = atoi(p);
+
+				int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
+				
+				char notificacion[300];
+				sprintf(notificacion, "10/%d/%d", numSala, a);
+				int j;
+				for (j = 0; j<conectados.num; j++) {
+					
+					write (sockets[j], notificacion, strlen(notificacion));
+				}
+				usleep(100000);
+				break;
+			}
+
+			case 11: {
+				// Gestionar turno
+				int numSala;
+				p = strtok(NULL, "/");
+				numSala = atoi(p);
+				// enviamos a cada uno si es su turno o se tiene que esperar
+
 				pthread_mutex_lock(&mutexLista);
-				int gente = AddPlayerSala(&salas, nombreCliente, numSala, sock_conn);
-				// Obtener nombres de jugadores en la sala
-				char nombres[100] = {0};
-				ObtenerPlayersSala(&salas, numSala, nombres);
-
-				// Construir mensaje de respuesta consolidado
-				
-
-				// Notificar a todos los jugadores en la sala sobre la actualización
 				int sockets_players[4];
 				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+
+				// Como sockets_players esta en orden de cuando se añade la gente en la sala, va de 0 a 3. Por lo tanto va sincronizado con el turno de la gente. 
+				int indexSala = numSala - 1;
+				int turnoActual = salas.salas[indexSala].turnoActual;
+
+				// Conseguimos el nombre de la persona que le toca. 
+				
+				char nombreTurno[60] = "";
+				strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
+				printf("\nSALA %d\n", numSala);
+				printf("Turno de: %s\n", nombreTurno);
 				pthread_mutex_unlock(&mutexLista);
 
-				for (int j = 0; j < gente + 1; j++) {
+				for(int i = 0; i<4; i++){
 					
-					char notificacion[300];
-					sprintf(notificacion, "7/%d/%d/%s", gente, numSala, nombres);
-					float balance = ObtenerBalanceCuenta(conn, &conectados, sockets_players[j]);
-					char balanceString[20]; // Suficiente para contener el balance como texto
-    				sprintf(balanceString, "%.2f", balance);
-					strcat(notificacion, balanceString);
+					if(sockets_players[i] != -1){
+						char turno[60] = "";
+						snprintf(turno, sizeof(turno), "11/0/%d/%s", numSala, nombreTurno);
+						write(sockets_players[i], turno, strlen(turno));
+						usleep(1000000);
+					}
+					if(sockets_players[i] == sock_conn){
+						char turno[60];
+						snprintf(turno, sizeof(turno), "11/1/%d/%s", numSala, nombreTurno);
+						write(sock_conn, turno, strlen(turno));
+						usleep(1000000);
+					}
 
-					write(sockets_players[j], notificacion, strlen(notificacion));
-					printf("\nEnviando notificación a jugadores: %s\n", notificacion);
 				}
 				usleep(1000000);
-			} 
-			else {
-				// Sala llena, devolver error al cliente
-				sprintf(response, "7/-1/");
-				write(sock_conn, response, strlen(response));
-				printf("Sala llena, mensaje enviado: %s\n", response);
+				break;
+			}
+
+			case 12: {
+				
+				// Empieza la partida y generamos todas las apuestas y ciclar turnos
+				int numSala;
+				p = strtok(NULL, "/");
+				numSala = atoi(p);
+
+				//Generamos la apuesta incial. 
+
+				float apuestaInicial = generarApuesta();
+				printf("APUESTA INCIAL: %.2f", apuestaInicial);
+
+				// Enviamos la apuesta a todos los jugadores de esa sala
+				pthread_mutex_lock(&mutexLista);
+
+				int sockets_players[4];
+				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+				char notificaciónSala[100];
+				for(int i = 0; i<4; i++){
+					
+					if(sockets_players[i] != -1){
+						snprintf(notificaciónSala, sizeof(notificaciónSala), "12/%.2f/%d", apuestaInicial, numSala);
+						write(sockets_players[i], notificaciónSala, strlen(notificaciónSala));
+						
+					}
+				}
 				usleep(1000000);
 			}
-		}
-		if(strcmp(p, "9") == 0){
 
-			srand(time(NULL));
-
-			char nombreHost[30];
-			int numSala;
-			p = strtok(NULL, "/");
-			strcpy(nombreHost, p);
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
-
-			char mazo[52][5];
-			char comunitarias[5][5];
-			char jugador1[2][5];
-			char jugador2[2][5];
-
-			// Aqui ya estan las comunitarias, jugador1 y jugador2
-			CrearMazo(mazo);
-    		MezclarMazo(mazo);
-			
-
-			RepartirCartas(mazo, comunitarias, jugador1, jugador2);
-
-			int socketsPlayers[4];
-			ObtenerSocketsPlayersSala(&salas, numSala, socketsPlayers);
-
-
-			char cartasComunitarias[100];
-			snprintf(cartasComunitarias, sizeof(cartasComunitarias), "%s/%s/%s/%s/%s", 
-					comunitarias[0], comunitarias[1], comunitarias[2], comunitarias[3], comunitarias[4]);
-
-			char cartasJugador1[30];
-			snprintf(cartasJugador1, sizeof(cartasJugador1), "%s/%s", jugador1[0], jugador1[1]);
-
-			char cartasJugador2[30];
-			snprintf(cartasJugador2, sizeof(cartasJugador2), "%s/%s", jugador2[0], jugador2[1]);
-			
-			printf("\n-------------------------------\n");
-			printf("SALA %d\n", numSala);
-			printf("Comunitarias: %s\n", cartasComunitarias);
-			printf("Jugador 1: %s\n", cartasJugador1);
-			printf("Jugador 2: %s\n", cartasJugador2);
-			printf("-------------------------------\n");
-
-
-
-			strcpy(response, "");
-			snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador1);
-			write(socketsPlayers[0], response, strlen(response));
-
-			strcpy(response, "");
-			snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
-			write(socketsPlayers[1], response, strlen(response));
-			usleep(100000);
-
-		}
-
-		if(strcmp(p, "10") == 0)
-		{
-			char nombreCliente[30];
-			int numSala;
-			p = strtok(NULL, "/");
-			strcpy(nombreCliente, p);
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
-
-			int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
-			
-			char notificacion[300];
-			sprintf(notificacion, "10/%d/%d", numSala, a);
-			int j;
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], notificacion, strlen(notificacion));
+			default:{
+				printf("Comando no reconocido: %s\n", p);
+				break;
 			}
-			usleep(100000);
-			
-
 		}
-		if(strcmp(p, "11") == 0)
-		{
-			int numSala;
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
-			// enviamos a cada uno si es su turno o se tiene que esperar
-
-			pthread_mutex_lock(&mutexLista);
-			int sockets_players[4];
-			ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
-
-			// Como sockets_players esta en orden de cuando se añade la gente en la sala, va de 0 a 3. Por lo tanto va sincronizado con el turno de la gente. 
-			int indexSala = numSala - 1;
-			int turnoActual = salas.salas[indexSala].turnoActual;
-
-			// Conseguimos el nombre de la persona que le toca. 
-			
-			char nombreTurno[60] = "";
-			strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
-			printf("Turno de: %s\n", nombreTurno);
-			pthread_mutex_unlock(&mutexLista);
-
-			for(int i = 0; i<4; i++){
-				
-				if(sockets_players[i] != -1){
-					char turno[60] = "";
-					snprintf(turno, sizeof(turno), "11/0/%d/%s", numSala, nombreTurno);
-					write(sockets_players[i], turno, strlen(turno));
-					usleep(1000000);
-				}
-				if(sockets_players[i] == sock_conn){
-					char turno[60];
-					snprintf(turno, sizeof(turno), "11/1/%d/%s", numSala, nombreTurno);
-					write(sock_conn, turno, strlen(turno));
-					usleep(1000000);
-				}
-
-			}
-			usleep(1000000);
-
-			// Entonces ha empezado ya la partida despues de todo esto y 
-		}
-
-		// Lista de conectados
-		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) ){
-			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
-			char notificacion[900];
-			memset(notificacion, 0, sizeof(notificacion));
-			char connectedUsers[300];
-			DameConectados(&conectados, connectedUsers);
-			sprintf(notificacion, "4/%s/", connectedUsers);
-			int j;
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], notificacion, strlen(notificacion));
-			}
-			usleep(100000);
-			printf("Lista Conectados: %s\n", notificacion);
-		}
-		
-		
-		// CAMBIAR NUMERO DE JUGADORES EN LA SALA CON NOTIFICACIONES
-		if( (strcmp(p,"1") == 0 ) || (strcmp(p,"2") == 0 ) || (strcmp(p, "7") == 0) ){
-			
-			int GenteNumSala[4];
-			char notificacion[900];
-			CheckAllRooms(conn, notificacion, GenteNumSala);
-			int j;
-			memset(notificacion, 0, sizeof(notificacion));
-			sprintf(notificacion, "8/%d/%d/%d/%d/", GenteNumSala[0], GenteNumSala[1], GenteNumSala[2], GenteNumSala[3]);
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], notificacion, strlen(notificacion));
-			}
-			usleep(100000);
-			printf("Actualizando Salas... \n");
-		}
-		
-		
-		
-		if(strcmp(p, "0") == 0) {
-			// Creo un string llamado notificacion que guardara la lista de conectados para enviarla al cliente
-			char notificacion[900];
-			char connectedUsers[300];
-			DameConectados(&conectados, connectedUsers);
-			memset(notificacion, 0, sizeof(notificacion));
-			sprintf(notificacion, "4/%s/", connectedUsers);
-			int j;
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], notificacion, strlen(notificacion));
-			}
-			usleep(100000);
-			printf("Se ha ido un usuario \n");
-			printf("Lista Conectados: %s\n", notificacion);
-			close(sock_conn);
-			stop = 1;
-			return 0;
-		}
-		// write(sock_conn, response, strlen(response) + 1);
 	}
 	mysql_close(conn);
 	return 0;
 }
 
-/*
 
-while (stop == 0) {
-    int ret = read(sock_conn, buff, sizeof(buff));
-    if (ret > 0) {
-        buff[ret] = '\0';
-        printf("Mensaje recibido: %s\n", buff);
-    } else {
-        printf("Error al recibir datos\n");
-        close(sock_conn);
-        stop = 1;
-        return 0;
-    }
-
-    char *p = strtok(buff, "/");
-
-    switch (atoi(p)) { // Convierte `p` a un número para simplificar
-        case 0:
-            // Desconexión
-           printf("Cliente desconectado.\n");
-			
-			memset(response, 0, sizeof(response));
-			
-			strcpy(response, "DISCONNECT");
-			
-			write(sock_conn, response, strlen(response) + 1);
-			usleep(100000);
-			
-			pthread_mutex_lock(&mutexLista);
-			EliminarWithSocket(&conectados, sock_conn);
-			pthread_mutex_unlock(&mutexLista);
-			break;
-
-        case 1:
-            // Registro
-            char *nombre = strtok(NULL, "/");
-			char *cuenta = strtok(NULL, "/");
-			char *contrasenya = strtok(NULL, "/");
-			memset(response, 0, sizeof(response));			
-			RegisterUser(conn, nombre, cuenta, contrasenya, sock_conn, response);
-			write (sock_conn, response, strlen(response));
-			usleep(100000);
-			if (strcmp(response, "1/REGISTERED/") == 0) {
-            	NotificarListaConectados(&conectados);
-        	}
-			break;
-
-        case 2:
-            // Inicio de sesión
-            char *cuenta = strtok(NULL, "/");
-			char *contrasenya = strtok(NULL, "/");
-			memset(response, 0, sizeof(response));			
-			LoginUser(conn, cuenta, contrasenya, sock_conn, response);
-			write (sock_conn, response, strlen(response));
-			usleep(100000);
-			if (strcmp(response, "2/LOGGED_IN/") == 0) {
-            	NotificarListaConectados(&conectados);
-        	}
-        	break;
-
-        case 5:
-            // Invitar
-            char *decision = strtok(NULL,"/");
-			char *name = strtok(NULL, "/");
-			char *nameInvited = strtok(NULL, "/");
-			// Invitar a alguien
-			if(strcmp(decision,"2")==0)
-			{
-				if (name == NULL) {
-					printf("Error: name es NULL\n");
-				} else {
-					printf("El que invita: '%s'\n", name);
-					printf("El que es invitado: '%s'\n", nameInvited);
-				}
-				memset(response, 0, sizeof(response));
-			
-				int pos = DamePosicion(&conectados, nameInvited);
-				int socketInvited = conectados.conectados[pos].socket;
-				sprintf(response, "5/2/%s/", name);
-				write(sockets[pos], response, strlen(response));
-				usleep(100000);
-				printf("Invitaci n enviada a %s (socket: %d)\n", nameInvited, socketInvited);
-			}
-			// Contestar a la invitación
-			else if(strcmp(decision,"1")==0)
-			{
-				char *respuesta = strtok(NULL, "/"); 
-
-				if(strcmp(respuesta, "NO") == 0) {
-					int pos = DamePosicion(&conectados, name);
-					int socket_anfitrion = conectados.conectados[pos].socket;
-					printf("%s ha rechazado la invitación de: %s\n", nameInvited, name);
-					sprintf(response, "5/1/%s/NO/", nameInvited);
-					write(sockets[pos], response, strlen(response));
-					usleep(100000);
-				}
-				else if(strcmp(respuesta, "SI") == 0){
-
-					int pos = DamePosicion(&conectados, name);
-					int socket_anfitrion = conectados.conectados[pos].socket;
-					printf("%s ha aceptado la invitación de: %s\n", nameInvited, name);
-					sprintf(response, "5/1/%s/SI/", nameInvited);
-					write(sockets[pos], response, strlen(response));
-					usleep(100000);
-
-				}
-				
-				
-			}
-			break;
-
-        case 6:
-            // Enviar mensaje de chat
-            char nombreAutor[20];
-			char mensajeChat[512];
-			char chatMessage[512]; //mensaje a enviar por el chat
-
-			p = strtok(NULL, "/");
-			strcpy(nombreAutor, p);
-			p = strtok(NULL, "/");
-			strcpy(mensajeChat, p);
-
-			sprintf(chatMessage, "%s: %s", nombreAutor, mensajeChat);
-			memset(response, 0, sizeof(response));
-			
-			sprintf(response, "6/%s/", chatMessage);
-			int j;
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], response, strlen(response));
-			}
-			usleep(100000);
-            break;
-
-        case 7:
-            // Unirse a una sala
-            char nombreCliente[30];
-			int numSala;
-
-			// Extraer parámetros del mensaje recibido
-			p = strtok(NULL, "/");
-			strcpy(nombreCliente, p);
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
-
-			memset(response, 0, sizeof(response));
-
-			// Comprobar si hay espacio en la sala
-			int err = CheckRoom(conn, numSala, nombreCliente);
-			if (err != -1) {
-				// Añadir al jugador a la sala
-				pthread_mutex_lock(&mutexLista);
-				int gente = AddPlayerSala(&salas, nombreCliente, numSala, sock_conn);
-				// Obtener nombres de jugadores en la sala
-				char nombres[100] = {0};
-				ObtenerPlayersSala(&salas, numSala, nombres);
-
-				// Construir mensaje de respuesta consolidado
-				
-
-				// Notificar a todos los jugadores en la sala sobre la actualización
-				int sockets_players[4];
-				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
-				pthread_mutex_unlock(&mutexLista);
-
-				for (int j = 0; j < gente + 1; j++) {
-					
-					char notificacion[300];
-					sprintf(notificacion, "7/%d/%d/%s", gente, numSala, nombres);
-					float balance = ObtenerBalanceCuenta(conn, &conectados, sockets_players[j]);
-					char balanceString[20]; // Suficiente para contener el balance como texto
-    				sprintf(balanceString, "%.2f", balance);
-					strcat(notificacion, balanceString);
-
-					write(sockets_players[j], notificacion, strlen(notificacion));
-					printf("\nEnviando notificación a jugadores: %s\n", notificacion);
-				}
-				usleep(1000000);
-			} 
-			else {
-				// Sala llena, devolver error al cliente
-				sprintf(response, "7/-1/");
-				write(sock_conn, response, strlen(response));
-				printf("Sala llena, mensaje enviado: %s\n", response);
-				usleep(1000000);
-			}
-            break;
-
-        case 9:
-            // Iniciar partida
-            srand(time(NULL));
-
-			char nombreHost[30];
-			int numSala;
-			p = strtok(NULL, "/");
-			strcpy(nombreHost, p);
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
-
-			char mazo[52][5];
-			char comunitarias[5][5];
-			char jugador1[2][5];
-			char jugador2[2][5];
-
-			// Aqui ya estan las comunitarias, jugador1 y jugador2
-			CrearMazo(mazo);
-    		MezclarMazo(mazo);
-			
-
-			RepartirCartas(mazo, comunitarias, jugador1, jugador2);
-
-			int socketsPlayers[4];
-			ObtenerSocketsPlayersSala(&salas, numSala, socketsPlayers);
-
-
-			char cartasComunitarias[100];
-			snprintf(cartasComunitarias, sizeof(cartasComunitarias), "%s/%s/%s/%s/%s", 
-					comunitarias[0], comunitarias[1], comunitarias[2], comunitarias[3], comunitarias[4]);
-
-			char cartasJugador1[30];
-			snprintf(cartasJugador1, sizeof(cartasJugador1), "%s/%s", jugador1[0], jugador1[1]);
-
-			char cartasJugador2[30];
-			snprintf(cartasJugador2, sizeof(cartasJugador2), "%s/%s", jugador2[0], jugador2[1]);
-			
-			printf("\n-------------------------------\n");
-			printf("SALA %d\n", numSala);
-			printf("Comunitarias: %s\n", cartasComunitarias);
-			printf("Jugador 1: %s\n", cartasJugador1);
-			printf("Jugador 2: %s\n", cartasJugador2);
-			printf("-------------------------------\n");
-
-
-
-			strcpy(response, "");
-			snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador1);
-			write(socketsPlayers[0], response, strlen(response));
-
-			strcpy(response, "");
-			snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
-			write(socketsPlayers[1], response, strlen(response));
-			usleep(100000);
-            break;
-
-        case 10:
-            // Salir de una sala
-            char nombreCliente[30];
-			int numSala;
-			p = strtok(NULL, "/");
-			strcpy(nombreCliente, p);
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
-
-			int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
-			
-			char notificacion[300];
-			sprintf(notificacion, "10/%d/%d", numSala, a);
-			int j;
-			for (j = 0; j<conectados.num; j++) {
-				
-				write (sockets[j], notificacion, strlen(notificacion));
-			}
-			usleep(100000);
-            break;
-
-        case 11:
-            // Gestionar turno
-            int numSala;
-			p = strtok(NULL, "/");
-			numSala = atoi(p);
-			// enviamos a cada uno si es su turno o se tiene que esperar
-
-			pthread_mutex_lock(&mutexLista);
-			int sockets_players[4];
-			ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
-
-			// Como sockets_players esta en orden de cuando se añade la gente en la sala, va de 0 a 3. Por lo tanto va sincronizado con el turno de la gente. 
-			int indexSala = numSala - 1;
-			int turnoActual = salas.salas[indexSala].turnoActual;
-
-			// Conseguimos el nombre de la persona que le toca. 
-			
-			char nombreTurno[60] = "";
-			strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
-			printf("Turno de: %s\n", nombreTurno);
-			pthread_mutex_unlock(&mutexLista);
-
-			for(int i = 0; i<4; i++){
-				
-				if(sockets_players[i] != -1){
-					char turno[60] = "";
-					snprintf(turno, sizeof(turno), "11/0/%d/%s", numSala, nombreTurno);
-					write(sockets_players[i], turno, strlen(turno));
-					usleep(1000000);
-				}
-				if(sockets_players[i] == sock_conn){
-					char turno[60];
-					snprintf(turno, sizeof(turno), "11/1/%d/%s", numSala, nombreTurno);
-					write(sock_conn, turno, strlen(turno));
-					usleep(1000000);
-				}
-
-			}
-			usleep(1000000);
-            break;
-
-        default:
-            printf("Comando no reconocido: %s\n", p);
-            break;
-    }
-}
-
-
-
-!FUNCION PARA NOTIFICAR A TODOS LOS CONECTADOS CUANDO SE LOGUEA/REGISTRA ALGUIEN (Siempre que se loguea/registre alguien o se desconecte)
-
-void NotificarListaConectados(ListaConectados *conectados) {
-    char notificacion[900];
-    memset(notificacion, 0, sizeof(notificacion));
-
-
-    char connectedUsers[300];
-    DameConectados(conectados, connectedUsers); 
-    sprintf(notificacion, "4/%s/", connectedUsers);
-
-
-    for (int i = 0; i < conectados->num; i++) {
-        write(conectados->conectados[i].socket, notificacion, strlen(notificacion));
-        printf("Notificación enviada a %s: %s\n", conectados->conectados[i].nombre, notificacion);
-    }
-    usleep(100000); // Para evitar sobrecarga
-}
-
-
-!FUNCION CUANDO SE UNE ALGUIEN O SE VA DE LA SALA (siempre que se vaya alguien o se una)
-
-void NotificarEstadoSala(MYSQL *conn, ListaSalas *salas, int numSala) {
-    char notificacion[900];
-    memset(notificacion, 0, sizeof(notificacion));
-
-    int gentePorSala[4];
-    CheckAllRooms(conn, notificacion, gentePorSala); // Función ya existente
-
-    sprintf(notificacion, "8/%d/%d/%d/%d/", 
-            gentePorSala[0], gentePorSala[1], gentePorSala[2], gentePorSala[3]);
-
-    // Enviar notificación a todos los jugadores conectados
-    for (int i = 0; i < salas->num_salas; i++) {
-        for (int j = 0; j < salas->salas[i].num_players; j++) {
-            int socketJugador = salas->salas[i].players[j].socket;
-            write(socketJugador, notificacion, strlen(notificacion));
-            printf("Notificación enviada al jugador %s: %s\n", salas->salas[i].players[j].nombre, notificacion);
-        }
-    }
-    usleep(100000);
-}
-
-
-
-
-
-
-*/
 
 int main(int argc, char *argv[]) {
 	

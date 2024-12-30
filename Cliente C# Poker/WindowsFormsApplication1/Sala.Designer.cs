@@ -44,6 +44,7 @@
             this.TurnoLbl = new System.Windows.Forms.Label();
             this.ApostarBtn = new System.Windows.Forms.Button();
             this.RetirarBtn = new System.Windows.Forms.Button();
+            this.ApuestaLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -229,6 +230,18 @@
             this.RetirarBtn.Text = "RETIRAR";
             this.RetirarBtn.UseVisualStyleBackColor = true;
             // 
+            // ApuestaLbl
+            // 
+            this.ApuestaLbl.AutoSize = true;
+            this.ApuestaLbl.BackColor = System.Drawing.Color.Black;
+            this.ApuestaLbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ApuestaLbl.ForeColor = System.Drawing.Color.Snow;
+            this.ApuestaLbl.Location = new System.Drawing.Point(23, 88);
+            this.ApuestaLbl.Name = "ApuestaLbl";
+            this.ApuestaLbl.Size = new System.Drawing.Size(163, 37);
+            this.ApuestaLbl.TabIndex = 26;
+            this.ApuestaLbl.Text = "APUESTA:";
+            // 
             // Sala
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -236,6 +249,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1202, 724);
+            this.Controls.Add(this.ApuestaLbl);
             this.Controls.Add(this.RetirarBtn);
             this.Controls.Add(this.ApostarBtn);
             this.Controls.Add(this.TurnoLbl);
@@ -292,5 +306,6 @@
         private System.Windows.Forms.Label TurnoLbl;
         private System.Windows.Forms.Button ApostarBtn;
         private System.Windows.Forms.Button RetirarBtn;
+        private System.Windows.Forms.Label ApuestaLbl;
     }
 }

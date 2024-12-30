@@ -521,11 +521,9 @@ namespace WindowsFormsApplication1 {
             server.Send(msg);
         }
 
-        public void Empezar_Partida() {
-
+        public void SetApuesta(float apuestaInical) {
+            ApuestaLbl.Text = $"APUESTA: {apuestaInical}";
         }
-
-
         private void Salir_Sala_Btn_Click(object sender , EventArgs e) {
             string mensaje = "10/" + this.usuario + "/" + this.num_sala;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);

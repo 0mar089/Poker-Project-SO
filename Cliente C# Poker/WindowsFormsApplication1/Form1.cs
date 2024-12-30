@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Drawing.Drawing2D;
 using System.Security.Cryptography;
+using System.Globalization;
 
 namespace WindowsFormsApplication1 {
     public partial class Form1 : Form {
@@ -260,10 +261,8 @@ namespace WindowsFormsApplication1 {
                                 ButtonInvite.Enabled = false;
                                 break;
                         }
-
-
-
                         break;
+
                     case 11:
 
                         if ( mensaje == "1" ) {
@@ -290,7 +289,16 @@ namespace WindowsFormsApplication1 {
 
                             salaExistente.SetEsperaJugador(personaTurno);
                         }
+                        break;
 
+                    case 12:
+
+                        float apuestaInicial = float.Parse(trozos[1] , CultureInfo.InvariantCulture);
+                        numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                        salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                        salaExistente.SetApuesta(apuestaInicial);
 
                         break;
                 }
