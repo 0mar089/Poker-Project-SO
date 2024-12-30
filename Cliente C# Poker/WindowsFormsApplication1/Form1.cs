@@ -20,7 +20,7 @@ namespace WindowsFormsApplication1 {
         string usuario;
         int num_sala;
         List<Sala> salas = new List<Sala>();
-        string personaTurno;
+
         public Form1() {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
@@ -269,16 +269,26 @@ namespace WindowsFormsApplication1 {
                         if ( mensaje == "1" ) {
                             // SI ES UN 1 ES QUE LE TOCA JUGAR AL JUGADOR
 
-                            personaTurno = trozos[2].Split('\0')[0];
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
 
+                            string personaTurno = trozos[3].Split('\0')[0];
 
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetTurnoJugador(personaTurno);
 
                         }
                         else {
                             // SI ES UN 0 ES QUE LE TOCA ESPERAR AL JUGADOR
 
 
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
 
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetEsperaJugador(personaTurno);
                         }
 
 
@@ -291,7 +301,7 @@ namespace WindowsFormsApplication1 {
 
         private void EntrarSalaPoker(string[] trozos) {
 
-            Sala s = new Sala(this.usuario , this.num_sala , server , trozos[3] , personaTurno);
+            Sala s = new Sala(this.usuario , this.num_sala , server , trozos[3]);
             salas.Add(s);
             ButtonInvite.Enabled = true;
             s.SetNombres(trozos , this.usuario);

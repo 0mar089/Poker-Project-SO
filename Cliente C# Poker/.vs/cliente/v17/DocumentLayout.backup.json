@@ -46,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 10,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
@@ -56,12 +56,11 @@
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Sala.cs",
               "ToolTip": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Sala.cs",
               "RelativeToolTip": "WindowsFormsApplication1\\Sala.cs",
-              "ViewState": "AgIAALoAAAAAAAAAAAAYwIoAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABUCAAAAAAAAAAAjwB8CAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "OverriddenGroupName": "WindowsFormsApplication1",
               "WhenOpened": "2024-11-24T12:02:09.058Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Bookmark",
@@ -73,6 +72,19 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.cs",
+              "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
+              "ToolTip": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.cs",
+              "RelativeToolTip": "WindowsFormsApplication1\\Form1.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAA1wCYAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-10-19T16:57:47.772Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
               "Title": "Sala.cs [Dise\u00F1o]",
               "DocumentMoniker": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Sala.cs",
@@ -81,8 +93,7 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "OverriddenGroupName": "WindowsFormsApplication1",
               "OverriddenToolTip": "WindowsFormsApplication1/Sala.cs",
-              "WhenOpened": "2024-11-23T17:39:47.053Z",
-              "EditorCaption": " [Dise\u00F1o]"
+              "WhenOpened": "2024-11-23T17:39:47.053Z"
             },
             {
               "$type": "Document",
@@ -154,21 +165,7 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "OverriddenGroupName": "WindowsFormsApplication1",
               "OverriddenToolTip": "WindowsFormsApplication1/Form1.cs",
-              "WhenOpened": "2024-11-16T18:01:32.46Z",
-              "EditorCaption": " [Dise\u00F1o]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Form1.cs",
-              "DocumentMoniker": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.cs",
-              "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
-              "ToolTip": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.cs",
-              "RelativeToolTip": "WindowsFormsApplication1\\Form1.cs",
-              "ViewState": "AgIAAAYBAAAAAAAAAAAgwBUBAAAYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-10-19T16:57:47.772Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-16T18:01:32.46Z"
             }
           ]
         }

@@ -685,12 +685,6 @@ void* AtenderCliente(void* socket_desc) {
 				ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
 				pthread_mutex_unlock(&mutexLista);
 
-				// Este bucle de notificacion hay que cambiarlo: 
-				/*
-					- Que dependiendo del socket, a mas de todo lo que se enviaba antes, se envia el balance de su cuenta. 
-					Que al primer socket, conseguimos su balance, luego en la notificacion añadimos el balance. Y asi succesivamente. 
-				*/
-
 				for (int j = 0; j < gente + 1; j++) {
 					
 					char notificacion[300];
@@ -751,7 +745,7 @@ void* AtenderCliente(void* socket_desc) {
 			snprintf(cartasJugador2, sizeof(cartasJugador2), "%s/%s", jugador2[0], jugador2[1]);
 			
 			printf("\n-------------------------------");
-			printf("SALA %d", numSala);
+			printf("SALA %d\n", numSala);
 			printf("Comunitarias: %s\n", cartasComunitarias);
 			printf("Jugador 1: %s\n", cartasJugador1);
 			printf("Jugador 2: %s\n", cartasJugador2);
@@ -813,26 +807,24 @@ void* AtenderCliente(void* socket_desc) {
 			strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
 			printf("Turno de: %s\n", nombreTurno);
 			pthread_mutex_unlock(&mutexLista);
-			if(sockets_players[0] == sock_conn){
-				
-				char turno[60];
-				snprintf(turno, sizeof(turno), "11/1/%s", nombreTurno);
-				write(sock_conn, turno, strlen(turno));
-			}
-			else{
-				
-				for(int i = 0; i<4; i++){
-					
-					if(sockets_players[i] != sock_conn) {
-						char turno[60] = "";
-						snprintf(turno, sizeof(turno), "11/0/%s", nombreTurno);
-						write(sockets_players[i], turno, strlen(turno));
 
-					}
-
+			for(int i = 0; i<4; i++){
+				
+				if(sockets_players[i] != -1){
+					char turno[60] = "";
+					snprintf(turno, sizeof(turno), "11/0/%d/%s", numSala, nombreTurno);
+					write(sockets_players[i], turno, strlen(turno));
+					usleep(1000000);
+				}
+				if(sockets_players[i] == sock_conn){
+					char turno[60];
+					snprintf(turno, sizeof(turno), "11/1/%d/%s", numSala, nombreTurno);
+					write(sock_conn, turno, strlen(turno));
+					usleep(1000000);
 				}
 
 			}
+			
 			usleep(1000000);
 		}
 

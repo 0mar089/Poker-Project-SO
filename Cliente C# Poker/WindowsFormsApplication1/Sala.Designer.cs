@@ -45,7 +45,7 @@
             this.labelStaticBalance = new System.Windows.Forms.Label();
             this.Salir_Sala_Btn = new System.Windows.Forms.Button();
             this.StartBtn = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.TurnoLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -237,17 +237,17 @@
             this.StartBtn.UseVisualStyleBackColor = true;
             this.StartBtn.Click += new System.EventHandler(this.StartBtn_Click);
             // 
-            // label1
+            // TurnoLbl
             // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.Black;
-            this.label1.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.Snow;
-            this.label1.Location = new System.Drawing.Point(23, 26);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(170, 37);
-            this.label1.TabIndex = 23;
-            this.label1.Text = "Turno de: ";
+            this.TurnoLbl.AutoSize = true;
+            this.TurnoLbl.BackColor = System.Drawing.Color.Black;
+            this.TurnoLbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TurnoLbl.ForeColor = System.Drawing.Color.Snow;
+            this.TurnoLbl.Location = new System.Drawing.Point(23, 26);
+            this.TurnoLbl.Name = "TurnoLbl";
+            this.TurnoLbl.Size = new System.Drawing.Size(170, 37);
+            this.TurnoLbl.TabIndex = 23;
+            this.TurnoLbl.Text = "Turno de: ";
             // 
             // Sala
             // 
@@ -256,7 +256,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1202, 724);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.TurnoLbl);
             this.Controls.Add(this.StartBtn);
             this.Controls.Add(this.Salir_Sala_Btn);
             this.Controls.Add(this.labelDynamicBalance);
@@ -315,6 +315,6 @@
         private System.Windows.Forms.Label labelStaticBalance;
         private System.Windows.Forms.Button Salir_Sala_Btn;
         private System.Windows.Forms.Button StartBtn;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label TurnoLbl;
     }
 }

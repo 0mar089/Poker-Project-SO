@@ -24,18 +24,16 @@ namespace WindowsFormsApplication1 {
         public string usuario { get; set; }
         public Socket server;
         public int num_sala { get; set; }
-        public string turno;
 
         public bool IsHost;
 
 
-        public Sala(string usuario , int num_sala , Socket server , string host , string personaTurno) {
+        public Sala(string usuario , int num_sala , Socket server , string host) {
             InitializeComponent();
 
             this.usuario = usuario;
             this.server = server;
             this.num_sala = num_sala;
-            turno = personaTurno;
 
             if ( this.usuario == host ) {
                 this.IsHost = true;
@@ -515,7 +513,19 @@ namespace WindowsFormsApplication1 {
 
         //    return true;
         //}
-        public void SetTurno() {
+        public void SetTurnoJugador(string personaTurno) {
+
+            TurnoLbl.Text = $"Turno de: {personaTurno}";
+
+
+        }
+        
+        // Aquí como se tienen que esperar, no puedes usar los botones. 
+        public void SetEsperaJugador(string personaTurno) {
+
+            TurnoLbl.Text = $"Turno de: {personaTurno}";
+
+
 
         }
 
@@ -532,7 +542,6 @@ namespace WindowsFormsApplication1 {
         }
 
         private void StartBtn_Click(object sender , EventArgs e) {
-            label1.Text = "Turno de: " + turno;
             string mensaje = "9/" + this.usuario + "/" + this.num_sala;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
