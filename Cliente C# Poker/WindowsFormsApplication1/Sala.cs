@@ -97,22 +97,14 @@ namespace WindowsFormsApplication1 {
             pictureBoxes[7].Location = new Point(468 , 118);
             pictureBoxes[8].Location = new Point(569 , 118);
 
-
-
-
-            CallButton.Size = new Size(120 , 50);  // Tamaño fijo del botón
-            RaiseButton.Size = new Size(120 , 50);  // Tamaño fijo del botón
-            FoldButton.Size = new Size(120 , 50);  // Tamaño fijo del botón
-            CheckButton.Size = new Size(120 , 50);  // Tamaño fijo del botón
-
-            CallButton.Location = new Point(1027 , 508);
-            RaiseButton.Location = new Point(1027 , 612);
-            FoldButton.Location = new Point(1027 , 560);
-            CheckButton.Location = new Point(1027 , 456);
+            ApostarBtn.Location = new Point(1009 , 500);
+            RetirarBtn.Location = new Point(1009, 580);
 
 
             player2Lbl.Location = new Point(469 , 58);
             player1Lbl.Location = new Point(469 , 592);
+            ApostarBtn.Enabled = false;
+            RetirarBtn.Enabled = false;
 
             this.Imagenes = pictureBoxes;
 
@@ -161,13 +153,7 @@ namespace WindowsFormsApplication1 {
             }
             CartasActualizadas?.Invoke(this , EventArgs.Empty);
         }
-        private void ActualizarCartas(List<string> cartas) {
-            // Asumiendo que 'cartas' contiene los nombres de las imágenes
-            for ( int i = 0; i < cartas.Count; i++ ) {
-                string nombreCarta = cartas[i];
-                SetImagenCarta(nombreCarta , i);
-            }
-        }
+
         private void SetImagenCarta(string nombreCarta , int index) {
 
             try {
@@ -516,7 +502,8 @@ namespace WindowsFormsApplication1 {
         public void SetTurnoJugador(string personaTurno) {
 
             TurnoLbl.Text = $"Turno de: {personaTurno}";
-
+            ApostarBtn.Enabled = true;
+            RetirarBtn.Enabled = true;
 
         }
         
@@ -525,8 +512,13 @@ namespace WindowsFormsApplication1 {
 
             TurnoLbl.Text = $"Turno de: {personaTurno}";
 
+            ApostarBtn.Enabled = false;
+            RetirarBtn.Enabled = false;
 
-
+            // Enviamos otro mensaje al servidor para hacer que genere la apuesta inicial. 
+            string mensaje = "12/" + this.num_sala;
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
         }
 
         public void Empezar_Partida() {

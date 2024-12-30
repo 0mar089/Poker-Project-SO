@@ -35,10 +35,6 @@
             this.pictureBox7 = new System.Windows.Forms.PictureBox();
             this.pictureBox9 = new System.Windows.Forms.PictureBox();
             this.pictureBox8 = new System.Windows.Forms.PictureBox();
-            this.CheckButton = new System.Windows.Forms.Button();
-            this.CallButton = new System.Windows.Forms.Button();
-            this.FoldButton = new System.Windows.Forms.Button();
-            this.RaiseButton = new System.Windows.Forms.Button();
             this.player1Lbl = new System.Windows.Forms.Label();
             this.player2Lbl = new System.Windows.Forms.Label();
             this.labelDynamicBalance = new System.Windows.Forms.Label();
@@ -46,6 +42,8 @@
             this.Salir_Sala_Btn = new System.Windows.Forms.Button();
             this.StartBtn = new System.Windows.Forms.Button();
             this.TurnoLbl = new System.Windows.Forms.Label();
+            this.ApostarBtn = new System.Windows.Forms.Button();
+            this.RetirarBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -128,42 +126,6 @@
             this.pictureBox8.Size = new System.Drawing.Size(87, 115);
             this.pictureBox8.TabIndex = 9;
             this.pictureBox8.TabStop = false;
-            // 
-            // CheckButton
-            // 
-            this.CheckButton.Location = new System.Drawing.Point(1027, 456);
-            this.CheckButton.Name = "CheckButton";
-            this.CheckButton.Size = new System.Drawing.Size(120, 46);
-            this.CheckButton.TabIndex = 11;
-            this.CheckButton.Text = "Check";
-            this.CheckButton.UseVisualStyleBackColor = true;
-            // 
-            // CallButton
-            // 
-            this.CallButton.Location = new System.Drawing.Point(1027, 508);
-            this.CallButton.Name = "CallButton";
-            this.CallButton.Size = new System.Drawing.Size(120, 46);
-            this.CallButton.TabIndex = 12;
-            this.CallButton.Text = "Call";
-            this.CallButton.UseVisualStyleBackColor = true;
-            // 
-            // FoldButton
-            // 
-            this.FoldButton.Location = new System.Drawing.Point(1027, 560);
-            this.FoldButton.Name = "FoldButton";
-            this.FoldButton.Size = new System.Drawing.Size(120, 46);
-            this.FoldButton.TabIndex = 13;
-            this.FoldButton.Text = "Fold";
-            this.FoldButton.UseVisualStyleBackColor = true;
-            // 
-            // RaiseButton
-            // 
-            this.RaiseButton.Location = new System.Drawing.Point(1027, 612);
-            this.RaiseButton.Name = "RaiseButton";
-            this.RaiseButton.Size = new System.Drawing.Size(120, 46);
-            this.RaiseButton.TabIndex = 14;
-            this.RaiseButton.Text = "Raise";
-            this.RaiseButton.UseVisualStyleBackColor = true;
             // 
             // player1Lbl
             // 
@@ -249,6 +211,24 @@
             this.TurnoLbl.TabIndex = 23;
             this.TurnoLbl.Text = "Turno de: ";
             // 
+            // ApostarBtn
+            // 
+            this.ApostarBtn.Location = new System.Drawing.Point(1009, 500);
+            this.ApostarBtn.Name = "ApostarBtn";
+            this.ApostarBtn.Size = new System.Drawing.Size(120, 49);
+            this.ApostarBtn.TabIndex = 24;
+            this.ApostarBtn.Text = "APOSTAR";
+            this.ApostarBtn.UseVisualStyleBackColor = true;
+            // 
+            // RetirarBtn
+            // 
+            this.RetirarBtn.Location = new System.Drawing.Point(1009, 580);
+            this.RetirarBtn.Name = "RetirarBtn";
+            this.RetirarBtn.Size = new System.Drawing.Size(120, 49);
+            this.RetirarBtn.TabIndex = 25;
+            this.RetirarBtn.Text = "RETIRAR";
+            this.RetirarBtn.UseVisualStyleBackColor = true;
+            // 
             // Sala
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -256,6 +236,8 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1202, 724);
+            this.Controls.Add(this.RetirarBtn);
+            this.Controls.Add(this.ApostarBtn);
             this.Controls.Add(this.TurnoLbl);
             this.Controls.Add(this.StartBtn);
             this.Controls.Add(this.Salir_Sala_Btn);
@@ -263,10 +245,6 @@
             this.Controls.Add(this.labelStaticBalance);
             this.Controls.Add(this.player2Lbl);
             this.Controls.Add(this.player1Lbl);
-            this.Controls.Add(this.RaiseButton);
-            this.Controls.Add(this.FoldButton);
-            this.Controls.Add(this.CallButton);
-            this.Controls.Add(this.CheckButton);
             this.Controls.Add(this.pictureBox9);
             this.Controls.Add(this.pictureBox8);
             this.Controls.Add(this.pictureBox7);
@@ -305,10 +283,6 @@
         private System.Windows.Forms.PictureBox pictureBox7;
         private System.Windows.Forms.PictureBox pictureBox9;
         private System.Windows.Forms.PictureBox pictureBox8;
-        private System.Windows.Forms.Button CheckButton;
-        private System.Windows.Forms.Button CallButton;
-        private System.Windows.Forms.Button FoldButton;
-        private System.Windows.Forms.Button RaiseButton;
         private System.Windows.Forms.Label player1Lbl;
         private System.Windows.Forms.Label player2Lbl;
         private System.Windows.Forms.Label labelDynamicBalance;
@@ -316,5 +290,7 @@
         private System.Windows.Forms.Button Salir_Sala_Btn;
         private System.Windows.Forms.Button StartBtn;
         private System.Windows.Forms.Label TurnoLbl;
+        private System.Windows.Forms.Button ApostarBtn;
+        private System.Windows.Forms.Button RetirarBtn;
     }
 }
