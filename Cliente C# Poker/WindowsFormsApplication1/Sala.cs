@@ -27,6 +27,7 @@ namespace WindowsFormsApplication1 {
 
         public bool IsHost;
 
+        public float Apuesta;
 
         public Sala(string usuario , int num_sala , Socket server , string host) {
             InitializeComponent();
@@ -91,8 +92,10 @@ namespace WindowsFormsApplication1 {
             pictureBoxes[3].Location = new Point(615 , 282);
             pictureBoxes[4].Location = new Point(708 , 282);
 
+
             pictureBoxes[5].Location = new Point(468 , 439);
             pictureBoxes[6].Location = new Point(569 , 439);
+
 
             pictureBoxes[7].Location = new Point(468 , 118);
             pictureBoxes[8].Location = new Point(569 , 118);
@@ -120,7 +123,7 @@ namespace WindowsFormsApplication1 {
         public void SetCartas(string[] trozos) {
             cartasJugador = new List<string>();
             cartasComunitarias = new List<string>();
-            for ( int i = 2, j = 5; i < 9; i++ ) {
+            for ( int i = 2, j = 0; i < 9; i++ ) {
 
                 string elemento = trozos[i].Trim('\0');
 
@@ -133,6 +136,11 @@ namespace WindowsFormsApplication1 {
                     string cartaComunitaria = elemento;
 
                     this.cartasComunitarias.Add(cartaComunitaria);
+                    if ( i < 5 ) {
+                        SetImagenCarta(cartaComunitaria , j);    
+                    }
+                    j++;
+
                 }
                 else {
 
@@ -515,14 +523,18 @@ namespace WindowsFormsApplication1 {
             ApostarBtn.Enabled = false;
             RetirarBtn.Enabled = false;
 
-            // Enviamos otro mensaje al servidor para hacer que genere la apuesta inicial. 
-            string mensaje = "12/" + this.num_sala;
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-            server.Send(msg);
+            if(this.Apuesta == 0) {
+                // Enviamos otro mensaje al servidor para hacer que genere la apuesta inicial. 
+                string mensaje = "12/" + this.num_sala;
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+            }
+            
         }
 
         public void SetApuesta(float apuestaInical) {
             ApuestaLbl.Text = $"APUESTA: {apuestaInical}";
+            this.Apuesta = apuestaInical;
         }
         private void Salir_Sala_Btn_Click(object sender , EventArgs e) {
             string mensaje = "10/" + this.usuario + "/" + this.num_sala;
@@ -535,6 +547,16 @@ namespace WindowsFormsApplication1 {
             string mensaje = "9/" + this.usuario + "/" + this.num_sala;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
+
+
+        }
+
+        private void ApostarBtn_Click(object sender , EventArgs e) {
+
+            string mensaje = "13/" + this.usuario + "/" + this.num_sala + "/" + this.Apuesta;
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+
         }
     }
 }

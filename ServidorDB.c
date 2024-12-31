@@ -568,6 +568,59 @@ float generarApuesta() {
     return (float) num; // Convierte el número entero a float
 }
 
+float RestarCapital(MYSQL *conn, char jugador[40], float apuesta) {
+
+    char consulta[256];
+
+    // Realizar el UPDATE directamente
+    snprintf(consulta, sizeof(consulta), 
+        "UPDATE jugadores SET capital = capital - %.2f WHERE nombre = '%s' AND capital >= %.2f;", 
+        apuesta, jugador, apuesta);
+
+    // Ejecutar la consulta
+    if (mysql_query(conn, consulta)) {
+        printf("Error al actualizar el capital del jugador '%s': %s\n", jugador, mysql_error(conn));
+        return 0;
+    }
+
+    // Verificar si se actualizó alguna fila
+    if (mysql_affected_rows(conn) == 0) {
+        printf("No se pudo restar la apuesta. El jugador '%s' podría no tener suficiente capital.\n", jugador);
+		return -1;
+    } 
+	
+	else {
+
+        printf("Capital actualizado correctamente para el jugador '%s'. Apuesta restada: %.2f\n", jugador, apuesta);
+		char query[256];
+		snprintf(query, sizeof(query), 
+        "SELECT capital FROM jugadores WHERE nombre='%s';", jugador);
+
+		if (mysql_query(conn, query)) {
+			printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
+			return;
+		}
+
+		MYSQL_RES *res = mysql_store_result(conn);
+		if (res == NULL) {
+			printf("Error al obtener el resultado: %s\n", mysql_error(conn));
+			return;
+		}
+
+		MYSQL_ROW row = mysql_fetch_row(res);
+		if (row == NULL) {
+			printf("Jugador '%s' no encontrado.\n", jugador);
+			mysql_free_result(res);
+			return;
+		}
+
+		// Obtener el capital actual del jugador
+		float capitalActual = atof(row[0]);
+		mysql_free_result(res);
+		return capitalActual;
+
+    }
+}
 
 
 
@@ -896,8 +949,36 @@ void* AtenderCliente(void* socket_desc) {
 						
 					}
 				}
+				pthread_mutex_unlock(&mutexLista);
 				usleep(1000000);
 			}
+
+			/*case 13: {
+
+			
+				int numSala;
+				char apostante[40];
+				float apuesta;
+				p = strtok(NULL, "/");
+				strcpy(apostante, p);
+				p = strtok(NULL, "/");
+				numSala = atoi(p);
+				p = strtok(NULL, "/");
+				apuesta = atof(p);
+
+
+				// Ahora que tenemos todo esto, ponemos la apuesta en el jugador y ademas le restamos de su capital.
+
+				/*
+				1. Restar la apuesta en el capital de la apostante
+				2. Seteamos su apuesta en su estructura de jugador
+				3. Enviamos a todos los jugadores de la mesa si ha apostado o no y ademas al apostante su nuevo capital
+				 
+				
+				float err = RestarCapital(conn, apostante, apuesta);
+				printf("Capital total ya despues de restar: %.2f", err);
+
+			}*/
 
 			default:{
 				printf("Comando no reconocido: %s\n", p);

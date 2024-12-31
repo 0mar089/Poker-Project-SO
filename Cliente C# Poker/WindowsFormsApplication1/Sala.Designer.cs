@@ -220,6 +220,7 @@
             this.ApostarBtn.TabIndex = 24;
             this.ApostarBtn.Text = "APOSTAR";
             this.ApostarBtn.UseVisualStyleBackColor = true;
+            this.ApostarBtn.Click += new System.EventHandler(this.ApostarBtn_Click);
             // 
             // RetirarBtn
             // 
