@@ -12,14 +12,16 @@ using System.Threading;
 using System.Drawing.Drawing2D;
 using System.Security.Cryptography;
 using DeckCard;
+using System.Xml.Linq;
 
 namespace WindowsFormsApplication1 {
     public partial class Sala : Form {
 
         public PictureBox[] Imagenes = new PictureBox[9];
 
-        List<string> cartasJugador;
+        List<string> cartasJugador1;
         List<string> cartasComunitarias;
+        List<string> cartasJugador2;
 
         public string usuario { get; set; }
         public Socket server;
@@ -121,9 +123,10 @@ namespace WindowsFormsApplication1 {
 
 
         public void SetCartas(string[] trozos) {
-            cartasJugador = new List<string>();
+            cartasJugador1 = new List<string>();
             cartasComunitarias = new List<string>();
-            for ( int i = 2, j = 0; i < 9; i++ ) {
+            cartasJugador2 = new List<string>();
+            for ( int i = 2, j = 0; i < 11; i++ ) {
 
                 string elemento = trozos[i].Trim('\0');
 
@@ -142,13 +145,17 @@ namespace WindowsFormsApplication1 {
                     j++;
 
                 }
-                else {
+                else if(7 <= i && i <= 8){
 
                     string cartaJugador = elemento;
                     // Asignar imagen a PictureBox
-                    this.cartasJugador.Add(cartaJugador);
+                    this.cartasJugador1.Add(cartaJugador);
                     SetImagenCarta(cartaJugador , j);
                     j++;
+                }
+                else {
+                    string cartaJugador = elemento;
+                    this.cartasJugador2.Add(cartaJugador);
                 }
             }
             //ya se han puesto todas las cartas, ahora avisamos de que empieza la partida
@@ -513,6 +520,13 @@ namespace WindowsFormsApplication1 {
             ApostarBtn.Enabled = true;
             RetirarBtn.Enabled = true;
 
+            if ( this.Apuesta == 0 ) {
+                // Enviamos otro mensaje al servidor para hacer que genere la apuesta inicial. 
+                string mensaje = "12/" + this.num_sala;
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+            }
+
         }
         
         // Aquí como se tienen que esperar, no puedes usar los botones. 
@@ -522,14 +536,19 @@ namespace WindowsFormsApplication1 {
 
             ApostarBtn.Enabled = false;
             RetirarBtn.Enabled = false;
-
-            if(this.Apuesta == 0) {
-                // Enviamos otro mensaje al servidor para hacer que genere la apuesta inicial. 
-                string mensaje = "12/" + this.num_sala;
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
-            }
             
+        }
+        
+        public void SetNuevoBalance(string balance) {
+
+            labelDynamicBalance.Text = balance;
+        }
+
+        public void QuitarTurnos() {
+            TurnoLbl.Text = $"Turno de: ";
+        }
+        public void CalcularGanador() {
+
         }
 
         public void SetApuesta(float apuestaInical) {

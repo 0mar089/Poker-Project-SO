@@ -30,6 +30,7 @@ typedef struct{
 	char nombre[20];
 	int socket;
 	float apuesta;
+	int haApostado; // 0 si no ha apostado, 1 si ha apostado
 }Player;
 
 typedef struct{
@@ -37,6 +38,8 @@ typedef struct{
 	Player players[4];
 	int num_players;
 	int turnoActual; // Indica el indice de la lista de jugadores, del 0 al 3; osea 4 jugadores, el cual le toca jugar actualmente
+	int numApuestas; // Cuantas apuestas llevamos
+	float ApuestaTotal; // Indica la cantidad de dinero que hay en el centro de la mesa que se llevará el ganador
 }Sala;
 
 typedef struct{
@@ -562,11 +565,6 @@ void NotificarEstadoSalas(MYSQL *conn, ListaConectados *conectados) {
 }
 
 
-float generarApuesta() {
-    int num = rand() % 50 + 1; // Genera un número entre 1 y 50
-
-    return (float) num; // Convierte el número entero a float
-}
 
 float RestarCapital(MYSQL *conn, char jugador[40], float apuesta) {
 
@@ -574,7 +572,7 @@ float RestarCapital(MYSQL *conn, char jugador[40], float apuesta) {
 
     // Realizar el UPDATE directamente
     snprintf(consulta, sizeof(consulta), 
-        "UPDATE jugadores SET capital = capital - %.2f WHERE nombre = '%s' AND capital >= %.2f;", 
+        "UPDATE Jugadores SET capital = capital - %.2f WHERE nombre = '%s' AND capital >= %.2f;", 
         apuesta, jugador, apuesta);
 
     // Ejecutar la consulta
@@ -594,24 +592,24 @@ float RestarCapital(MYSQL *conn, char jugador[40], float apuesta) {
         printf("Capital actualizado correctamente para el jugador '%s'. Apuesta restada: %.2f\n", jugador, apuesta);
 		char query[256];
 		snprintf(query, sizeof(query), 
-        "SELECT capital FROM jugadores WHERE nombre='%s';", jugador);
+        "SELECT capital FROM Jugadores WHERE nombre='%s';", jugador);
 
 		if (mysql_query(conn, query)) {
 			printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
-			return;
+			return -1;
 		}
 
 		MYSQL_RES *res = mysql_store_result(conn);
 		if (res == NULL) {
 			printf("Error al obtener el resultado: %s\n", mysql_error(conn));
-			return;
+			return -1;
 		}
 
 		MYSQL_ROW row = mysql_fetch_row(res);
 		if (row == NULL) {
 			printf("Jugador '%s' no encontrado.\n", jugador);
 			mysql_free_result(res);
-			return;
+			return 0;
 		}
 
 		// Obtener el capital actual del jugador
@@ -622,6 +620,22 @@ float RestarCapital(MYSQL *conn, char jugador[40], float apuesta) {
     }
 }
 
+int VerificarApuestas(ListaSalas *salas, int numSala){
+
+	int indexSala = numSala - 1;
+	if(salas->salas[indexSala].numApuestas == salas->salas[indexSala].num_players) {
+
+		//La gente ha apostado
+		return 1;
+		
+	}
+	else if(salas->salas[indexSala].numApuestas != salas->salas[indexSala].num_players) {
+
+		return 0;
+		
+	}
+
+}
 
 
 int socket_num;
@@ -645,6 +659,7 @@ void* AtenderCliente(void* socket_desc) {
 		if (ret > 0) {
 			buff[ret] = '\0';
 			printf("Mensaje recibido: %s\n", buff);
+			buff[strcspn(buff, "\r\n")] = 0; // Limpia el mensaje
 		} else {
 			printf("Error al recibir datos\n");
 			close(sock_conn);
@@ -653,6 +668,11 @@ void* AtenderCliente(void* socket_desc) {
 		}
 
 		char *p = strtok(buff, "/");
+		if (p == NULL) {
+			printf("Error: mensaje malformado\n");
+			continue;
+		}
+
 
 		switch (atoi(p)) { // Convierte `p` a un número para simplificar
 			case 0: { // Desconexión
@@ -821,7 +841,7 @@ void* AtenderCliente(void* socket_desc) {
 				CrearMazo(mazo);
 				MezclarMazo(mazo);
 				
-
+				pthread_mutex_lock(&mutexLista);
 				RepartirCartas(mazo, comunitarias, jugador1, jugador2);
 
 				int socketsPlayers[4];
@@ -848,12 +868,13 @@ void* AtenderCliente(void* socket_desc) {
 
 				// DE MOMENTO PARA DOS JUGADORES, SE VUELVE A COPIAR DOS VECES MAS Y CAMBIAR LA GENERACION DE CARTAS SI QUEREMOS PARA 4 JUGADORES
 				strcpy(response, "");
-				snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador1);
+				snprintf(response, sizeof(response), "9/%d/%s/%s/%s/", numSala, cartasComunitarias, cartasJugador1, cartasJugador2);
 				write(socketsPlayers[0], response, strlen(response));
 
 				strcpy(response, "");
-				snprintf(response, sizeof(response), "9/%d/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
+				snprintf(response, sizeof(response), "9/%d/%s/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
 				write(socketsPlayers[1], response, strlen(response));
+				pthread_mutex_unlock(&mutexLista);
 				usleep(100000);
 				break;
 			}
@@ -866,9 +887,9 @@ void* AtenderCliente(void* socket_desc) {
 				strcpy(nombreCliente, p);
 				p = strtok(NULL, "/");
 				numSala = atoi(p);
-
+				pthread_mutex_lock(&mutexLista);	
 				int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
-				
+				pthread_mutex_unlock(&mutexLista);
 				char notificacion[300];
 				sprintf(notificacion, "10/%d/%d", numSala, a);
 				int j;
@@ -905,7 +926,7 @@ void* AtenderCliente(void* socket_desc) {
 
 				for(int i = 0; i<4; i++){
 					
-					if(sockets_players[i] != -1){
+					if(sockets_players[i] != -1 && sockets_players[i] != sock_conn){
 						char turno[60] = "";
 						snprintf(turno, sizeof(turno), "11/0/%d/%s", numSala, nombreTurno);
 						write(sockets_players[i], turno, strlen(turno));
@@ -919,20 +940,20 @@ void* AtenderCliente(void* socket_desc) {
 					}
 
 				}
-				usleep(1000000);
 				break;
 			}
 
 			case 12: {
 				
 				// Empieza la partida y generamos todas las apuestas y ciclar turnos
+
 				int numSala;
 				p = strtok(NULL, "/");
 				numSala = atoi(p);
 
 				//Generamos la apuesta incial. 
-
-				float apuestaInicial = generarApuesta();
+				
+				float apuestaInicial = (float)(rand() % 50 + 1); // Genera un número aleatorio entre 1 y 50 (convertido a float)
 				printf("APUESTA INCIAL: %.2f", apuestaInicial);
 
 				// Enviamos la apuesta a todos los jugadores de esa sala
@@ -943,7 +964,7 @@ void* AtenderCliente(void* socket_desc) {
 				char notificaciónSala[100];
 				for(int i = 0; i<4; i++){
 					
-					if(sockets_players[i] != -1){
+					if(sockets_players[i] != -1 || sockets_players[i] != NULL){
 						snprintf(notificaciónSala, sizeof(notificaciónSala), "12/%.2f/%d", apuestaInicial, numSala);
 						write(sockets_players[i], notificaciónSala, strlen(notificaciónSala));
 						
@@ -951,11 +972,13 @@ void* AtenderCliente(void* socket_desc) {
 				}
 				pthread_mutex_unlock(&mutexLista);
 				usleep(1000000);
+
+				break;
 			}
 
-			/*case 13: {
+			case 13: {
 
-			
+				
 				int numSala;
 				char apostante[40];
 				float apuesta;
@@ -973,13 +996,101 @@ void* AtenderCliente(void* socket_desc) {
 				1. Restar la apuesta en el capital de la apostante
 				2. Seteamos su apuesta en su estructura de jugador
 				3. Enviamos a todos los jugadores de la mesa si ha apostado o no y ademas al apostante su nuevo capital
-				 
-				
+				*/
+				pthread_mutex_lock(&mutexLista);
+				float capitalTotal;
 				float err = RestarCapital(conn, apostante, apuesta);
-				printf("Capital total ya despues de restar: %.2f", err);
+				if (err <= 0) {
+					printf("Error al restar capital para el jugador: %s\n", apostante);
+				} 
+				else {
+					printf("Capital total ya después de restar: %.2f\n", err);
+					int indexSala = numSala - 1;
+					salas.salas[indexSala].ApuestaTotal = salas.salas[indexSala].ApuestaTotal + apuesta;
+					salas.salas[indexSala].numApuestas++;
+					printf("APUESTA TOTAL SALA %d: %.2f\n", numSala, salas.salas[indexSala].ApuestaTotal);
+					capitalTotal = err;
+					
+				}
+				
+				// Ahora que ha apostado, verificamos si se han hecho las apuestas
+				
+				int er = VerificarApuestas(&salas, numSala);
+				if(er) {
+					// han apostado todos, enviamos un mensaje al primer jugador de la sala para que haga el calculo de cartas y para decir quien ha ganado
+					int indexSala = numSala - 1;
+					int socketHost = salas.salas[indexSala].players[0].socket;
+					
+					
+					printf("RONDA SALA %d ACABADA\n", numSala);
 
-			}*/
+					int sockets_players[4];
+					ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
 
+					for(int i = 0; i<4; i++) {
+
+						if(sockets_players[i]==socketHost && sockets_players[i] != -1){
+
+							char info[100];
+							snprintf(info, sizeof(info) ,"14/1/%d", numSala);
+							write(sockets_players[i], info, strlen(info));
+						}
+						else if(sockets_players[i] != socketHost && sockets_players[i] != -1) {
+
+							char info[100];
+							snprintf(info, sizeof(info) ,"14/0/%d", numSala);
+							write(sockets_players[i], info, strlen(info));
+						}
+					}
+					
+				}
+				else {
+
+					// falta gente por apostar, asi que conseguimos el siguiente turno
+					int indexSala = numSala - 1;
+					salas.salas[indexSala].turnoActual++;
+					int turnoActual = salas.salas[indexSala].turnoActual;
+					int sockets_players[4];
+					ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+
+					char nombreTurno[60] = "";
+					strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
+
+					printf("\nSALA %d\n", numSala);
+					printf("Turno de: %s\n", nombreTurno);
+					
+
+					int socketTurno = salas.salas[indexSala].players[turnoActual].socket;
+
+					for(int i = 0; i<4; i++){
+						
+
+						if(sockets_players[i] == socketTurno) {
+
+							char turno[60] = "";
+							snprintf(turno, sizeof(turno), "13/1/%d/%s", numSala, nombreTurno);
+							write(sockets_players[i], turno, strlen(turno));
+						}
+						else if(sockets_players[i] != -1 && sockets_players[i] != sock_conn){
+							char turno[60];
+							snprintf(turno, sizeof(turno), "13/0/%d/%s", numSala, nombreTurno);
+							write(sock_conn, turno, strlen(turno));
+							
+						}
+						else if(sockets_players[i] == sock_conn){
+
+							char turno[60];
+							snprintf(turno, sizeof(turno), "13/2/%d/%s/%.2f", numSala, nombreTurno, capitalTotal);
+							write(sock_conn, turno, strlen(turno));
+						}
+						usleep(1000000);
+					}
+					pthread_mutex_unlock(&mutexLista);
+				}
+
+			}
+
+			
 			default:{
 				printf("Comando no reconocido: %s\n", p);
 				break;

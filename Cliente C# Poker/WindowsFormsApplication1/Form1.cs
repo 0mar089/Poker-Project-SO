@@ -12,6 +12,7 @@ using System.Threading;
 using System.Drawing.Drawing2D;
 using System.Security.Cryptography;
 using System.Globalization;
+using System.Xml.Linq;
 
 namespace WindowsFormsApplication1 {
     public partial class Form1 : Form {
@@ -299,6 +300,70 @@ namespace WindowsFormsApplication1 {
                         salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
 
                         salaExistente.SetApuesta(apuestaInicial);
+
+                        break;
+
+                    case 13:
+                        if(mensaje == "1" ) {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetTurnoJugador(personaTurno);
+
+                        }
+                        else if(mensaje == "0" ) {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetEsperaJugador(personaTurno);
+                            
+                        }
+                        else if(mensaje == "2" ) {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            string balanceNuevo = trozos[4].Trim('\0');
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            if (float.TryParse(balanceNuevo , out float numero) ){
+                                salaExistente.SetNuevoBalance(balanceNuevo);
+                            }
+
+                            salaExistente.SetEsperaJugador(personaTurno);
+
+                        }
+
+
+                        break;
+
+                    case 14:
+
+                        if(mensaje == "1" ) {
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                            salaExistente.QuitarTurnos();
+                            salaExistente.CalcularGanador();
+                        }
+                        else {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                            salaExistente.QuitarTurnos();
+
+                        }
+
+                        
 
                         break;
                 }
