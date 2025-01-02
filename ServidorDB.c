@@ -40,6 +40,7 @@ typedef struct{
 	int turnoActual; // Indica el indice de la lista de jugadores, del 0 al 3; osea 4 jugadores, el cual le toca jugar actualmente
 	int numApuestas; // Cuantas apuestas llevamos
 	float ApuestaTotal; // Indica la cantidad de dinero que hay en el centro de la mesa que se llevará el ganador
+	int ronda; // Indica el numero de ronda en el que esta la sala. Va de 0 a 2. 0 = ronda 1 , 2 = ronda 3
 }Sala;
 
 typedef struct{
@@ -872,7 +873,7 @@ void* AtenderCliente(void* socket_desc) {
 				write(socketsPlayers[0], response, strlen(response));
 
 				strcpy(response, "");
-				snprintf(response, sizeof(response), "9/%d/%s/%s/%s/", numSala, cartasComunitarias, cartasJugador2);
+				snprintf(response, sizeof(response), "9/%d/%s/%s/%s/", numSala, cartasComunitarias, cartasJugador2, cartasJugador1);
 				write(socketsPlayers[1], response, strlen(response));
 				pthread_mutex_unlock(&mutexLista);
 				usleep(100000);
@@ -920,7 +921,8 @@ void* AtenderCliente(void* socket_desc) {
 				
 				char nombreTurno[60] = "";
 				strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
-				printf("\nSALA %d\n", numSala);
+				int ronda = salas.salas[indexSala].ronda;
+				printf("\nSALA %d RONDA %d\n", numSala, ronda);
 				printf("Turno de: %s\n", nombreTurno);
 				pthread_mutex_unlock(&mutexLista);
 
@@ -954,7 +956,7 @@ void* AtenderCliente(void* socket_desc) {
 				//Generamos la apuesta incial. 
 				
 				float apuestaInicial = (float)(rand() % 50 + 1); // Genera un número aleatorio entre 1 y 50 (convertido a float)
-				printf("APUESTA INCIAL: %.2f", apuestaInicial);
+				printf("APUESTA INCIAL: %.2f\n", apuestaInicial);
 
 				// Enviamos la apuesta a todos los jugadores de esa sala
 				pthread_mutex_lock(&mutexLista);
@@ -989,6 +991,7 @@ void* AtenderCliente(void* socket_desc) {
 				p = strtok(NULL, "/");
 				apuesta = atof(p);
 
+				int ronda = salas.salas[numSala - 1].ronda;
 
 				// Ahora que tenemos todo esto, ponemos la apuesta en el jugador y ademas le restamos de su capital.
 
@@ -997,6 +1000,9 @@ void* AtenderCliente(void* socket_desc) {
 				2. Seteamos su apuesta en su estructura de jugador
 				3. Enviamos a todos los jugadores de la mesa si ha apostado o no y ademas al apostante su nuevo capital
 				*/
+
+				printf("\n-------------------------------");
+				printf("\n SALA %d RONDA %d\n", numSala, ronda);
 				pthread_mutex_lock(&mutexLista);
 				float capitalTotal;
 				float err = RestarCapital(conn, apostante, apuesta);
@@ -1013,81 +1019,138 @@ void* AtenderCliente(void* socket_desc) {
 					
 				}
 				
-				// Ahora que ha apostado, verificamos si se han hecho las apuestas
+				// Ahora que se ha apostado, verificamos si se han hecho todas las apuestas de la sala
 				
 				int er = VerificarApuestas(&salas, numSala);
 				if(er) {
-					// han apostado todos, enviamos un mensaje al primer jugador de la sala para que haga el calculo de cartas y para decir quien ha ganado
+					// Si han apostado todos, verificamos que ronda es
 					int indexSala = numSala - 1;
+					ronda = salas.salas[indexSala].ronda;
 					int socketHost = salas.salas[indexSala].players[0].socket;
+					/*
+					Si la ronda es 0 o 1, quiere decir que se acaba una ronda por lo tanto: 
+					- Enviamos al ultimo jugador su nuevo balance, es decir al ultimo que pulsó el boton apostar que es el sock_conn
+					- Enviamos a todos el nuevo nombre del jugador que le toca
 					
-					
-					printf("RONDA SALA %d ACABADA\n", numSala);
+					*/
+					if(ronda==0 || ronda == 1){
+						
+						//Enviamos un mensaje a los jugadores para que vuelvan a apostar con una nueva carta comunitaria
+						printf("\nSALA %d RONDA %d ACABADA\n", numSala, ronda);
 
-					int sockets_players[4];
-					ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+						int sockets_players[4];
+						ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
 
-					for(int i = 0; i<4; i++) {
+						salas.salas[indexSala].ronda++;
+						salas.salas[indexSala].numApuestas = 0;
+						char nombreTurno[60] = "";
+						strncpy(nombreTurno, salas.salas[indexSala].players[0].nombre, sizeof(nombreTurno) - 1);
+						salas.salas[indexSala].turnoActual = 0;
+						for(int i = 0; i<4; i++){
 
-						if(sockets_players[i]==socketHost && sockets_players[i] != -1){
+							if(sockets_players[i] == sock_conn){
 
-							char info[100];
-							snprintf(info, sizeof(info) ,"14/1/%d", numSala);
-							write(sockets_players[i], info, strlen(info));
+								char respuesta[100];
+								snprintf(respuesta, sizeof(respuesta), "15/1/%d/%d/%s/%.2f/", numSala, ronda, nombreTurno, capitalTotal);
+								write(sockets_players[i], respuesta, strlen(respuesta));
+
+							}
+							else if(sockets_players[i] != sock_conn && sockets_players[i] != -1){
+
+								char respuesta[100];
+								snprintf(respuesta, sizeof(respuesta), "15/0/%d/%d/%s/", numSala, ronda, nombreTurno);
+								write(sockets_players[i], respuesta, strlen(respuesta));
+							}
+							usleep(100000);
 						}
-						else if(sockets_players[i] != socketHost && sockets_players[i] != -1) {
+						
 
-							char info[100];
-							snprintf(info, sizeof(info) ,"14/0/%d", numSala);
-							write(sockets_players[i], info, strlen(info));
-						}
 					}
 					
+					// Si la ronda es 2 quiere decir que se acaba la partida, enviamos el mensaje para hacer el calculo de las cartas
+					else if(ronda == 2){
+
+						printf("SALA %d FINALIZADA\n", numSala);
+
+						int sockets_players[4];
+						ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+						salas.salas[indexSala].turnoActual = 0;
+						for(int i = 0; i<4; i++) {
+
+							if(sockets_players[i]==socketHost && sockets_players[i] != -1){
+
+								char info[100];
+								snprintf(info, sizeof(info) ,"14/1/%d", numSala);
+								write(sockets_players[i], info, strlen(info));
+							}
+							else if(sockets_players[i] != socketHost && sockets_players[i] != -1) {
+
+								char info[100];
+								snprintf(info, sizeof(info) ,"14/0/%d", numSala);
+								write(sockets_players[i], info, strlen(info));
+							}
+							usleep(100000);
+						}
+
+
+					}
+					pthread_mutex_unlock(&mutexLista);
+					
 				}
+
+				// si no han apostado todos, quiere decir que debemos conseguir el siguiente turno para que sigan apostando
 				else {
+					
 
 					// falta gente por apostar, asi que conseguimos el siguiente turno
 					int indexSala = numSala - 1;
 					salas.salas[indexSala].turnoActual++;
 					int turnoActual = salas.salas[indexSala].turnoActual;
-					int sockets_players[4];
-					ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
+					if(turnoActual == 0 || turnoActual == 1){
 
-					char nombreTurno[60] = "";
-					strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
+						ronda = salas.salas[indexSala].ronda;
+						int sockets_players[4];
+						ObtenerSocketsPlayersSala(&salas, numSala, sockets_players);
 
-					printf("\nSALA %d\n", numSala);
-					printf("Turno de: %s\n", nombreTurno);
-					
-
-					int socketTurno = salas.salas[indexSala].players[turnoActual].socket;
-
-					for(int i = 0; i<4; i++){
+						char nombreTurno[60] = "";
+						strncpy(nombreTurno, salas.salas[indexSala].players[turnoActual].nombre, sizeof(nombreTurno) - 1);
+						printf("Siguiente Turno de: %s\n", nombreTurno);
 						
 
-						if(sockets_players[i] == socketTurno) {
+						int socketTurno = salas.salas[indexSala].players[turnoActual].socket;
 
-							char turno[60] = "";
-							snprintf(turno, sizeof(turno), "13/1/%d/%s", numSala, nombreTurno);
-							write(sockets_players[i], turno, strlen(turno));
-						}
-						else if(sockets_players[i] != -1 && sockets_players[i] != sock_conn){
-							char turno[60];
-							snprintf(turno, sizeof(turno), "13/0/%d/%s", numSala, nombreTurno);
-							write(sock_conn, turno, strlen(turno));
+						for(int i = 0; i<4; i++){
 							
-						}
-						else if(sockets_players[i] == sock_conn){
 
-							char turno[60];
-							snprintf(turno, sizeof(turno), "13/2/%d/%s/%.2f", numSala, nombreTurno, capitalTotal);
-							write(sock_conn, turno, strlen(turno));
+							if(sockets_players[i] == socketTurno) {
+
+								char turno[60] = "";
+								snprintf(turno, sizeof(turno), "13/1/%d/%s", numSala, nombreTurno);
+								write(sockets_players[i], turno, strlen(turno));
+							}
+							else if(sockets_players[i] != -1 && sockets_players[i] != sock_conn && sockets_players[i] != socketTurno){
+								char turno[60];
+								snprintf(turno, sizeof(turno), "13/0/%d/%s", numSala, nombreTurno);
+								write(sock_conn, turno, strlen(turno));
+								
+							}
+							else if(sockets_players[i] == sock_conn){
+
+								char turno[60];
+								snprintf(turno, sizeof(turno), "13/2/%d/%s/%.2f", numSala, nombreTurno, capitalTotal);
+								write(sock_conn, turno, strlen(turno));
+							}
+							usleep(1000000);
+						
 						}
-						usleep(1000000);
 					}
-					pthread_mutex_unlock(&mutexLista);
+					else{
+						printf("\n SE HAN BUGEADO LOS TURNOS \n");
+					}
+					
 				}
-
+				pthread_mutex_unlock(&mutexLista);
+				break;
 			}
 
 			

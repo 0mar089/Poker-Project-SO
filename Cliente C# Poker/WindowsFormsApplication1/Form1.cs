@@ -303,7 +303,8 @@ namespace WindowsFormsApplication1 {
 
                         break;
 
-                    case 13:
+                    case 13: // ROTACIÓN DE TURNOS CUANDO LA GENTE APUESTA
+
                         if(mensaje == "1" ) {
 
                             numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
@@ -347,7 +348,7 @@ namespace WindowsFormsApplication1 {
 
                         break;
 
-                    case 14:
+                    case 14: // CUANDO SE HA ACABADO LA PARTIDA Y TODAS LAS RONDAS
 
                         if(mensaje == "1" ) {
                             numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
@@ -364,6 +365,20 @@ namespace WindowsFormsApplication1 {
                         }
 
                         
+
+                        break;
+
+                    case 15: // ROTACIÓN DE RONDAS CUANDO SE ACABA UNA
+
+
+                        numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                        int ronda = Convert.ToInt32(trozos[3].Split('\0')[0]);
+                        string nombreTurno = trozos[4].Split('\0')[0];
+                        salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                        if(mensaje == "1") {
+                            salaExistente.SetNuevoBalance(trozos[5].Split('\0')[0]);
+                        }
+                        salaExistente.SetTurnosRonda(ronda, nombreTurno);
 
                         break;
                 }

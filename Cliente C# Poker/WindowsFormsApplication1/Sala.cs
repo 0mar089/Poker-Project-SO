@@ -555,6 +555,43 @@ namespace WindowsFormsApplication1 {
             ApuestaLbl.Text = $"APUESTA: {apuestaInical}";
             this.Apuesta = apuestaInical;
         }
+
+
+        public void SetTurnosRonda(int ronda, string nombreTurno) {
+
+            if(this.usuario == nombreTurno ) {
+
+                SetTurnoJugador(nombreTurno);
+            }
+            else {
+                SetEsperaJugador(nombreTurno);
+            }
+
+            if(ronda == 0 ) {
+
+                // Levantamos la 4 carta comunitaria
+
+                string cartaComunitaria4 = this.cartasComunitarias[3];
+
+                SetImagenCarta(cartaComunitaria4 , 3);
+
+            }
+            else {
+
+                // Levantamos la 5 carta comunitaria
+
+                string cartaComunitaria4 = this.cartasComunitarias[4];
+
+                SetImagenCarta(cartaComunitaria4 , 4);
+
+            }
+
+        }
+
+
+
+
+        // BOTONES
         private void Salir_Sala_Btn_Click(object sender , EventArgs e) {
             string mensaje = "10/" + this.usuario + "/" + this.num_sala;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
