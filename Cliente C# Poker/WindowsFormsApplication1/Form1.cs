@@ -11,6 +11,8 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Drawing.Drawing2D;
 using System.Security.Cryptography;
+using System.Globalization;
+using System.Xml.Linq;
 
 namespace WindowsFormsApplication1 {
     public partial class Form1 : Form {
@@ -20,35 +22,29 @@ namespace WindowsFormsApplication1 {
         string usuario;
         int num_sala;
         List<Sala> salas = new List<Sala>();
-        public Form1()
-        {
+
+        public Form1() {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
         }
 
-        private void Form1_Load(object sender , EventArgs e)
-        {
+        private void Form1_Load(object sender , EventArgs e) {
             ButtonInvite.Enabled = false;
         }
-        public void Obtener_Numero_Sala (int num)
-        {
-            num = this.num_sala;
-        }
 
 
-        private void AtenderServidor()
-        {
-            while (true) {
-                byte[] msg = new byte[80];
+        private void AtenderServidor() {
+            while ( true ) {
+                byte[] msg = new byte[1024];
                 server.Receive(msg);
                 string[] trozos = Encoding.ASCII.GetString(msg).Split('/');
                 int codigo = Convert.ToInt32(trozos[0]);
                 string mensaje = trozos[1].Split('\0')[0];
 
-                switch (codigo) {
+                switch ( codigo ) {
                     case 1:
                         // Respuesta al Register
-                        if (mensaje == "REGISTERED") {
+                        if ( mensaje == "REGISTERED" ) {
 
                             MessageBox.Show("Registro Exitoso");
                         }
@@ -60,7 +56,7 @@ namespace WindowsFormsApplication1 {
 
                     case 2:
                         // Respuesta al Login
-                        if (mensaje == "LOGGED_IN") {
+                        if ( mensaje == "LOGGED_IN" ) {
 
                             MessageBox.Show("Login Exitoso");
                         }
@@ -76,7 +72,7 @@ namespace WindowsFormsApplication1 {
                         int numConectados;
 
                         // Verifica que el mensaje contiene un número válido de usuarios conectados
-                        if (!int.TryParse(mensaje , out numConectados) || numConectados < 0) {
+                        if ( !int.TryParse(mensaje , out numConectados) || numConectados < 0 ) {
                             MessageBox.Show("Datos inválidos recibidos del servidor.");
                             break;
                         }
@@ -84,9 +80,9 @@ namespace WindowsFormsApplication1 {
                         DataTable dt = new DataTable();
                         dt.Columns.Add("Nombre");
 
-                        for (int i = 0; i < numConectados; i++) {
+                        for ( int i = 0; i < numConectados; i++ ) {
                             // Verifica que el índice existe en el array
-                            if (i + 2 < trozos.Length) {
+                            if ( i + 2 < trozos.Length ) {
                                 string Nombres = trozos[i + 2].Split('\0')[0];
                                 dt.Rows.Add(Nombres);
                             }
@@ -97,66 +93,76 @@ namespace WindowsFormsApplication1 {
                         }
 
                         // Asignar el DataSource
-                        this.Invoke((MethodInvoker)delegate {
+                        this.Invoke((MethodInvoker) delegate {
                             dataGridViewConectados.DataSource = dt;
                         });
                         break;
 
                     case 5:
-                        // El mensaje recibido es del tipo: 5/name/Te ha invitado name
+                        // El mensaje recibido es del tipo: 5/n/name/Te ha invitado name
 
-                        if (mensaje == "2")
-                        {
-                            if (trozos.Length >= 4) // Verifica que el mensaje contiene al menos 3 partes
+                        if ( mensaje == "2" ) {
+                            if ( trozos.Length >= 4 ) // Verifica que el mensaje contiene al menos 3 partes
                             {
                                 string nombre = trozos[2]; // Nombre del usuario que invita
 
                                 // Muestra un MessageBox con botones "Sí" y "No"
                                 DialogResult resultado = MessageBox.Show(
-                                    $"Te ha invitado: {nombre}","",
+                                    $"Te ha invitado: {nombre}" , "" ,
                                     MessageBoxButtons.OKCancel // Botones Aceptar y Cnacelar
                                 );
 
-                                if (resultado == DialogResult.OK)
-                                {
+                                if ( resultado == DialogResult.OK ) {
                                     // Lógica para aceptar la invitación
-                                    ThreadStart ts = delegate { EntrarSalaPoker(); };
-                                    Thread t = new Thread(ts);
-                                    t.Start();
-                                    MessageBox.Show("Has aceptado la invitación.", "Resultado");
-
-                                }
-                                else if (resultado == DialogResult.Cancel)
-                                {
-                                    // Lógica para rechazar la invitación
-                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario;
+                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario + "/SI";
                                     byte[] msg2 = Encoding.ASCII.GetBytes(mensaje_decision);
                                     server.Send(msg2);
-                                    MessageBox.Show("Has rechazado la invitación.", "Resultado");
+
+
+                                    MessageBox.Show("Has aceptado la invitación." , "Resultado");
+
+                                    int numSalaInvitador = Convert.ToInt32(trozos[3]);
+                                    string mensaje_unir_sala_invitador = "7/" + this.usuario + "/" + numSalaInvitador;
+                                    byte[] msg5 = System.Text.Encoding.ASCII.GetBytes(mensaje_unir_sala_invitador);
+                                    server.Send(msg5);
+                                    textChat.Clear();
+
+                                }
+                                else if ( resultado == DialogResult.Cancel ) {
+                                    // Lógica para rechazar la invitación
+                                    string mensaje_decision = "5/1/" + nombre + "/" + this.usuario + "/NO";
+                                    byte[] msg2 = Encoding.ASCII.GetBytes(mensaje_decision);
+                                    server.Send(msg2);
+                                    MessageBox.Show("Has rechazado la invitación." , "Resultado");
                                 }
                             }
-                            else
-                            {
+                            else {
                                 // Manejo de error si el mensaje no tiene el formato esperado
                                 MessageBox.Show("Mensaje de invitación incompleto recibido.");
                             }
 
-                            
+
                         }
-                        else if(mensaje=="1")
-                        {
+                        else if ( mensaje == "1" ) {
+
                             string mensajeInvitacion = trozos[2]; // Nombre del usuario que invita
+                            string respuesta = trozos[3]; // Su respuesta
 
-
-                            // Muestra un MessageBox con botones "Sí" y "No"
-                            DialogResult resultado = MessageBox.Show(
+                            if ( respuesta == "SI" ) {
+                                DialogResult resultado = MessageBox.Show(
+                                $" {mensajeInvitacion} ha aceptado tu invitación");
+                            }
+                            else if ( respuesta == "NO" ) {                   
+                                DialogResult resultado = MessageBox.Show(
                                 $" {mensajeInvitacion} ha rechazado tu invitación");
+                            }
+
                         }
                         break;
                     case 6:
 
                         // Asignar el DataSource
-                        this.Invoke((MethodInvoker)delegate {
+                        this.Invoke((MethodInvoker) delegate {
                             Chat.Items.Add(trozos[1]);
                         });
                         break;
@@ -166,41 +172,46 @@ namespace WindowsFormsApplication1 {
 
                     case 7:
 
+                        // Se recibe tipo numGente/numSala/nombre1/nombre2.../balanceDeLaPersona
                         int gente = Convert.ToInt32(mensaje);
+                        int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
 
-                        if(gente != -1 ) {
-                            MessageBox.Show("Te has unido");
-                            int numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                        // Verificamos si la sala ya está abierta
+                        Sala salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
 
+                        if ( salaExistente == null ) {
+                            // Si no existe, es un nuevo jugador uniéndose
+                            MessageBox.Show("Te has unido la sala" + numSala);
+
+                            // Actualizamos el label correspondiente según el número de sala
                             switch ( numSala ) {
                                 case 1:
-                                    label1.Text = $"{gente+1}/4";
+                                    label1.Text = $"{gente + 1}/4";
                                     break;
                                 case 2:
-                                    label5.Text = $"{gente+1}/4";
+                                    label5.Text = $"{gente + 1}/4";
                                     break;
                                 case 3:
-                                    label6.Text = $"{gente+1}/4";
+                                    label6.Text = $"{gente + 1}/4";
                                     break;
                                 case 4:
-                                    label7.Text = $"{gente+1}/4";
+                                    label7.Text = $"{gente + 1}/4";
                                     break;
                             }
 
-                            // ENTRA AL NUEVO FORMULARIO PARA JUGAR AL POKER
+                            // Creamos la sala y lanzamos el nuevo hilo
                             this.num_sala = numSala;
-                            ThreadStart ts = delegate { EntrarSalaPoker(); };
+                            ThreadStart ts = delegate { EntrarSalaPoker(trozos); };
                             Thread t = new Thread(ts);
                             t.Start();
-
-
                         }
                         else {
-                            MessageBox.Show("Sala llena");
+                            // Si ya existe, simplemente actualizamos los nombres en la sala
+                            salaExistente.SetNombres(trozos , this.usuario);
                         }
 
-
                         break;
+
 
                     case 8:
 
@@ -215,7 +226,7 @@ namespace WindowsFormsApplication1 {
 
                         for ( int i = 2; i < 5; i++ ) {
                             numGenteSala = Convert.ToInt32(trozos[i].Split('\0')[0]);
-                            if(i == 2 ) {
+                            if ( i == 2 ) {
                                 label5.Text = $"{numGenteSala}/4";
                             }
                             if ( i == 3 ) {
@@ -228,32 +239,152 @@ namespace WindowsFormsApplication1 {
                         break;
 
                     case 9:
-
-                        int numeroSala = Convert.ToInt32(mensaje);
-                        
-                        salas[numeroSala].SetNombres(trozos, this.usuario);
+                        // se recibe tipo numSala/carta1/carta2/carta3/carta4/carta5/carta1/carta2/
+                        // de la 1 a la 5 son comunitarias, y las pareja para un jugador ( solo tienes tus cartas )
+                        numSala = Convert.ToInt32(trozos[1].Split('\0')[0]);
+                        salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                        salaExistente.SetCartas(trozos);
 
                         break;
 
                     case 10:
                         int num_Sala = Convert.ToInt32(mensaje);
-                        int numpersonas= Convert.ToInt32(trozos[2].Split('\0')[0]);
-                        switch (num_Sala)
-                        {
+                        int numpersonas = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                        switch ( num_Sala ) {
                             case 1:
                                 label1.Text = $"{numpersonas}/4";
+                                ButtonInvite.Enabled = false;
                                 break;
                             case 2:
                                 label5.Text = $"{numpersonas}/4";
+                                ButtonInvite.Enabled = false;
                                 break;
                             case 3:
                                 label6.Text = $"{numpersonas}/4";
+                                ButtonInvite.Enabled = false;
                                 break;
                             case 4:
                                 label7.Text = $"{numpersonas}/4";
+                                ButtonInvite.Enabled = false;
                                 break;
                         }
+                        break;
 
+                    case 11:
+
+                        if ( mensaje == "1" ) {
+                            // SI ES UN 1 ES QUE LE TOCA JUGAR AL JUGADOR
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetTurnoJugador(personaTurno);
+
+                        }
+                        else {
+                            // SI ES UN 0 ES QUE LE TOCA ESPERAR AL JUGADOR
+
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetEsperaJugador(personaTurno);
+                        }
+                        break;
+
+                    case 12:
+
+                        float apuestaInicial = float.Parse(trozos[1] , CultureInfo.InvariantCulture);
+                        numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                        salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                        salaExistente.SetApuesta(apuestaInicial);
+
+                        break;
+
+                    case 13: // ROTACIÓN DE TURNOS CUANDO LA GENTE APUESTA
+
+                        if(mensaje == "1" ) {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetTurnoJugador(personaTurno);
+
+                        }
+                        else if(mensaje == "0" ) {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            salaExistente.SetEsperaJugador(personaTurno);
+                            
+                        }
+                        else if(mensaje == "2" ) {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
+                            string personaTurno = trozos[3].Split('\0')[0];
+
+                            string balanceNuevo = trozos[4].Trim('\0');
+
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+
+                            if (float.TryParse(balanceNuevo , out float numero) ){
+                                salaExistente.SetNuevoBalance(balanceNuevo);
+                            }
+
+                            salaExistente.SetEsperaJugador(personaTurno);
+
+                        }
+
+
+                        break;
+
+                    case 14: // CUANDO SE HA ACABADO LA PARTIDA Y TODAS LAS RONDAS
+
+                        if(mensaje == "1" ) {
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                            salaExistente.QuitarTurnos();
+                            salaExistente.CalcularGanador();
+                        }
+                        else {
+
+                            numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                            salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                            salaExistente.QuitarTurnos();
+
+                        }
+
+                        
+
+                        break;
+
+                    case 15: // ROTACIÓN DE RONDAS CUANDO SE ACABA UNA
+
+
+                        numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                        int ronda = Convert.ToInt32(trozos[3].Split('\0')[0]);
+                        string nombreTurno = trozos[4].Split('\0')[0];
+                        salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
+                        if(mensaje == "1") {
+                            salaExistente.SetNuevoBalance(trozos[5].Split('\0')[0]);
+                        }
+                        salaExistente.SetTurnosRonda(ronda, nombreTurno);
 
                         break;
                 }
@@ -262,22 +393,23 @@ namespace WindowsFormsApplication1 {
 
         }
 
-        private void EntrarSalaPoker() {
-            Sala s = new Sala(this.usuario , this.num_sala , server);
+        private void EntrarSalaPoker(string[] trozos) {
+
+            Sala s = new Sala(this.usuario , this.num_sala , server , trozos[3]);
             salas.Add(s);
             ButtonInvite.Enabled = true;
+            s.SetNombres(trozos , this.usuario);
             s.ShowDialog();
 
         }
 
         // Botón para registrar
-        private void buttonRegister_Click_1(object sender , EventArgs e)
-        {
+        private void buttonRegister_Click_1(object sender , EventArgs e) {
             try {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50058);
+                IPEndPoint ipep = new IPEndPoint(direc , 50057);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
@@ -287,7 +419,7 @@ namespace WindowsFormsApplication1 {
                     MessageBox.Show("Conectado");
 
                 }
-                catch (SocketException ex) {
+                catch ( SocketException ex ) {
                     //Si hay excepcion imprimimos error y salimos del programa con return 
                     MessageBox.Show("No he podido conectar con el servidor");
                     this.Close();
@@ -298,7 +430,7 @@ namespace WindowsFormsApplication1 {
                 server.Send(msg);
 
             }
-            catch (Exception ex) {
+            catch ( Exception ex ) {
 
                 MessageBox.Show("Error");
                 Desconnect();
@@ -313,14 +445,13 @@ namespace WindowsFormsApplication1 {
 
 
         // Botón para iniciar sesión
-        private void buttonLogin_Click_1(object sender , EventArgs e)
-        {
+        private void buttonLogin_Click_1(object sender , EventArgs e) {
             try {
 
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50055);
+                IPEndPoint ipep = new IPEndPoint(direc , 50057);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
@@ -330,7 +461,7 @@ namespace WindowsFormsApplication1 {
                     MessageBox.Show("Conectado");
 
                 }
-                catch (SocketException ex) {
+                catch ( SocketException ex ) {
                     //Si hay excepcion imprimimos error y salimos del programa con return 
                     MessageBox.Show("No he podido conectar con el servidor");
                     this.Close();
@@ -342,7 +473,7 @@ namespace WindowsFormsApplication1 {
                 server.Send(msg);
 
             }
-            catch (Exception ex) {
+            catch ( Exception ex ) {
                 MessageBox.Show("Error de servidor o no has puesto todos los campos");
                 Desconnect();
             }
@@ -353,8 +484,7 @@ namespace WindowsFormsApplication1 {
         }
 
 
-        public void Desconnect()
-        {
+        public void Desconnect() {
 
             string mensaje = "0/";
 
@@ -372,11 +502,10 @@ namespace WindowsFormsApplication1 {
             server.Close();
         }
 
-        private void buttonInvite_Click(object sender , EventArgs e)
-        {
+        private void buttonInvite_Click(object sender , EventArgs e) {
             try {
                 // Verifica que hay un usuario seleccionado en el DataGridView
-                if (dataGridViewConectados.CurrentRow == null) {
+                if ( dataGridViewConectados.CurrentRow == null ) {
                     MessageBox.Show("Selecciona un usuario para invitar.");
                     return;
                 }
@@ -391,13 +520,12 @@ namespace WindowsFormsApplication1 {
 
                 MessageBox.Show($"Se ha enviado una invitacion a {usuarioInvitado}.");
             }
-            catch (Exception ex) {
+            catch ( Exception ex ) {
                 MessageBox.Show("Error al enviar la invitación: " + ex.Message);
             }
         }
 
-        private void Escribir_Click(object sender , EventArgs e)
-        {
+        private void Escribir_Click(object sender , EventArgs e) {
             string mensaje = "6/" + nombre.Text + "/" + textChat.Text;
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
@@ -406,8 +534,7 @@ namespace WindowsFormsApplication1 {
 
 
         // BOTON PARA SALIR
-        private void button1_Click(object sender , EventArgs e)
-        {
+        private void button1_Click(object sender , EventArgs e) {
             Desconnect();
             Application.Exit();
         }

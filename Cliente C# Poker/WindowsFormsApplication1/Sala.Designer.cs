@@ -35,16 +35,16 @@
             this.pictureBox7 = new System.Windows.Forms.PictureBox();
             this.pictureBox9 = new System.Windows.Forms.PictureBox();
             this.pictureBox8 = new System.Windows.Forms.PictureBox();
-            this.CheckButton = new System.Windows.Forms.Button();
-            this.CallButton = new System.Windows.Forms.Button();
-            this.FoldButton = new System.Windows.Forms.Button();
-            this.RaiseButton = new System.Windows.Forms.Button();
             this.player1Lbl = new System.Windows.Forms.Label();
             this.player2Lbl = new System.Windows.Forms.Label();
             this.labelDynamicBalance = new System.Windows.Forms.Label();
             this.labelStaticBalance = new System.Windows.Forms.Label();
-            this.randomCards = new System.Windows.Forms.Button();
             this.Salir_Sala_Btn = new System.Windows.Forms.Button();
+            this.StartBtn = new System.Windows.Forms.Button();
+            this.TurnoLbl = new System.Windows.Forms.Label();
+            this.ApostarBtn = new System.Windows.Forms.Button();
+            this.RetirarBtn = new System.Windows.Forms.Button();
+            this.ApuestaLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -128,42 +128,6 @@
             this.pictureBox8.TabIndex = 9;
             this.pictureBox8.TabStop = false;
             // 
-            // CheckButton
-            // 
-            this.CheckButton.Location = new System.Drawing.Point(1027, 456);
-            this.CheckButton.Name = "CheckButton";
-            this.CheckButton.Size = new System.Drawing.Size(120, 46);
-            this.CheckButton.TabIndex = 11;
-            this.CheckButton.Text = "Check";
-            this.CheckButton.UseVisualStyleBackColor = true;
-            // 
-            // CallButton
-            // 
-            this.CallButton.Location = new System.Drawing.Point(1027, 508);
-            this.CallButton.Name = "CallButton";
-            this.CallButton.Size = new System.Drawing.Size(120, 46);
-            this.CallButton.TabIndex = 12;
-            this.CallButton.Text = "Call";
-            this.CallButton.UseVisualStyleBackColor = true;
-            // 
-            // FoldButton
-            // 
-            this.FoldButton.Location = new System.Drawing.Point(1027, 560);
-            this.FoldButton.Name = "FoldButton";
-            this.FoldButton.Size = new System.Drawing.Size(120, 46);
-            this.FoldButton.TabIndex = 13;
-            this.FoldButton.Text = "Fold";
-            this.FoldButton.UseVisualStyleBackColor = true;
-            // 
-            // RaiseButton
-            // 
-            this.RaiseButton.Location = new System.Drawing.Point(1027, 612);
-            this.RaiseButton.Name = "RaiseButton";
-            this.RaiseButton.Size = new System.Drawing.Size(120, 46);
-            this.RaiseButton.TabIndex = 14;
-            this.RaiseButton.Text = "Raise";
-            this.RaiseButton.UseVisualStyleBackColor = true;
-            // 
             // player1Lbl
             // 
             this.player1Lbl.AutoSize = true;
@@ -216,16 +180,6 @@
             this.labelStaticBalance.Text = "BALANCE";
             this.labelStaticBalance.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // randomCards
-            // 
-            this.randomCards.Location = new System.Drawing.Point(147, 176);
-            this.randomCards.Name = "randomCards";
-            this.randomCards.Size = new System.Drawing.Size(115, 57);
-            this.randomCards.TabIndex = 20;
-            this.randomCards.Text = "RANDOM ";
-            this.randomCards.UseVisualStyleBackColor = true;
-            this.randomCards.Click += new System.EventHandler(this.randomCards_Click);
-            // 
             // Salir_Sala_Btn
             // 
             this.Salir_Sala_Btn.Location = new System.Drawing.Point(30, 645);
@@ -236,23 +190,76 @@
             this.Salir_Sala_Btn.UseVisualStyleBackColor = true;
             this.Salir_Sala_Btn.Click += new System.EventHandler(this.Salir_Sala_Btn_Click);
             // 
+            // StartBtn
+            // 
+            this.StartBtn.Location = new System.Drawing.Point(203, 645);
+            this.StartBtn.Name = "StartBtn";
+            this.StartBtn.Size = new System.Drawing.Size(131, 61);
+            this.StartBtn.TabIndex = 22;
+            this.StartBtn.Text = "Empezar";
+            this.StartBtn.UseVisualStyleBackColor = true;
+            this.StartBtn.Click += new System.EventHandler(this.StartBtn_Click);
+            // 
+            // TurnoLbl
+            // 
+            this.TurnoLbl.AutoSize = true;
+            this.TurnoLbl.BackColor = System.Drawing.Color.Black;
+            this.TurnoLbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TurnoLbl.ForeColor = System.Drawing.Color.Snow;
+            this.TurnoLbl.Location = new System.Drawing.Point(23, 26);
+            this.TurnoLbl.Name = "TurnoLbl";
+            this.TurnoLbl.Size = new System.Drawing.Size(170, 37);
+            this.TurnoLbl.TabIndex = 23;
+            this.TurnoLbl.Text = "Turno de: ";
+            // 
+            // ApostarBtn
+            // 
+            this.ApostarBtn.Location = new System.Drawing.Point(1009, 500);
+            this.ApostarBtn.Name = "ApostarBtn";
+            this.ApostarBtn.Size = new System.Drawing.Size(120, 49);
+            this.ApostarBtn.TabIndex = 24;
+            this.ApostarBtn.Text = "APOSTAR";
+            this.ApostarBtn.UseVisualStyleBackColor = true;
+            this.ApostarBtn.Click += new System.EventHandler(this.ApostarBtn_Click);
+            // 
+            // RetirarBtn
+            // 
+            this.RetirarBtn.Location = new System.Drawing.Point(1009, 580);
+            this.RetirarBtn.Name = "RetirarBtn";
+            this.RetirarBtn.Size = new System.Drawing.Size(120, 49);
+            this.RetirarBtn.TabIndex = 25;
+            this.RetirarBtn.Text = "RETIRAR";
+            this.RetirarBtn.UseVisualStyleBackColor = true;
+            // 
+            // ApuestaLbl
+            // 
+            this.ApuestaLbl.AutoSize = true;
+            this.ApuestaLbl.BackColor = System.Drawing.Color.Black;
+            this.ApuestaLbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ApuestaLbl.ForeColor = System.Drawing.Color.Snow;
+            this.ApuestaLbl.Location = new System.Drawing.Point(23, 88);
+            this.ApuestaLbl.Name = "ApuestaLbl";
+            this.ApuestaLbl.Size = new System.Drawing.Size(163, 37);
+            this.ApuestaLbl.TabIndex = 26;
+            this.ApuestaLbl.Text = "APUESTA:";
+            // 
             // Sala
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
-            this.ClientSize = new System.Drawing.Size(1203, 724);
+            this.ClientSize = new System.Drawing.Size(1202, 724);
+            this.Controls.Add(this.ApuestaLbl);
+            this.Controls.Add(this.RetirarBtn);
+            this.Controls.Add(this.ApostarBtn);
+            this.Controls.Add(this.TurnoLbl);
+            this.Controls.Add(this.StartBtn);
             this.Controls.Add(this.Salir_Sala_Btn);
-            this.Controls.Add(this.randomCards);
             this.Controls.Add(this.labelDynamicBalance);
             this.Controls.Add(this.labelStaticBalance);
             this.Controls.Add(this.player2Lbl);
             this.Controls.Add(this.player1Lbl);
-            this.Controls.Add(this.RaiseButton);
-            this.Controls.Add(this.FoldButton);
-            this.Controls.Add(this.CallButton);
-            this.Controls.Add(this.CheckButton);
             this.Controls.Add(this.pictureBox9);
             this.Controls.Add(this.pictureBox8);
             this.Controls.Add(this.pictureBox7);
@@ -291,15 +298,15 @@
         private System.Windows.Forms.PictureBox pictureBox7;
         private System.Windows.Forms.PictureBox pictureBox9;
         private System.Windows.Forms.PictureBox pictureBox8;
-        private System.Windows.Forms.Button CheckButton;
-        private System.Windows.Forms.Button CallButton;
-        private System.Windows.Forms.Button FoldButton;
-        private System.Windows.Forms.Button RaiseButton;
         private System.Windows.Forms.Label player1Lbl;
         private System.Windows.Forms.Label player2Lbl;
         private System.Windows.Forms.Label labelDynamicBalance;
         private System.Windows.Forms.Label labelStaticBalance;
-        private System.Windows.Forms.Button randomCards;
         private System.Windows.Forms.Button Salir_Sala_Btn;
+        private System.Windows.Forms.Button StartBtn;
+        private System.Windows.Forms.Label TurnoLbl;
+        private System.Windows.Forms.Button ApostarBtn;
+        private System.Windows.Forms.Button RetirarBtn;
+        private System.Windows.Forms.Label ApuestaLbl;
     }
 }
