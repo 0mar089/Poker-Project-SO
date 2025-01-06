@@ -112,12 +112,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DeckCard\DeckCard.csproj">
-      <Project>{8d0dcd3b-1027-4b0e-b8e6-9983f2d73287}</Project>
-      <Name>DeckCard</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Resources\10C.png" />
     <Content Include="Resources\10D.png" />
     <Content Include="Resources\10H.png" />
@@ -171,6 +165,12 @@
     <Content Include="Resources\QD.png" />
     <Content Include="Resources\QH.png" />
     <Content Include="Resources\QS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DeckCard\DeckCard.csproj">
+      <Project>{8d0dcd3b-1027-4b0e-b8e6-9983f2d73287}</Project>
+      <Name>DeckCard</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

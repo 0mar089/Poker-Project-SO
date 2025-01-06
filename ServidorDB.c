@@ -1153,6 +1153,26 @@ void* AtenderCliente(void* socket_desc) {
 				break;
 			}
 
+			case 14: {
+
+				int numSala;
+				int mejorJugador;
+				char resultado[70];
+
+				p = strtok(NULL, "/");
+				mejorJugador = atoi(p);
+
+				p = strtok(NULL, "/");
+				numSala = atoi(p);
+
+				p = strtok(NULL, "/");
+				strcpy(resultado, p);
+
+				
+
+				break;
+			}
+
 			
 			default:{
 				printf("Comando no reconocido: %s\n", p);
