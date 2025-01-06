@@ -121,6 +121,12 @@ namespace WindowsFormsApplication1 {
 
                                     MessageBox.Show("Has aceptado la invitación." , "Resultado");
 
+                                    int numSalaInvitador = Convert.ToInt32(trozos[3]);
+                                    string mensaje_unir_sala_invitador = "7/" + this.usuario + "/" + numSalaInvitador;
+                                    byte[] msg5 = System.Text.Encoding.ASCII.GetBytes(mensaje_unir_sala_invitador);
+                                    server.Send(msg5);
+                                    textChat.Clear();
+
                                 }
                                 else if ( resultado == DialogResult.Cancel ) {
                                     // Lógica para rechazar la invitación

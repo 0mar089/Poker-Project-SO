@@ -638,6 +638,17 @@ int VerificarApuestas(ListaSalas *salas, int numSala){
 
 }
 
+int ObtenerSalaDelJugador(ListaSalas *salas, char *nombreJugador) {
+    for (int i = 0; i < 4; i++) { 
+        for (int j = 0; j < salas->salas[i].num_players; j++) {
+            if (strcmp(salas->salas[i].players[j].nombre, nombreJugador) == 0) {
+                return i + 1; // Las salas se identifican como 1, 2, 3, 4
+            }
+        }
+    }
+    return -1; // No se encontró al jugador en ninguna sala
+}
+
 
 int socket_num;
 int sockets[300];
@@ -733,10 +744,16 @@ void* AtenderCliente(void* socket_desc) {
 					memset(response, 0, sizeof(response));
 					int pos = DamePosicion(&conectados, nameInvited);
 					int socketInvited = conectados.conectados[pos].socket;
-					sprintf(response, "5/2/%s/", name);
+					int salaJugadorInvita = ObtenerSalaDelJugador(&salas, name);
+
+					if (salaJugadorInvita != -1) {
+					sprintf(response, "5/2/%s/%d", name, salaJugadorInvita);
 					write(sockets[pos], response, strlen(response));
 					usleep(100000);
 					printf("Invitación enviada a %s (socket: %d)\n", nameInvited, socketInvited);
+					} else {
+						printf("Error: No se pudo encontrar la sala del jugador que invita.\n");
+					}
 				} else if (strcmp(decision, "1") == 0) {
 					char *respuesta = strtok(NULL, "/");
 					if (strcmp(respuesta, "NO") == 0) {
@@ -1150,26 +1167,6 @@ void* AtenderCliente(void* socket_desc) {
 					
 				}
 				pthread_mutex_unlock(&mutexLista);
-				break;
-			}
-
-			case 14: {
-
-				int numSala;
-				int mejorJugador;
-				char resultado[70];
-
-				p = strtok(NULL, "/");
-				mejorJugador = atoi(p);
-
-				p = strtok(NULL, "/");
-				numSala = atoi(p);
-
-				p = strtok(NULL, "/");
-				strcpy(resultado, p);
-
-				
-
 				break;
 			}
 

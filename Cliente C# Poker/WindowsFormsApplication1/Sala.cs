@@ -13,6 +13,7 @@ using System.Drawing.Drawing2D;
 using System.Security.Cryptography; 
 using System.Xml.Linq;
 using DeckCard;
+using System.Xml.Linq;
 
 namespace WindowsFormsApplication1 {
     public partial class Sala : Form {
