@@ -45,6 +45,12 @@
             this.ApostarBtn = new System.Windows.Forms.Button();
             this.RetirarBtn = new System.Windows.Forms.Button();
             this.ApuestaLbl = new System.Windows.Forms.Label();
+            this.pictureBox10 = new System.Windows.Forms.PictureBox();
+            this.pictureBox11 = new System.Windows.Forms.PictureBox();
+            this.player3Lbl = new System.Windows.Forms.Label();
+            this.player4Lbl = new System.Windows.Forms.Label();
+            this.pictureBox12 = new System.Windows.Forms.PictureBox();
+            this.pictureBox13 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -54,6 +60,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox10)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox12)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox13)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -243,6 +253,62 @@
             this.ApuestaLbl.TabIndex = 26;
             this.ApuestaLbl.Text = "APUESTA:";
             // 
+            // pictureBox10
+            // 
+            this.pictureBox10.Location = new System.Drawing.Point(1071, 258);
+            this.pictureBox10.Name = "pictureBox10";
+            this.pictureBox10.Size = new System.Drawing.Size(87, 115);
+            this.pictureBox10.TabIndex = 28;
+            this.pictureBox10.TabStop = false;
+            // 
+            // pictureBox11
+            // 
+            this.pictureBox11.Location = new System.Drawing.Point(970, 258);
+            this.pictureBox11.Name = "pictureBox11";
+            this.pictureBox11.Size = new System.Drawing.Size(87, 115);
+            this.pictureBox11.TabIndex = 27;
+            this.pictureBox11.TabStop = false;
+            // 
+            // player3Lbl
+            // 
+            this.player3Lbl.AutoSize = true;
+            this.player3Lbl.BackColor = System.Drawing.Color.Black;
+            this.player3Lbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player3Lbl.ForeColor = System.Drawing.Color.Snow;
+            this.player3Lbl.Location = new System.Drawing.Point(979, 188);
+            this.player3Lbl.Name = "player3Lbl";
+            this.player3Lbl.Size = new System.Drawing.Size(179, 37);
+            this.player3Lbl.TabIndex = 31;
+            this.player3Lbl.Text = "OPONENTE";
+            // 
+            // player4Lbl
+            // 
+            this.player4Lbl.AutoSize = true;
+            this.player4Lbl.BackColor = System.Drawing.Color.Black;
+            this.player4Lbl.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.player4Lbl.ForeColor = System.Drawing.Color.Snow;
+            this.player4Lbl.Location = new System.Drawing.Point(46, 196);
+            this.player4Lbl.Name = "player4Lbl";
+            this.player4Lbl.Size = new System.Drawing.Size(179, 37);
+            this.player4Lbl.TabIndex = 34;
+            this.player4Lbl.Text = "OPONENTE";
+            // 
+            // pictureBox12
+            // 
+            this.pictureBox12.Location = new System.Drawing.Point(138, 266);
+            this.pictureBox12.Name = "pictureBox12";
+            this.pictureBox12.Size = new System.Drawing.Size(87, 115);
+            this.pictureBox12.TabIndex = 33;
+            this.pictureBox12.TabStop = false;
+            // 
+            // pictureBox13
+            // 
+            this.pictureBox13.Location = new System.Drawing.Point(37, 266);
+            this.pictureBox13.Name = "pictureBox13";
+            this.pictureBox13.Size = new System.Drawing.Size(87, 115);
+            this.pictureBox13.TabIndex = 32;
+            this.pictureBox13.TabStop = false;
+            // 
             // Sala
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -250,6 +316,12 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1202, 724);
+            this.Controls.Add(this.player4Lbl);
+            this.Controls.Add(this.pictureBox12);
+            this.Controls.Add(this.pictureBox13);
+            this.Controls.Add(this.player3Lbl);
+            this.Controls.Add(this.pictureBox10);
+            this.Controls.Add(this.pictureBox11);
             this.Controls.Add(this.ApuestaLbl);
             this.Controls.Add(this.RetirarBtn);
             this.Controls.Add(this.ApostarBtn);
@@ -282,6 +354,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox7)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox9)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox8)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox10)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox11)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox12)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox13)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -308,5 +384,11 @@
         private System.Windows.Forms.Button ApostarBtn;
         private System.Windows.Forms.Button RetirarBtn;
         private System.Windows.Forms.Label ApuestaLbl;
+        private System.Windows.Forms.PictureBox pictureBox10;
+        private System.Windows.Forms.PictureBox pictureBox11;
+        private System.Windows.Forms.Label player3Lbl;
+        private System.Windows.Forms.Label player4Lbl;
+        private System.Windows.Forms.PictureBox pictureBox12;
+        private System.Windows.Forms.PictureBox pictureBox13;
     }
 }

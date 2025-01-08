@@ -20,9 +20,11 @@ namespace WindowsFormsApplication1 {
 
         public PictureBox[] Imagenes = new PictureBox[9];
 
-        List<string> cartasJugador1;
         List<string> cartasComunitarias;
+        List<string> cartasJugador1;
         List<string> cartasJugador2;
+        List<string> cartasJugador3;
+        List<string> cartasJugador4;
 
         public string usuario { get; set; }
         public Socket server;
@@ -31,6 +33,8 @@ namespace WindowsFormsApplication1 {
         public bool IsHost;
 
         public float Apuesta;
+
+        int numJugadores;
 
         public Sala(string usuario , int num_sala , Socket server , string host) {
             InitializeComponent();
@@ -75,7 +79,7 @@ namespace WindowsFormsApplication1 {
             PictureBox[] pictureBoxes =
             {
                 pictureBox1, pictureBox2, pictureBox3, pictureBox4, pictureBox5,
-                pictureBox6, pictureBox7, pictureBox9, pictureBox8
+                pictureBox6, pictureBox7, pictureBox8, pictureBox9, pictureBox10, pictureBox11, pictureBox12, pictureBox13
             };
 
 
@@ -100,15 +104,26 @@ namespace WindowsFormsApplication1 {
             pictureBoxes[6].Location = new Point(569 , 439);
 
 
-            pictureBoxes[7].Location = new Point(468 , 118);
-            pictureBoxes[8].Location = new Point(569 , 118);
+            pictureBoxes[7].Location = new Point(569 , 118);
+            pictureBoxes[8].Location = new Point(468 , 118);
+
+            pictureBoxes[9].Location = new Point(1071 , 258);
+            pictureBoxes[10].Location = new Point(970 , 258);
+
+            pictureBoxes[11].Location = new Point(138 , 266);
+            pictureBoxes[12].Location = new Point(37 , 266);
+
+
 
             ApostarBtn.Location = new Point(1009 , 500);
             RetirarBtn.Location = new Point(1009, 580);
 
 
-            player2Lbl.Location = new Point(469 , 58);
             player1Lbl.Location = new Point(469 , 592);
+            player2Lbl.Location = new Point(469 , 58);
+            player3Lbl.Location = new Point(979, 188);
+            player4Lbl.Location = new Point(46 , 196);
+
             ApostarBtn.Enabled = false;
             RetirarBtn.Enabled = false;
 
@@ -122,45 +137,105 @@ namespace WindowsFormsApplication1 {
             }
         }
 
+        public void SetNumJugadores(int numJugadores) {
+            this.numJugadores = numJugadores;
+        }
 
         public void SetCartas(string[] trozos) {
-            cartasJugador1 = new List<string>();
+
             cartasComunitarias = new List<string>();
-            cartasJugador2 = new List<string>();
-            for ( int i = 2, j = 0; i < 11; i++ ) {
+            cartasJugador1 = new List<string>();
+            cartasJugador2 = null;
+            cartasJugador3 = null;
+            cartasJugador4 = null;
 
-                string elemento = trozos[i].Trim('\0');
 
-                if ( elemento == "0" || string.IsNullOrEmpty(elemento) ) {
-                    break;
-                }
+            int numJugadores = int.Parse(trozos[1]);
+            if(numJugadores == 2 ) {
 
-                if ( i <= 6 ) {
-
-                    string cartaComunitaria = elemento;
-
-                    this.cartasComunitarias.Add(cartaComunitaria);
-                    if ( i < 5 ) {
-                        SetImagenCarta(cartaComunitaria , j);    
-                    }
-                    j++;
-
-                }
-                else if(7 <= i && i <= 8){
-
-                    string cartaJugador = elemento;
-                    // Asignar imagen a PictureBox
-                    this.cartasJugador1.Add(cartaJugador);
-                    SetImagenCarta(cartaJugador , j);
-                    j++;
-                }
-                else {
-                    string cartaJugador = elemento;
-                    this.cartasJugador2.Add(cartaJugador);
-                }
+                cartasJugador2 = new List<string>();
             }
-            //ya se han puesto todas las cartas, ahora avisamos de que empieza la partida
+            else if(numJugadores == 3) {
+
+                cartasJugador2 = new List<string>();
+                cartasJugador3 = new List<string>();
+
+            }
+            else if ( numJugadores == 4 ) {
+
+                cartasJugador2 = new List<string>();
+                cartasJugador3 = new List<string>();
+                cartasJugador4 = new List<string>();
+
+            }
+
+            string[] comunitarias = trozos[3].Split('/'); 
+
+            int j = 0;
+            for ( int i = 3; i < 8; i++, j++ ) {
+                
+                string cartaComunitaria = trozos[i].Trim('\0');
+                this.cartasComunitarias.Add(cartaComunitaria);
+                if ( i < 6 ) {
+                    SetImagenCarta(cartaComunitaria , j);
+                }
+                
+            }
+
+            j = 5;
+            int jugadorIndex = 0;
+            for ( int i = 8; i < 8 + numJugadores*2; i++, j++ ) 
+            {
+                string cartaJugador = trozos[i].Trim('0'); // Cada jugador tiene sus cartas separadas por '/'
+
+                if ( numJugadores == 2 || numJugadores == 1) {
+                    // 2 jugadores. Primero vienen tus cartas y luego la de los demás en orden, de 1 a 4
+                    if(i < 10 ) {
+                        this.cartasJugador1.Add(cartaJugador);
+                        SetImagenCarta(cartaJugador , j);
+                    }
+                    else {
+                        this.cartasJugador2.Add(cartaJugador);
+                    }
+                }
+                else if ( numJugadores == 3 ) {
+
+                    if ( i < 10 ) {
+                        this.cartasJugador1.Add(cartaJugador);
+                        SetImagenCarta(cartaJugador , j);
+                    }
+                    else if (i == 10 || i == 11) {
+                        this.cartasJugador2.Add(cartaJugador);
+                    }
+                    else {
+                        this.cartasJugador3.Add(cartaJugador);
+                    }
+
+                }
+                else if ( numJugadores == 4 ) {
+
+                    if ( i < 10 ) {
+                        this.cartasJugador1.Add(cartaJugador);
+                        SetImagenCarta(cartaJugador , j);
+                    }
+                    else if ( i == 10 || i == 11 ) {
+                        this.cartasJugador2.Add(cartaJugador);
+                    }
+                    else if ( i == 12 || i == 13){
+                        this.cartasJugador3.Add(cartaJugador);
+                    }
+                    else {
+                        this.cartasJugador4.Add(cartaJugador);
+                    }
+                }
+
+
+                jugadorIndex++;
+            }
+
+            // Confirmación de que las cartas han sido asignadas
             MessageBox.Show("¡Empieza la partida!");
+
             if ( this.IsHost ) {
                 // Avisamos al server de que empieza la partida
                 string mensaje = "11/" + this.num_sala;
@@ -313,6 +388,11 @@ namespace WindowsFormsApplication1 {
 
         }
 
+
+        public void SetGanador(string mensaje) {
+
+            MessageBox.Show(mensaje);
+        }
 
 
 

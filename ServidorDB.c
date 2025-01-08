@@ -497,30 +497,47 @@ void MezclarMazo(char mazo[52][5]) {
 }
 
 // Te devuelve las cartas comunitarias, las del jugador 1 y las del jugador 2
-void RepartirCartas(char mazo[52][5], char comunitarias[5][5], char jugador1[2][5], char jugador2[2][5]) {
+void RepartirCartas(char mazo[52][5], char comunitarias[5][5], int numJugadores, 
+                    char jugador1[2][5], char jugador2[2][5], 
+                    char jugador3[2][5], char jugador4[2][5]) {
     int index = 0;
-
 
     // Repartir 5 cartas comunitarias
     for (int i = 0; i < 5; i++) {
         strcpy(comunitarias[i], mazo[index]);
-		index++;
+        index++;
     }
 
-
-    // Repartir 2 cartas al jugador 1
-    for (int i = 0; i < 2; i++) {
-        strcpy(jugador1[i], mazo[index]);
-		index++;
+    // Repartir cartas a los jugadores según el número de jugadores
+    if (numJugadores >= 1) {
+        for (int i = 0; i < 2; i++) {
+            strcpy(jugador1[i], mazo[index]);
+            index++;
+        }
     }
 
-    // Repartir 2 cartas al jugador 2
-    for (int i = 0; i < 2; i++) {
-        strcpy(jugador2[i], mazo[index]);
-		index++;
+    if (numJugadores >= 2) {
+        for (int i = 0; i < 2; i++) {
+            strcpy(jugador2[i], mazo[index]);
+            index++;
+        }
     }
 
+    if (numJugadores >= 3) {
+        for (int i = 0; i < 2; i++) {
+            strcpy(jugador3[i], mazo[index]);
+            index++;
+        }
+    }
+
+    if (numJugadores >= 4) {
+        for (int i = 0; i < 2; i++) {
+            strcpy(jugador4[i], mazo[index]);
+            index++;
+        }
+    }
 }
+
 
 	//FUNCION PARA NOTIFICAR A TODOS LOS CONECTADOS CUANDO SE LOGUEA/REGISTRA ALGUIEN (Siempre que se loguea/registre alguien o se desconecte)
 
@@ -840,7 +857,7 @@ void* AtenderCliente(void* socket_desc) {
 				
 
 			case 9: {
-				// Iniciar partida
+
 				srand(time(NULL));
 
 				char nombreHost[30];
@@ -850,52 +867,65 @@ void* AtenderCliente(void* socket_desc) {
 				p = strtok(NULL, "/");
 				numSala = atoi(p);
 
+				int numJugadores = salas.salas[numSala-1].num_players;
+
 				char mazo[52][5];
 				char comunitarias[5][5];
-				char jugador1[2][5];
-				char jugador2[2][5];
-
-				// Aqui ya estan las comunitarias, jugador1 y jugador2
 				CrearMazo(mazo);
 				MezclarMazo(mazo);
-				
+
 				pthread_mutex_lock(&mutexLista);
-				RepartirCartas(mazo, comunitarias, jugador1, jugador2);
+
+				char jugador1[2][5], jugador2[2][5], jugador3[2][5], jugador4[2][5];
+				RepartirCartas(mazo, comunitarias, numJugadores, jugador1, jugador2, jugador3, jugador4);
 
 				int socketsPlayers[4];
 				ObtenerSocketsPlayersSala(&salas, numSala, socketsPlayers);
-
 
 				char cartasComunitarias[100];
 				snprintf(cartasComunitarias, sizeof(cartasComunitarias), "%s/%s/%s/%s/%s", 
 						comunitarias[0], comunitarias[1], comunitarias[2], comunitarias[3], comunitarias[4]);
 
-				char cartasJugador1[30];
-				snprintf(cartasJugador1, sizeof(cartasJugador1), "%s/%s", jugador1[0], jugador1[1]);
+				char cartasJugadores[4][30] = {0}; // Almacena las cartas de cada jugador
+				snprintf(cartasJugadores[0], sizeof(cartasJugadores[0]), "%s/%s", jugador1[0], jugador1[1]);
+				if (numJugadores > 1)
+					snprintf(cartasJugadores[1], sizeof(cartasJugadores[1]), "%s/%s", jugador2[0], jugador2[1]);
+				if (numJugadores > 2)
+					snprintf(cartasJugadores[2], sizeof(cartasJugadores[2]), "%s/%s", jugador3[0], jugador3[1]);
+				if (numJugadores > 3)
+					snprintf(cartasJugadores[3], sizeof(cartasJugadores[3]), "%s/%s", jugador4[0], jugador4[1]);
 
-				char cartasJugador2[30];
-				snprintf(cartasJugador2, sizeof(cartasJugador2), "%s/%s", jugador2[0], jugador2[1]);
-				
+				// Imprimir información para depuración
 				printf("\n-------------------------------\n");
 				printf("SALA %d\n", numSala);
 				printf("Comunitarias: %s\n", cartasComunitarias);
-				printf("Jugador 1: %s\n", cartasJugador1);
-				printf("Jugador 2: %s\n", cartasJugador2);
+				for (int i = 0; i < numJugadores; i++) {
+					printf("Jugador %d: %s\n", i + 1, cartasJugadores[i]);
+				}
 				printf("-------------------------------\n");
 
+				// Enviar datos a los jugadores
+				for (int i = 0; i < numJugadores && socketsPlayers[i] != -1; i++) {
+					strcpy(response, "");
+					snprintf(response, sizeof(response), "9/%d/%d/%s/%s", 
+							numJugadores, numSala, cartasComunitarias, cartasJugadores[i]);
 
-				// DE MOMENTO PARA DOS JUGADORES, SE VUELVE A COPIAR DOS VECES MAS Y CAMBIAR LA GENERACION DE CARTAS SI QUEREMOS PARA 4 JUGADORES
-				strcpy(response, "");
-				snprintf(response, sizeof(response), "9/%d/%s/%s/%s/", numSala, cartasComunitarias, cartasJugador1, cartasJugador2);
-				write(socketsPlayers[0], response, strlen(response));
+					// Incluir información de otros jugadores si es necesario
+					for (int j = 0; j < numJugadores; j++) {
+						if (j != i) {
+							strncat(response, "/", sizeof(response) - strlen(response) - 1);
+							strncat(response, cartasJugadores[j], sizeof(response) - strlen(response) - 1);
+						}
+					}
 
-				strcpy(response, "");
-				snprintf(response, sizeof(response), "9/%d/%s/%s/%s/", numSala, cartasComunitarias, cartasJugador2, cartasJugador1);
-				write(socketsPlayers[1], response, strlen(response));
+					write(socketsPlayers[i], response, strlen(response));
+				}
+
 				pthread_mutex_unlock(&mutexLista);
 				usleep(100000);
 				break;
 			}
+
 
 			case 10: {
 				// Salir de una sala
@@ -1167,6 +1197,37 @@ void* AtenderCliente(void* socket_desc) {
 					
 				}
 				pthread_mutex_unlock(&mutexLista);
+				break;
+			}
+
+			case 14: {
+				
+				int mejorJugador;
+				int numSala;
+				char resultado[30];
+
+				strtok(p, NULL);
+				mejorJugador = atoi(p);
+
+				strtok(p, NULL);
+				numSala = atoi(p);
+
+				strtok(p, NULL);
+				strcpy(resultado, p);
+
+				int socketsJugadores[4];
+				ObtenerSocketsPlayersSala(&salas, numSala, socketsJugadores);
+
+				char respuesta[100];
+				snprintf(respuesta, sizeof(respuesta), "16/%d/%s", numSala, resultado);
+				
+				for(int i = 0; i<4; i++){
+					if(socketsJugadores[i] != -1){
+						
+						write(socketsJugadores[i], respuesta, strlen(respuesta));
+					}
+				}
+				
 				break;
 			}
 
