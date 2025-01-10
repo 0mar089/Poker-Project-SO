@@ -266,12 +266,25 @@ namespace WindowsFormsApplication1 {
 
 
         public void SetNombres(string[] trozos , string usuario) {
-
-            // recibo esto: 7/gente/numSala/Nombre1/Nombre2.../balance/0/0/0/0
-
-            string nombre;
+            // Lista de labels donde se mostrarán los nombres
+            List<Label> labels = new List<Label> { player1Lbl , player2Lbl , player3Lbl , player4Lbl };
 
             // Empieza en el índice 3 donde comienzan los nombres
+            int labelIndex = 0;
+
+            for(int i = 0; i<trozos.Length; i++ ) {
+                string elemento = trozos[i].Trim('\0');
+
+                if ( elemento == "0" || string.IsNullOrEmpty(elemento) ) {
+                    break;
+                }
+
+                if(this.usuario == elemento ) {
+                    player1Lbl.Text = elemento;
+                    break;
+                }
+
+            }
             for ( int i = 3; i < trozos.Length; i++ ) {
                 // Limpia cualquier cadena con caracteres nulos y verifica si está vacía
                 string elemento = trozos[i].Trim('\0');
@@ -281,26 +294,26 @@ namespace WindowsFormsApplication1 {
                     break;
                 }
 
+                // Si es un número, lo asignamos como el balance y rompemos el bucle
                 if ( float.TryParse(elemento , out float numero) ) {
                     labelDynamicBalance.Text = elemento;
                     break;
                 }
 
-                // Asignamos el nombre actual
-                nombre = elemento;
+                // Asigna el nombre actual al siguiente label en la lista
+                if( i == 3 && this.usuario != elemento) {
+                    player2Lbl.Text = elemento;
+                }
+                else if( i == 4 && this.usuario != elemento ) {
+                    player3Lbl.Text = elemento;
+                }
+                else if( i == 5 && this.usuario != elemento ) {
+                    player4Lbl.Text = elemento;
+                }
 
-                // Compara con el usuario para asignar el nombre a los labels
-                if ( nombre == usuario ) {
-                    player1Lbl.Text = usuario;
-                }
-                else {
-                    player2Lbl.Text = nombre;
-                }
             }
-
-
         }
-        
+
         public void SetTurnoJugador(string personaTurno) {
 
             TurnoLbl.Text = $"Turno de: {personaTurno}";

@@ -371,13 +371,14 @@ int AddPlayerSala(ListaSalas *salas, char nombre[20], int numSala, int socket) {
     int salaIndex = numSala - 1;
 
     // Guardamos el índice actual de num_players antes de incrementarlo
-    int gente = salas->salas[salaIndex].num_players;
-
+    
+	int gente = salas->salas[salaIndex].num_players;
     // Añadimos el jugador
     strcpy(salas->salas[salaIndex].players[gente].nombre, nombre);
     salas->salas[salaIndex].players[gente].socket = socket;
     salas->salas[salaIndex].num_players++; // Incrementamos después de usar el índice
 
+	gente = salas->salas[salaIndex].num_players;
     printf("Jugador %s añadido a la Estructura sala[%d] en la posición %d\n", 
            nombre, salaIndex, gente);
     return gente; // Retornamos la cantidad total de jugadores en la sala
@@ -1153,7 +1154,7 @@ void* AtenderCliente(void* socket_desc) {
 					int indexSala = numSala - 1;
 					salas.salas[indexSala].turnoActual++;
 					int turnoActual = salas.salas[indexSala].turnoActual;
-					if(turnoActual == 0 || turnoActual == 1){
+					if(turnoActual == 0 || turnoActual == 1 || turnoActual == 2 || turnoActual == 3){
 
 						ronda = salas.salas[indexSala].ronda;
 						int sockets_players[4];
@@ -1206,13 +1207,13 @@ void* AtenderCliente(void* socket_desc) {
 				int numSala;
 				char resultado[30];
 
-				strtok(p, NULL);
+				p = strtok(NULL, "/");
 				mejorJugador = atoi(p);
 
-				strtok(p, NULL);
+				p = strtok(NULL, "/");
 				numSala = atoi(p);
 
-				strtok(p, NULL);
+				p = strtok(NULL, "/");
 				strcpy(resultado, p);
 
 				int socketsJugadores[4];
