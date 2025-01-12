@@ -26,6 +26,12 @@
 
 - [Chat + Pequeña interfaz grafica - Video en YouTube, Grabación por Diego](https://youtu.be/7AeCnWBaqSw)
 
+---
+
+## Versión Final
+
+- [Version final del juego - Video en YouTube, Grabación por Alex y Kirill](https://youtu.be/baAUnLC0CD0)
+
 ## Resumen
 
 Este documento ofrece un registro de los hitos alcanzados en el desarrollo de Poker-Project-SO, incluyendo la interfaz gráfica y la lista de usuarios conectados. Cada versión muestra los avances específicos en el proyecto, con enlaces a los videos explicativos correspondientes. 
