@@ -414,6 +414,36 @@ namespace WindowsFormsApplication1 {
 
                         break;
 
+                    case 17:
+
+                        // Split de la cadena en trozos separados por "/"
+
+                        // Configurar el DataGridView
+                        dataGridViewHistorial.Columns.Clear();
+                        dataGridViewHistorial.Rows.Clear();
+                        dataGridViewHistorial.Columns.Add("Sala" , "SALA");
+                        dataGridViewHistorial.Columns.Add("Fecha" , "FECHA");
+
+                        for ( int i = 1; i < trozos.Length; i += 2 ) {
+                            // Verificar si hemos alcanzado el final de la información
+                            if ( trozos[i] == "0" || string.IsNullOrEmpty(trozos[i]) )
+                                break;
+
+                            // Asegurarse de que haya una pareja de sala/fecha
+                            if ( i + 1 < trozos.Length ) {
+
+                                string sala = trozos[i];
+                                string fecha = trozos[i + 1];
+
+                                // Agregar fila al DataGridView
+                                dataGridViewHistorial.Rows.Add(sala , fecha);
+                            }
+                        }
+
+                        break;
+
+
+
                     
                 }
 

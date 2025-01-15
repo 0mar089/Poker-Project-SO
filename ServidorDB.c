@@ -714,6 +714,89 @@ void EliminarCuenta(MYSQL* conn, char* cuenta, char* contrasenya, int sock_conn,
 }
 
 
+// FUNCION PARA ENVIAR EL HISTORIAL DE LAS PARTIDAS JUGADAS A LOS CLIENTES
+void EnviarHistorial(MYSQL *conn, int sockets_conectados[300]) {
+
+    char query[512];
+    char respuesta[1024];
+    MYSQL_RES *res;
+    MYSQL_ROW row;
+
+    // Consulta SQL para obtener el historial de partidas
+    snprintf(query, sizeof(query), "SELECT id_mesa, date_id FROM Historial ORDER BY date_id DESC;");
+
+    if (mysql_query(conn, query)) {
+        //printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
+        strcpy(respuesta, "ERROR");
+        for (int i = 0; i < 300; i++) {
+            if (sockets_conectados[i] != -1) { // Verifica que el socket esté activo
+                write(sockets_conectados[i], respuesta, strlen(respuesta));
+            }
+        }
+        return;
+    }
+
+    res = mysql_store_result(conn);
+    if (res == NULL) {
+        //printf("Error al obtener el resultado: %s\n", mysql_error(conn));
+        strcpy(respuesta, "ERROR");
+        for (int i = 0; i < 12; i++) {
+			
+            if (sockets_conectados[i] != -1) { // Verifica que el socket esté activo
+                write(sockets_conectados[i], respuesta, strlen(respuesta));
+            }
+        }
+        return;
+    }
+
+    // Construimos el mensaje con los resultados
+    strcpy(respuesta, "17/"); // Código del mensaje
+    while ((row = mysql_fetch_row(res)) != NULL) {
+        char partida[100];
+        snprintf(partida, sizeof(partida), "%s/%s/", row[0], row[1]); // id_mesa columna 1; date_id columna 2
+        strcat(respuesta, partida);
+    }
+
+    mysql_free_result(res);
+
+    // Enviar la respuesta a todos los clientes conectados
+    for (int i = 0; i < 12; i++) {
+        if (sockets_conectados[i] != -1) { // Verifica que el socket esté activo
+            write(sockets_conectados[i], respuesta, strlen(respuesta));
+        }
+    }
+
+    // Confirmación de envío
+    printf("Historial enviado a los clientes.\n");
+}
+
+
+
+
+
+
+void RegistrarHoraActual(MYSQL *conn, int id_mesa) {
+
+    char query[256];
+    
+    // Preparar la consulta SQL para insertar el registro
+    snprintf(query, sizeof(query), 
+             "INSERT INTO Historial (id_mesa, date_id, ganador) VALUES (%d, NOW(), %d);", 
+             id_mesa, 102);
+
+    // Ejecutar la consulta
+    if (mysql_query(conn, query)) {
+        // En caso de error, mostrar mensaje
+        printf("Error al registrar la hora actual: %s\n", mysql_error(conn));
+    } 
+	else {
+        // Mensaje de éxito
+        printf("Hora registrada correctamente en la tabla Historial.\n");
+    }
+}
+
+
+
 int socket_num;
 int sockets[300];
 
@@ -779,6 +862,9 @@ void* AtenderCliente(void* socket_desc) {
 					NotificarListaConectados(&conectados);
 					NotificarEstadoSalas(conn, &conectados);
 				}
+				usleep(100000);
+				EnviarHistorial(conn, sockets);
+				usleep(100000);
 				break;
 			}
 
@@ -796,6 +882,9 @@ void* AtenderCliente(void* socket_desc) {
 					NotificarListaConectados(&conectados);
 					NotificarEstadoSalas(conn, &conectados);
 				}
+				usleep(100000);
+				EnviarHistorial(conn, sockets);
+				usleep(100000);
 				break;
 			}
 
@@ -989,6 +1078,10 @@ void* AtenderCliente(void* socket_desc) {
 					write(socketsPlayers[i], response, strlen(response));
 				}
 
+				// Actualizamos el historial de partidas
+				RegistrarHoraActual(conn, numSala);
+				usleep(100000);
+				EnviarHistorial(conn, sockets);
 				pthread_mutex_unlock(&mutexLista);
 				usleep(100000);
 				break;
