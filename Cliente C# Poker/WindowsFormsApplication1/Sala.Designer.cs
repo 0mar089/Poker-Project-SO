@@ -51,6 +51,7 @@
             this.player4Lbl = new System.Windows.Forms.Label();
             this.pictureBox12 = new System.Windows.Forms.PictureBox();
             this.pictureBox13 = new System.Windows.Forms.PictureBox();
+            this.SalaLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -309,6 +310,18 @@
             this.pictureBox13.TabIndex = 32;
             this.pictureBox13.TabStop = false;
             // 
+            // SalaLabel
+            // 
+            this.SalaLabel.AutoSize = true;
+            this.SalaLabel.BackColor = System.Drawing.Color.Black;
+            this.SalaLabel.Font = new System.Drawing.Font("MV Boli", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SalaLabel.ForeColor = System.Drawing.Color.Snow;
+            this.SalaLabel.Location = new System.Drawing.Point(657, 9);
+            this.SalaLabel.Name = "SalaLabel";
+            this.SalaLabel.Size = new System.Drawing.Size(93, 37);
+            this.SalaLabel.TabIndex = 35;
+            this.SalaLabel.Text = "SALA";
+            // 
             // Sala
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -316,6 +329,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.ClientSize = new System.Drawing.Size(1202, 724);
+            this.Controls.Add(this.SalaLabel);
             this.Controls.Add(this.player4Lbl);
             this.Controls.Add(this.pictureBox12);
             this.Controls.Add(this.pictureBox13);
@@ -390,5 +404,6 @@
         private System.Windows.Forms.Label player4Lbl;
         private System.Windows.Forms.PictureBox pictureBox12;
         private System.Windows.Forms.PictureBox pictureBox13;
+        private System.Windows.Forms.Label SalaLabel;
     }
 }

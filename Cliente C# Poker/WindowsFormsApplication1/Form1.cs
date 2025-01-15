@@ -20,6 +20,8 @@ namespace WindowsFormsApplication1 {
         Socket server;
         Thread atender;
         string usuario;
+        string email;
+        string password;
         int num_sala;
         List<Sala> salas = new List<Sala>();
 
@@ -66,6 +68,16 @@ namespace WindowsFormsApplication1 {
                         }
                         break;
 
+                    case 3: // Case para avisar al usuario si su cuenta aha sido eliminada o no
+
+                        if ( mensaje == "ELIMINATED" ) {
+                            MessageBox.Show("Usuario Eliminado Con Exito");
+                            Desconnect();
+                        }
+                        else MessageBox.Show("Error al eliminar el usuario");
+
+                        break;
+
                     case 4:
 
 
@@ -105,7 +117,7 @@ namespace WindowsFormsApplication1 {
                             if ( trozos.Length >= 4 ) // Verifica que el mensaje contiene al menos 3 partes
                             {
                                 string nombre = trozos[2]; // Nombre del usuario que invita
-
+                                //num_sala = Convert.ToInt32(trozos[3]);
                                 // Muestra un MessageBox con botones "Sí" y "No"
                                 DialogResult resultado = MessageBox.Show(
                                     $"Te ha invitado: {nombre}" , "" ,
@@ -181,7 +193,7 @@ namespace WindowsFormsApplication1 {
 
                         if ( salaExistente == null ) {
                             // Si no existe, es un nuevo jugador uniéndose
-                            MessageBox.Show("Te has unido");
+                            MessageBox.Show("Te has unido a la sala " + numSala);
 
                             // Actualizamos el label correspondiente según el número de sala
                             switch ( numSala ) {
@@ -389,18 +401,22 @@ namespace WindowsFormsApplication1 {
 
                         break;
 
-                    case 16:
+                    case 16: // Case para declarar el ganador de la sala
 
                         numSala = Convert.ToInt32(trozos[1].Split('\0')[0]);
                         salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
                         salaExistente.SetGanador(trozos[2].Split('\0')[0]);
 
                         break;
+
+                    
                 }
 
             }
 
         }
+
+
 
         private void EntrarSalaPoker(string[] trozos) {
 
@@ -418,7 +434,7 @@ namespace WindowsFormsApplication1 {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50057);
+                IPEndPoint ipep = new IPEndPoint(direc , 50059);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
@@ -434,6 +450,9 @@ namespace WindowsFormsApplication1 {
                     this.Close();
                 }
 
+                this.email = cuenta.Text;
+                this.password = contraseña.Text;
+                this.usuario = nombre.Text;
                 string mensaje = "1/" + nombre.Text + "/" + cuenta.Text + "/" + contraseña.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
@@ -460,7 +479,7 @@ namespace WindowsFormsApplication1 {
                 //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
                 //al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
-                IPEndPoint ipep = new IPEndPoint(direc , 50057);
+                IPEndPoint ipep = new IPEndPoint(direc , 50059);
 
                 //Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
@@ -476,8 +495,12 @@ namespace WindowsFormsApplication1 {
                     this.Close();
                 }
 
-                string mensaje = "2/" + cuenta.Text + "/" + contraseña.Text;
                 this.usuario = nombre.Text;
+                this.email = cuenta.Text;
+                this.password = contraseña.Text;
+
+                string mensaje = "2/" + cuenta.Text + "/" + contraseña.Text;
+
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
@@ -548,9 +571,9 @@ namespace WindowsFormsApplication1 {
             Application.Exit();
         }
 
-        private void contraseña_TextChanged(object sender , EventArgs e) {
-            contraseña.PasswordChar = '*';
-        }
+        //private void contraseña_TextChanged(object sender , EventArgs e) {
+        //    contraseña.PasswordChar = '*';
+        //}
 
 
 
@@ -583,5 +606,28 @@ namespace WindowsFormsApplication1 {
             server.Send(msg);
             textChat.Clear();
         }
+
+        
+
+        private void panel1_Click(object sender, EventArgs e)
+        {
+            if (!ButtonInvite.Enabled)
+            {
+                MessageBox.Show("Si quieres invitar a alguien, antes debes unirte a una sala.");
+            }
+            else
+            {
+                // Aquí puedes pasar el clic al botón si lo deseas.
+                ButtonInvite.PerformClick();
+            }
+        }
+
+        private void Baja_Click(object sender, EventArgs e)
+        {
+            string mensaje = "3/" + this.usuario + "/" + this.email + "/" + this.password;
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+        }
+
     }
 }

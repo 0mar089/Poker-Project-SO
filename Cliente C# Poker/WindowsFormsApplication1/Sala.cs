@@ -13,7 +13,7 @@ using System.Drawing.Drawing2D;
 using System.Security.Cryptography; 
 using System.Xml.Linq;
 using DeckCard;
-using System.Xml.Linq;
+
 
 namespace WindowsFormsApplication1 {
     public partial class Sala : Form {
@@ -67,6 +67,8 @@ namespace WindowsFormsApplication1 {
 
         private void Sala_Load(object sender , EventArgs e) {
 
+            SalaLabel.Text = "SALA: " + this.num_sala.ToString();
+            SalaLabel.Location = new Point(657 , 9);
             StartBtn.Enabled = false;
             StartBtn.Hide();
             this.ClientSize = new Size(1200 , 700);

@@ -99,6 +99,9 @@ int Eliminar(ListaConectados *lista, char nombre[20]) {
 		return 0;
 	}
 }
+
+
+
 // TE DEVUELVE LA POSICION DEL USUARIO EN LA LISTA A PARTIR DEL SOCKET
 int DamePosSock(ListaConectados *lista, int socket) {
 	int i = 0;
@@ -667,6 +670,49 @@ int ObtenerSalaDelJugador(ListaSalas *salas, char *nombreJugador) {
     return -1; // No se encontró al jugador en ninguna sala
 }
 
+void EliminarCuenta(MYSQL* conn, char* cuenta, char* contrasenya, int sock_conn, char* response) {
+
+    if (conn == NULL || cuenta == NULL || contrasenya == NULL) {
+        strcpy(response, "ERROR/INVALID_INPUT");
+        printf("Error: Parámetros inválidos proporcionados.\n");
+        return;
+    }
+
+    char query[300];
+    snprintf(query, sizeof(query), 
+             "DELETE FROM Jugadores WHERE cuenta='%s' AND contrasenya='%s';", 
+             cuenta, contrasenya);
+
+    // Ejecutar la consulta
+    if (mysql_query(conn, query)) {
+        printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
+        snprintf(response, 512, "ERROR/DB_QUERY/%s", mysql_error(conn)); // Respuesta con detalle
+        return;
+    }
+
+    // Verificar si se eliminó alguna fila
+    if (mysql_affected_rows(conn) > 0) {
+		
+        strcpy(response, "3/ELIMINATED/");
+
+        // Eliminar de la lista de conectados
+
+        EliminarWithSocket(&conectados, sock_conn);
+
+
+        // Notificar a otros clientes
+        NotificarListaConectados(&conectados);
+        NotificarEstadoSalas(conn, &conectados);
+
+        printf("Cuenta '%s' eliminada correctamente.\n", cuenta);
+    } 
+	
+	else {
+        strcpy(response, "ERROR/ACCOUNT_NOT_FOUND_OR_INVALID");
+        printf("Error: La cuenta '%s' no se encontró o la contraseña no coincide.\n", cuenta);
+    }
+}
+
 
 int socket_num;
 int sockets[300];
@@ -736,6 +782,8 @@ void* AtenderCliente(void* socket_desc) {
 				break;
 			}
 
+			
+
 			case 2: { // Inicio de sesión
 
 				char *cuenta = strtok(NULL, "/");
@@ -748,6 +796,25 @@ void* AtenderCliente(void* socket_desc) {
 					NotificarListaConectados(&conectados);
 					NotificarEstadoSalas(conn, &conectados);
 				}
+				break;
+			}
+
+			case 3: { // Darse de baja
+
+				char *nombre = strtok(NULL, "/");
+				char *cuenta = strtok(NULL, "/");
+				char *contrasenya = strtok(NULL, "/");
+
+
+				memset(response, 0, sizeof(response));
+				pthread_mutex_lock(&mutexLista);
+				EliminarCuenta(conn, cuenta, contrasenya, sock_conn, response);
+				write(sock_conn, response, strlen(response));
+				usleep(100000);
+				printf("Eliminando cuenta...");
+				NotificarListaConectados(&conectados);
+				NotificarEstadoSalas(conn, &conectados);
+				pthread_mutex_unlock(&mutexLista);
 				break;
 			}
 
@@ -1231,7 +1298,6 @@ void* AtenderCliente(void* socket_desc) {
 				
 				break;
 			}
-
 			
 			default:{
 				printf("Comando no reconocido: %s\n", p);
@@ -1299,7 +1365,7 @@ int main(int argc, char *argv[]) {
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_adr.sin_port = htons(50057);
+	serv_adr.sin_port = htons(50059);
 	
 	
 	

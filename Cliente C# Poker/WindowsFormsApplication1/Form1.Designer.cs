@@ -54,8 +54,11 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.Baja = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConectados)).BeginInit();
             this.menuStrip1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonRegister
@@ -84,6 +87,7 @@
             this.nombre.Name = "nombre";
             this.nombre.Size = new System.Drawing.Size(254, 22);
             this.nombre.TabIndex = 7;
+
             // 
             // label2
             // 
@@ -125,7 +129,7 @@
             this.contraseña.Name = "contraseña";
             this.contraseña.Size = new System.Drawing.Size(254, 22);
             this.contraseña.TabIndex = 12;
-            this.contraseña.TextChanged += new System.EventHandler(this.contraseña_TextChanged);
+
             // 
             // dataGridViewConectados
             // 
@@ -163,7 +167,7 @@
             // 
             // ButtonInvite
             // 
-            this.ButtonInvite.Location = new System.Drawing.Point(391, 360);
+            this.ButtonInvite.Location = new System.Drawing.Point(3, 0);
             this.ButtonInvite.Name = "ButtonInvite";
             this.ButtonInvite.Size = new System.Drawing.Size(77, 26);
             this.ButtonInvite.TabIndex = 26;
@@ -331,11 +335,32 @@
             this.label7.TabIndex = 45;
             this.label7.Text = "0/4";
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.ButtonInvite);
+            this.panel1.Location = new System.Drawing.Point(391, 362);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(87, 33);
+            this.panel1.TabIndex = 46;
+            this.panel1.Click += new System.EventHandler(this.panel1_Click);
+            // 
+            // Baja
+            // 
+            this.Baja.Location = new System.Drawing.Point(136, 304);
+            this.Baja.Name = "Baja";
+            this.Baja.Size = new System.Drawing.Size(113, 47);
+            this.Baja.TabIndex = 47;
+            this.Baja.Text = "Eliminar la cuenta";
+            this.Baja.UseVisualStyleBackColor = true;
+            this.Baja.Click += new System.EventHandler(this.Baja_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1291, 692);
+            this.Controls.Add(this.Baja);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -352,7 +377,6 @@
             this.Controls.Add(this.textChat);
             this.Controls.Add(this.Escribir);
             this.Controls.Add(this.Chat);
-            this.Controls.Add(this.ButtonInvite);
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.dataGridViewConectados);
             this.Controls.Add(this.contraseña);
@@ -371,6 +395,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConectados)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -406,6 +431,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button Baja;
     }
 }
 
