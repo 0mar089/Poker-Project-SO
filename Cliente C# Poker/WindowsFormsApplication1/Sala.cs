@@ -409,7 +409,19 @@ namespace WindowsFormsApplication1 {
             MessageBox.Show(mensaje);
         }
 
+        public void QuitarJugador(string nombreJugador) {
 
+            List<Label> labels = new List<Label> { player1Lbl , player2Lbl , player3Lbl , player4Lbl };
+
+            foreach ( Label lbl in labels ) {
+                if ( lbl.Text == nombreJugador ) {
+                    
+                    MessageBox.Show($"El jugador {nombreJugador} ha salido de la sala");
+                    lbl.Text = "OPONENTE";
+                    return; // Termina el método si encuentras el label
+                }
+            }
+        }
 
         // BOTONES
         private void Salir_Sala_Btn_Click(object sender , EventArgs e) {

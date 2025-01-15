@@ -1006,16 +1006,22 @@ void* AtenderCliente(void* socket_desc) {
 				pthread_mutex_lock(&mutexLista);	
 				int a=DeletePlayerSala(conn,&salas, nombreCliente,numSala, sock_conn);
 				pthread_mutex_unlock(&mutexLista);
+
+				int sockets_Players[4];
+				ObtenerSocketsPlayersSala(&salas, numSala, sockets_Players);
 				char notificacion[300];
-				sprintf(notificacion, "10/%d/%d", numSala, a);
+				sprintf(notificacion, "10/%d/%d/%s", numSala, a, nombreCliente);
 				int j;
 				for (j = 0; j<conectados.num; j++) {
 					
-					write (sockets[j], notificacion, strlen(notificacion));
+					if(sockets_Players[j] != -1){
+
+						write (sockets_Players[j], notificacion, strlen(notificacion));
+					}
 				}
 				usleep(100000);
 				break;
-			}
+		}
 
 			case 11: {
 				// Gestionar turno

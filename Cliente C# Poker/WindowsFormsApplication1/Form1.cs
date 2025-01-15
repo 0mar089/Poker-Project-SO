@@ -255,6 +255,7 @@ namespace WindowsFormsApplication1 {
                         // de la 1 a la 5 son comunitarias, y las pareja para un jugador ( solo tienes tus cartas )
                         numSala = Convert.ToInt32(trozos[2].Split('\0')[0]);
                         int numJugadores = Convert.ToInt32(trozos[2].Split('\0')[0]);
+
                         salaExistente = salas.FirstOrDefault(s => s.num_sala == numSala);
                         salaExistente.SetCartas(trozos);
 
@@ -263,6 +264,7 @@ namespace WindowsFormsApplication1 {
                     case 10:
                         int num_Sala = Convert.ToInt32(mensaje);
                         int numpersonas = Convert.ToInt32(trozos[2].Split('\0')[0]);
+                        string nombrejugador = trozos[3].Split('\0')[0];
                         switch ( num_Sala ) {
                             case 1:
                                 label1.Text = $"{numpersonas}/4";
@@ -281,6 +283,9 @@ namespace WindowsFormsApplication1 {
                                 ButtonInvite.Enabled = false;
                                 break;
                         }
+                        salaExistente = salas.FirstOrDefault(s => s.num_sala == num_Sala);
+                        salaExistente.QuitarJugador(nombrejugador);
+
                         break;
 
                     case 11:
