@@ -716,59 +716,86 @@ void EliminarCuenta(MYSQL* conn, char* cuenta, char* contrasenya, int sock_conn,
 
 // FUNCION PARA ENVIAR EL HISTORIAL DE LAS PARTIDAS JUGADAS A LOS CLIENTES
 void EnviarHistorial(MYSQL *conn, int sockets_conectados[300]) {
-
     char query[512];
-    char respuesta[1024];
+    char *respuesta;
+    size_t buffer_size = 4096; // Tamaño inicial del buffer
     MYSQL_RES *res;
     MYSQL_ROW row;
+
+    // Reservamos memoria dinámica para la respuesta
+    respuesta = (char *)malloc(buffer_size);
+    if (!respuesta) {
+        printf("Error al asignar memoria para la respuesta.\n");
+        return;
+    }
+
+    strcpy(respuesta, "17/"); // Código del mensaje inicial
 
     // Consulta SQL para obtener el historial de partidas
     snprintf(query, sizeof(query), "SELECT id_mesa, date_id FROM Historial ORDER BY date_id DESC;");
 
     if (mysql_query(conn, query)) {
-        //printf("Error al ejecutar la consulta: %s\n", mysql_error(conn));
+        // Error en la consulta SQL
         strcpy(respuesta, "ERROR");
         for (int i = 0; i < 300; i++) {
-            if (sockets_conectados[i] != -1) { // Verifica que el socket esté activo
+            if (sockets_conectados[i] != -1 && sockets_conectados[i] != 0) { // Verifica que el socket esté activo
                 write(sockets_conectados[i], respuesta, strlen(respuesta));
             }
         }
+        free(respuesta);
         return;
     }
 
     res = mysql_store_result(conn);
     if (res == NULL) {
-        //printf("Error al obtener el resultado: %s\n", mysql_error(conn));
+        // Error al obtener el resultado
         strcpy(respuesta, "ERROR");
-        for (int i = 0; i < 12; i++) {
-			
-            if (sockets_conectados[i] != -1) { // Verifica que el socket esté activo
+        for (int i = 0; i < 300; i++) {
+            if (sockets_conectados[i] != -1 && sockets_conectados[i] != 0) { // Verifica que el socket esté activo
                 write(sockets_conectados[i], respuesta, strlen(respuesta));
             }
         }
+        free(respuesta);
         return;
     }
 
-    // Construimos el mensaje con los resultados
-    strcpy(respuesta, "17/"); // Código del mensaje
+    // Construimos el mensaje con todos los resultados
     while ((row = mysql_fetch_row(res)) != NULL) {
         char partida[100];
-        snprintf(partida, sizeof(partida), "%s/%s/", row[0], row[1]); // id_mesa columna 1; date_id columna 2
+        snprintf(partida, sizeof(partida), "%s/%s/", row[0], row[1]);
+
+        // Verificamos si hay espacio suficiente en el buffer
+        if (strlen(respuesta) + strlen(partida) + 1 > buffer_size) {
+            buffer_size *= 2; // Duplicamos el tamaño del buffer si es necesario
+            char *nuevo_buffer = realloc(respuesta, buffer_size);
+            if (!nuevo_buffer) {
+                printf("Error al redimensionar el buffer de la respuesta.\n");
+                free(respuesta);
+                mysql_free_result(res);
+                return;
+            }
+            respuesta = nuevo_buffer;
+        }
+
         strcat(respuesta, partida);
     }
 
     mysql_free_result(res);
 
-    // Enviar la respuesta a todos los clientes conectados
-    for (int i = 0; i < 12; i++) {
-        if (sockets_conectados[i] != -1) { // Verifica que el socket esté activo
+    // Enviamos la respuesta a todos los clientes conectados
+    for (int i = 0; i < 300; i++) {
+        if (sockets_conectados[i] != -1 && sockets_conectados[i] != 0) { // Verifica que el socket esté activo
             write(sockets_conectados[i], respuesta, strlen(respuesta));
         }
     }
 
     // Confirmación de envío
     printf("Historial enviado a los clientes.\n");
+
+    // Liberamos la memoria asignada
+    free(respuesta);
 }
+
 
 
 
@@ -863,8 +890,6 @@ void* AtenderCliente(void* socket_desc) {
 					NotificarEstadoSalas(conn, &conectados);
 				}
 				usleep(100000);
-				EnviarHistorial(conn, sockets);
-				usleep(100000);
 				break;
 			}
 
@@ -883,8 +908,7 @@ void* AtenderCliente(void* socket_desc) {
 					NotificarEstadoSalas(conn, &conectados);
 				}
 				usleep(100000);
-				EnviarHistorial(conn, sockets);
-				usleep(100000);
+
 				break;
 			}
 
@@ -1396,6 +1420,14 @@ void* AtenderCliente(void* socket_desc) {
 				}
 				
 				break;
+			}
+
+			case 15: {
+				
+				EnviarHistorial(conn, sockets);
+				usleep(100000);
+				break;
+
 			}
 			
 			default:{

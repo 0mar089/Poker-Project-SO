@@ -49,6 +49,10 @@ namespace WindowsFormsApplication1 {
                         if ( mensaje == "REGISTERED" ) {
 
                             MessageBox.Show("Registro Exitoso");
+                            string ack = "15/";
+                            byte[] msg2 = Encoding.ASCII.GetBytes(ack);
+                            server.Send(msg2);
+
                         }
                         else {
 
@@ -61,6 +65,9 @@ namespace WindowsFormsApplication1 {
                         if ( mensaje == "LOGGED_IN" ) {
 
                             MessageBox.Show("Login Exitoso");
+                            string ack = "15/";
+                            byte[] msg2 = Encoding.ASCII.GetBytes(ack);
+                            server.Send(msg2);
                         }
                         else {
 
@@ -107,6 +114,8 @@ namespace WindowsFormsApplication1 {
                         // Asignar el DataSource
                         this.Invoke((MethodInvoker) delegate {
                             dataGridViewConectados.DataSource = dt;
+                            dataGridViewConectados.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                            dataGridViewConectados.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
                         });
                         break;
 
@@ -423,6 +432,8 @@ namespace WindowsFormsApplication1 {
                         dataGridViewHistorial.Rows.Clear();
                         dataGridViewHistorial.Columns.Add("Sala" , "SALA");
                         dataGridViewHistorial.Columns.Add("Fecha" , "FECHA");
+                        dataGridViewConectados.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                        dataGridViewConectados.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
                         for ( int i = 1; i < trozos.Length; i += 2 ) {
                             // Verificar si hemos alcanzado el final de la información
@@ -606,9 +617,9 @@ namespace WindowsFormsApplication1 {
             Application.Exit();
         }
 
-        //private void contraseña_TextChanged(object sender , EventArgs e) {
-        //    contraseña.PasswordChar = '*';
-        //}
+        private void contraseña_TextChanged(object sender , EventArgs e) {
+            contraseña.PasswordChar = '*';
+        }
 
 
 
@@ -664,5 +675,8 @@ namespace WindowsFormsApplication1 {
             server.Send(msg);
         }
 
+        private void menuStrip1_ItemClicked(object sender , ToolStripItemClickedEventArgs e) {
+
+        }
     }
 }

@@ -131,6 +131,7 @@
             this.contraseña.Name = "contraseña";
             this.contraseña.Size = new System.Drawing.Size(254, 22);
             this.contraseña.TabIndex = 12;
+            this.contraseña.TextChanged += new System.EventHandler(this.contraseña_TextChanged);
             // 
             // dataGridViewConectados
             // 
@@ -152,6 +153,7 @@
             this.menuStrip1.Size = new System.Drawing.Size(1291, 28);
             this.menuStrip1.TabIndex = 25;
             this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
             // 
             // opcionesToolStripMenuItem
             // 

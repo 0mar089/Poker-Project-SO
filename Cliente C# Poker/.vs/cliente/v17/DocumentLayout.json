@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|c:\\users\\omarb\\onedrive\\documents\\universidad\\segundo\\1 quatrimestre\\so\\proyecto-poker\\poker-project-so\\cliente c# poker\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\windowsformsapplication1\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|c:\\users\\omarb\\onedrive\\documents\\universidad\\segundo\\1 quatrimestre\\so\\proyecto-poker\\poker-project-so\\cliente c# poker\\windowsformsapplication1\\sala.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\windowsformsapplication1\\sala.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\sala.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\windowsformsapplication1\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|solutionrelative:windowsformsapplication1\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F5E08E40-5E04-41A2-AFB5-56E3E3274D24}|WindowsFormsApplication1\\clienteForm.csproj|C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\windowsformsapplication1\\sala.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -50,7 +50,7 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Sala.cs",
               "DocumentMoniker": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Sala.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Sala.cs",
@@ -60,8 +60,7 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "OverriddenGroupName": "WindowsFormsApplication1",
               "WhenOpened": "2024-11-24T12:02:09.058Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Bookmark",
@@ -79,20 +78,20 @@
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
               "ToolTip": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.cs",
               "RelativeToolTip": "WindowsFormsApplication1\\Form1.cs",
-              "ViewState": "AgIAAJgBAAAAAAAAAAAAALMBAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAACAAAAAAAAAAAAA1wCoAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-10-19T16:57:47.772Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "Form1.Designer.cs",
               "DocumentMoniker": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.Designer.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.Designer.cs",
               "ToolTip": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.Designer.cs",
               "RelativeToolTip": "WindowsFormsApplication1\\Form1.Designer.cs",
-              "ViewState": "AgIAAHUAAAAAAAAAAAArwIUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAHIAAAAAAAAAAAAvwIUAAABgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-15T09:46:15.662Z",
               "EditorCaption": ""
@@ -107,8 +106,7 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "OverriddenGroupName": "WindowsFormsApplication1",
               "OverriddenToolTip": "WindowsFormsApplication1/Sala.cs",
-              "WhenOpened": "2024-11-23T17:39:47.053Z",
-              "EditorCaption": " [Dise\u00F1o]"
+              "WhenOpened": "2024-11-23T17:39:47.053Z"
             },
             {
               "$type": "Document",
@@ -160,7 +158,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Form1.cs [Dise\u00F1o]",
               "DocumentMoniker": "C:\\Users\\omarb\\OneDrive\\Documents\\UNIVERSIDAD\\SEGUNDO\\1 quatrimestre\\SO\\PROYECTO-POKER\\Poker-Project-SO\\Cliente C# Poker\\WindowsFormsApplication1\\Form1.cs",
               "RelativeDocumentMoniker": "WindowsFormsApplication1\\Form1.cs",
