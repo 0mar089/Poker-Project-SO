@@ -58,6 +58,7 @@
             this.Baja = new System.Windows.Forms.Button();
             this.dataGridViewHistorial = new System.Windows.Forms.DataGridView();
             this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConectados)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -150,7 +151,7 @@
             this.opcionesToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1291, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1291, 30);
             this.menuStrip1.TabIndex = 25;
             this.menuStrip1.Text = "menuStrip1";
             this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
@@ -290,7 +291,7 @@
             // BtnSala4
             // 
             this.BtnSala4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnSala4.Location = new System.Drawing.Point(803, 255);
+            this.BtnSala4.Location = new System.Drawing.Point(803, 248);
             this.BtnSala4.Name = "BtnSala4";
             this.BtnSala4.Size = new System.Drawing.Size(82, 35);
             this.BtnSala4.TabIndex = 41;
@@ -332,7 +333,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(745, 259);
+            this.label7.Location = new System.Drawing.Point(745, 252);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(52, 31);
             this.label7.TabIndex = 45;
@@ -377,11 +378,22 @@
             this.label8.TabIndex = 49;
             this.label8.Text = "Historial de las ultimas partidas";
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(391, 408);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(204, 16);
+            this.label9.TabIndex = 27;
+            this.label9.Text = "Unete a una sala antes de invitar!";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(1291, 692);
+            this.Controls.Add(this.label9);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.dataGridViewHistorial);
             this.Controls.Add(this.Baja);
@@ -461,6 +473,7 @@
         private System.Windows.Forms.Button Baja;
         private System.Windows.Forms.DataGridView dataGridViewHistorial;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
     }
 }
 

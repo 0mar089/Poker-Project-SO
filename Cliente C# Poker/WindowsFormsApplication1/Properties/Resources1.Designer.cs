@@ -423,6 +423,26 @@ namespace WindowsFormsApplication1.Properties {
         /// <summary>
         ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap abstract_blur_defocused_hotel_lobby_600nw_2340724233 {
+            get {
+                object obj = ResourceManager.GetObject("abstract-blur-defocused-hotel-lobby-600nw-2340724233", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap abstract_blur_defocused_hotel_lobby_600nw_2340724233__1_ {
+            get {
+                object obj = ResourceManager.GetObject("abstract-blur-defocused-hotel-lobby-600nw-2340724233 (1)", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap AC {
             get {
                 object obj = ResourceManager.GetObject("AC", resourceCulture);
@@ -466,6 +486,16 @@ namespace WindowsFormsApplication1.Properties {
         internal static System.Drawing.Bitmap back {
             get {
                 object obj = ResourceManager.GetObject("back", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Busca un recurso adaptado de tipo System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap e3b009cb8c0e7dd8c516a4fba257793f_t__1_ {
+            get {
+                object obj = ResourceManager.GetObject("e3b009cb8c0e7dd8c516a4fba257793f_t (1)", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

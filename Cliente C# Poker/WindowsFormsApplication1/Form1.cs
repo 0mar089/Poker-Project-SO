@@ -49,6 +49,7 @@ namespace WindowsFormsApplication1 {
                         if ( mensaje == "REGISTERED" ) {
 
                             MessageBox.Show("Registro Exitoso");
+                            this.BackColor = Color.Green;
                             string ack = "15/";
                             byte[] msg2 = Encoding.ASCII.GetBytes(ack);
                             server.Send(msg2);
@@ -57,6 +58,7 @@ namespace WindowsFormsApplication1 {
                         else {
 
                             MessageBox.Show("Registro Fallido");
+                            Desconnect();
                         }
                         break;
 
@@ -65,6 +67,7 @@ namespace WindowsFormsApplication1 {
                         if ( mensaje == "LOGGED_IN" ) {
 
                             MessageBox.Show("Login Exitoso");
+                            this.BackColor = Color.Green;
                             string ack = "15/";
                             byte[] msg2 = Encoding.ASCII.GetBytes(ack);
                             server.Send(msg2);
@@ -72,6 +75,7 @@ namespace WindowsFormsApplication1 {
                         else {
 
                             MessageBox.Show("Login Fallido");
+                            Desconnect();
                         }
                         break;
 
@@ -477,70 +481,95 @@ namespace WindowsFormsApplication1 {
         // Botón para registrar
         private void buttonRegister_Click_1(object sender , EventArgs e) {
             try {
-                //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
-                //al que deseamos conectarnos
+                // Verificamos que los campos no estén vacíos
+                if ( string.IsNullOrWhiteSpace(nombre.Text) ) {
+                    MessageBox.Show("El campo 'Nombre' es obligatorio." , "Error" , MessageBoxButtons.OK , MessageBoxIcon.Error);
+                    nombre.Focus();
+                    return;
+                }
+
+                if ( string.IsNullOrWhiteSpace(cuenta.Text) ) {
+                    MessageBox.Show("El campo 'Cuenta' es obligatorio." , "Error" , MessageBoxButtons.OK , MessageBoxIcon.Error);
+                    cuenta.Focus();
+                    return;
+                }
+
+                if ( string.IsNullOrWhiteSpace(contraseña.Text) ) {
+                    MessageBox.Show("El campo 'Contraseña' es obligatorio." , "Error" , MessageBoxButtons.OK , MessageBoxIcon.Error);
+                    contraseña.Focus();
+                    return;
+                }
+
+                // Creamos un IPEndPoint con el IP del servidor y puerto del servidor al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
                 IPEndPoint ipep = new IPEndPoint(direc , 50059);
 
-                //Creamos el socket 
+                // Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
                 try {
-                    server.Connect(ipep);//Intentamos conectar el socket
-                    this.BackColor = Color.Green;
+                    server.Connect(ipep); // Intentamos conectar el socket
                     MessageBox.Show("Conectado");
-
                 }
                 catch ( SocketException ex ) {
-                    //Si hay excepcion imprimimos error y salimos del programa con return 
+                    // Si hay excepción imprimimos error y salimos del programa con return
                     MessageBox.Show("No he podido conectar con el servidor");
                     this.Close();
+                    return;
                 }
 
+                // Asignamos las variables y enviamos el mensaje al servidor
                 this.email = cuenta.Text;
                 this.password = contraseña.Text;
                 this.usuario = nombre.Text;
                 string mensaje = "1/" + nombre.Text + "/" + cuenta.Text + "/" + contraseña.Text;
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-
             }
             catch ( Exception ex ) {
-
                 MessageBox.Show("Error");
                 Desconnect();
             }
-            // pongo en marcha en thread que atenderá los mensajes del servidor
+
+            // Pongo en marcha el thread que atenderá los mensajes del servidor
             ThreadStart ts = delegate { AtenderServidor(); };
             atender = new Thread(ts);
             atender.Start();
         }
 
-
-
-
         // Botón para iniciar sesión
         private void buttonLogin_Click_1(object sender , EventArgs e) {
             try {
+                // Verificamos que los campos no estén vacíos
+                if ( string.IsNullOrWhiteSpace(cuenta.Text) ) {
+                    MessageBox.Show("El campo 'Cuenta' es obligatorio." , "Error" , MessageBoxButtons.OK , MessageBoxIcon.Error);
+                    cuenta.Focus();
+                    return;
+                }
 
-                //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
-                //al que deseamos conectarnos
+                if ( string.IsNullOrWhiteSpace(contraseña.Text) ) {
+                    MessageBox.Show("El campo 'Contraseña' es obligatorio." , "Error" , MessageBoxButtons.OK , MessageBoxIcon.Error);
+                    contraseña.Focus();
+                    return;
+                }
+
+                // Creamos un IPEndPoint con el IP del servidor y puerto del servidor al que deseamos conectarnos
                 IPAddress direc = IPAddress.Parse("10.4.119.5");
                 IPEndPoint ipep = new IPEndPoint(direc , 50059);
 
-                //Creamos el socket 
+                // Creamos el socket 
                 server = new Socket(AddressFamily.InterNetwork , SocketType.Stream , ProtocolType.Tcp);
                 try {
-                    server.Connect(ipep);//Intentamos conectar el socket
-                    this.BackColor = Color.Green;
+                    server.Connect(ipep); // Intentamos conectar el socket
                     MessageBox.Show("Conectado");
-
                 }
                 catch ( SocketException ex ) {
-                    //Si hay excepcion imprimimos error y salimos del programa con return 
+                    // Si hay excepción imprimimos error y salimos del programa con return
                     MessageBox.Show("No he podido conectar con el servidor");
                     this.Close();
+                    return;
                 }
 
+                // Asignamos las variables y enviamos el mensaje al servidor
                 this.usuario = nombre.Text;
                 this.email = cuenta.Text;
                 this.password = contraseña.Text;
@@ -549,17 +578,18 @@ namespace WindowsFormsApplication1 {
 
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-
             }
             catch ( Exception ex ) {
                 MessageBox.Show("Error de servidor o no has puesto todos los campos");
                 Desconnect();
             }
-            // pongo en marcha en thread que atenderá los mensajes del servidor
+
+            // Pongo en marcha el thread que atenderá los mensajes del servidor
             ThreadStart ts = delegate { AtenderServidor(); };
             atender = new Thread(ts);
             atender.Start();
         }
+
 
 
         public void Desconnect() {
@@ -570,14 +600,17 @@ namespace WindowsFormsApplication1 {
             server.Send(msg);
 
             // Nos desconectamos
-            this.BackColor = Color.Gray;
             server.Shutdown(SocketShutdown.Both);
-
-            atender.Abort();
             MessageBox.Show("Desconectando...");
+            nombre.Text = "";
+            cuenta.Text = "";
+            contraseña.Text = "";
 
             this.BackColor = Color.Gray;
             server.Close();
+
+            atender.Abort();
+            
         }
 
         private void buttonInvite_Click(object sender , EventArgs e) {

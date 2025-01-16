@@ -148,11 +148,14 @@
     <Content Include="Resources\9D.png" />
     <Content Include="Resources\9H.png" />
     <Content Include="Resources\9S.png" />
+    <None Include="Resources\abstract-blur-defocused-hotel-lobby-600nw-2340724233.jpg" />
+    <None Include="Resources\abstract-blur-defocused-hotel-lobby-600nw-2340724233 %281%29.jpg" />
     <Content Include="Resources\AC.png" />
     <Content Include="Resources\AD.png" />
     <Content Include="Resources\AH.png" />
     <Content Include="Resources\AS.png" />
     <Content Include="Resources\back.png" />
+    <None Include="Resources\e3b009cb8c0e7dd8c516a4fba257793f_t %281%29.jpeg" />
     <Content Include="Resources\JC.png" />
     <Content Include="Resources\JD.png" />
     <Content Include="Resources\JH.png" />
